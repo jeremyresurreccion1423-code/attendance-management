@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Subjects - AMS</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="brand"><h2>AMS</h2><small>Admin Panel</small></div>
+        <nav>
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/departments">Departments</a>
+            <a href="/admin/create">Create / Add</a>
+            <a href="/admin/students">Students</a>
+            <a href="/admin/teachers">Teachers</a>
+            <a href="/admin/subjects" class="active">Subjects</a>
+            <a href="/admin/sections">Sections</a>
+            <a href="/admin/reports">Reports</a>
+            <a href="/admin/trends">Trends</a>
+            <a href="/logout" style="margin-top:2rem; display:block;">Logout</a>
+        </nav>
+    </aside>
+    <main class="main-content">
+        
+        
+        <div class="page-header">
+            <h1>Subject &amp; Class Management</h1>
+            <div class="page-header-profile-widget">
+                <button type="button" class="profile-trigger" onclick="toggleProfileMenu(this)">
+                    <img class="profile-avatar profile-avatar-img" src="/uploads/admin.jpg?v=1782573421995" alt="Profile photo" />
+                    
+                    <span class="profile-meta">
+                        <strong>My Profile</strong>
+                        <small>admin</small>
+                    </span>
+                    <span class="profile-caret">▾</span>
+                </button>
+                <div class="profile-menu">
+                    <button type="button" class="profile-menu-action" onclick="toggleProfilePanel('profile-panel')">My Profile</button>
+                    <a href="/logout" class="profile-menu-action profile-logout">Logout</a>
+                </div>
+                <div class="profile-panel" id="profile-panel">
+                    <div class="profile-panel-title">My Profile</div>
+                    <div class="profile-summary">
+                        <div class="profile-summary-avatar">
+                            <img src="/uploads/admin.jpg?v=1782573421995" alt="Profile photo" />
+                            
+                        </div>
+                        <div class="profile-summary-meta">
+                            <strong>admin</strong>
+                            <small>ROLE_ADMIN</small>
+                        </div>
+                    </div>
+                    <div class="profile-info">
+                        <p><strong>Username:</strong> <span>admin</span></p>
+                        <p><strong>Role:</strong> <span>ROLE_ADMIN</span></p>
+                    </div>
+                    <div class="profile-panel-section">
+                        <div class="profile-panel-section-title">Upload Photo</div>
+                        <form action="/profile/photo" method="post" enctype="multipart/form-data">
+                            <div class="form-group"><input type="file" name="photo" accept="image/*" required></div>
+                            <div class="profile-panel-actions"><button type="submit" class="btn btn-primary btn-sm">Upload</button></div>
+                        </form>
+                    </div>
+                    <div class="profile-panel-section">
+                        <div class="profile-panel-section-title">Change Password</div>
+                        <form action="/profile/password" method="post">
+                            <div class="form-group"><label>Current Password</label><input type="password" name="currentPassword" class="form-control" required></div>
+                            <div class="form-group"><label>New Password</label><input type="password" name="newPassword" class="form-control" required></div>
+                            <div class="form-group"><label>Confirm Password</label><input type="password" name="confirmPassword" class="form-control" required></div>
+                            <div class="profile-panel-actions"><button type="submit" class="btn btn-primary btn-sm">Save</button></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <div>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3>Subjects - <span>BS educ</span></h3>
+                    <a href="/admin/subjects" class="btn btn-secondary">← Back to Departments</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>All Subjects</h3>
+                <table>
+                    <thead>
+                        <tr><th>Code</th><th>Name</th><th>Teacher</th><th>Section</th><th>Assign Students</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>BS123</td>
+                            <td>Entrepepe</td>
+                            <td>jeremyhahahe</td>
+                            <td>BS41</td>
+                            <td>
+                                <form action="/admin/subjects/5/assign-students" method="post">
+                                    <select name="studentIds" multiple class="form-control" style="height:60px;">
+                                        <option value="3">jeremyratbu</option>
+                                        <option value="5">Juan Dela Cruz</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-primary" style="margin-top:0.25rem;">Assign</button>
+                                </form>
+                            </td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+<script src="/js/layout.js"></script>
+<script>
+function closeAllProfileMenus() {
+    document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));
+    document.querySelectorAll('.profile-panel').forEach(panel => panel.classList.remove('show'));
+}
+function toggleProfileMenu(button) {
+    const widget = button.closest('.page-header-profile-widget') || button.closest('.sidebar-profile-widget');
+    const menu = widget ? widget.querySelector('.profile-menu') : null;
+    if (!menu) return;
+    const shouldOpen = !menu.classList.contains('show');
+    closeAllProfileMenus();
+    if (shouldOpen) menu.classList.add('show');
+}
+function toggleProfilePanel(panelId) {
+    closeAllProfileMenus();
+    const panel = document.getElementById(panelId);
+    if (panel) panel.classList.add('show');
+}
+document.addEventListener('click', function (event) {
+    const target = event.target;
+    if (!target.closest('.page-header-profile-widget') && !target.closest('.sidebar-profile-widget')) {
+        closeAllProfileMenus();
+    }
+});
+</script>
+</body>
+</html>

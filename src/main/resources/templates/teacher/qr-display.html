@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>QR Attendance - AMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="brand"><h2>AMS</h2><small>Teacher Panel</small></div>
+        <nav>
+            <a href="/teacher/attendance" class="active">Back to Attendance</a>
+            <a href="/logout" style="margin-top:2rem; display:block;">Logout</a>
+        </nav>
+    </aside>
+    <main class="main-content">
+        <div class="page-header"><h1>QR Attendance Session</h1></div>
+
+        <div class="qr-session">
+            <div class="qr-session-head">
+                <h3 th:text="${qr.subject.subjectName}">Subject</h3>
+                <p>Students scan this code to mark their attendance.</p>
+            </div>
+
+            <div class="qr-code-frame">
+                <img th:src="'data:image/png;base64,' + ${qrImage}" alt="QR Code">
+            </div>
+
+            <dl class="qr-meta">
+                <div class="qr-meta-row">
+                    <dt>Session Code</dt>
+                    <dd><code th:text="${qr.qrCode}">code</code></dd>
+                </div>
+                <div class="qr-meta-row">
+                    <dt>Expires</dt>
+                    <dd th:text="${#temporals.format(qr.expiresAt, 'MMM d, yyyy · h:mm a')}">expiry</dd>
+                </div>
+                <div class="qr-meta-row">
+                    <dt>Location</dt>
+                    <dd th:if="${latitude != null and longitude != null}"
+                        th:text="${#numbers.formatDecimal(latitude,1,5)} + ', ' + ${#numbers.formatDecimal(longitude,1,5)}">coords</dd>
+                    <dd th:unless="${latitude != null and longitude != null}" class="qr-meta-muted">Not provided</dd>
+                </div>
+            </dl>
+
+            <div class="qr-legend">
+                <span class="qr-badge qr-badge-present">Present</span>
+                <span class="qr-legend-text">within 15 min of schedule start</span>
+            </div>
+            <div class="qr-legend">
+                <span class="qr-badge qr-badge-late">Late</span>
+                <span class="qr-legend-text">scanned after 15 min</span>
+            </div>
+            <div class="qr-legend">
+                <span class="qr-badge qr-badge-absent">Absent</span>
+                <span class="qr-legend-text">no scan before session expires</span>
+            </div>
+
+            <a th:href="@{/teacher/attendance(subjectId=${qr.subject.id})}" class="btn btn-primary qr-back-btn">Back to Attendance</a>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/layout.js}"></script>
+</body>
+</html>

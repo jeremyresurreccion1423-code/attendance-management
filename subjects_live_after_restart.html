@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Subjects - AMS</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="brand"><h2>AMS</h2><small>Admin Panel</small></div>
+        <nav>
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/departments">Departments</a>
+            <a href="/admin/create">Create / Add</a>
+            <a href="/admin/students">Students</a>
+            <a href="/admin/teachers">Teachers</a>
+            <a href="/admin/subjects" class="active">Subjects</a>
+            <a href="/admin/sections">Sections</a>
+            <a href="/admin/reports">Reports</a>
+            <a href="/admin/trends">Trends</a>
+            <a href="/logout" style="margin-top:2rem; display:block;">Logout</a>
+        </nav>
+    </aside>
+    <main class="main-content">
+        
+        
+        <div class="page-header">
+            <h1>Subject &amp; Class Management</h1>
+            <div class="page-header-profile-widget">
+                <button type="button" class="profile-trigger" onclick="toggleProfileMenu(this)">
+                    <img class="profile-avatar profile-avatar-img" src="/uploads/admin.jpg?v=1782573421995" alt="Profile photo" />
+                    
+                    <span class="profile-meta">
+                        <strong>My Profile</strong>
+                        <small>admin</small>
+                    </span>
+                    <span class="profile-caret">▾</span>
+                </button>
+                <div class="profile-menu">
+                    <button type="button" class="profile-menu-action" onclick="toggleProfilePanel('profile-panel')">My Profile</button>
+                    <a href="/logout" class="profile-menu-action profile-logout">Logout</a>
+                </div>
+                <div class="profile-panel" id="profile-panel">
+                    <div class="profile-panel-title">My Profile</div>
+                    <div class="profile-summary">
+                        <div class="profile-summary-avatar">
+                            <img src="/uploads/admin.jpg?v=1782573421995" alt="Profile photo" />
+                            
+                        </div>
+                        <div class="profile-summary-meta">
+                            <strong>admin</strong>
+                            <small>ROLE_ADMIN</small>
+                        </div>
+                    </div>
+                    <div class="profile-info">
+                        <p><strong>Username:</strong> <span>admin</span></p>
+                        <p><strong>Role:</strong> <span>ROLE_ADMIN</span></p>
+                    </div>
+                    <div class="profile-panel-section">
+                        <div class="profile-panel-section-title">Upload Photo</div>
+                        <form action="/profile/photo" method="post" enctype="multipart/form-data">
+                            <div class="form-group"><input type="file" name="photo" accept="image/*" required></div>
+                            <div class="profile-panel-actions"><button type="submit" class="btn btn-primary btn-sm">Upload</button></div>
+                        </form>
+                    </div>
+                    <div class="profile-panel-section">
+                        <div class="profile-panel-section-title">Change Password</div>
+                        <form action="/profile/password" method="post">
+                            <div class="form-group"><label>Current Password</label><input type="password" name="currentPassword" class="form-control" required></div>
+                            <div class="form-group"><label>New Password</label><input type="password" name="newPassword" class="form-control" required></div>
+                            <div class="form-group"><label>Confirm Password</label><input type="password" name="confirmPassword" class="form-control" required></div>
+                            <div class="profile-panel-actions"><button type="submit" class="btn btn-primary btn-sm">Save</button></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <div>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3>Subjects - <span>BS educ</span></h3>
+                    <a href="/admin/subjects" class="btn btn-secondary">← Back to Departments</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>All Subjects</h3>
+                <table>
+                    <thead>
+                        <tr><th>Code</th><th>Name</th><th>Teacher</th><th>Section</th><th>Assign Students</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>BS123</td>
+                            <td>Entrepepe</td>
+                            <td>jeremyhahahe</td>
+                            <td>BS41</td>
+                            <td>
+                                <form action="/admin/subjects/5/assign-students" method="post" class="assign-students-widget" data-assign-widget>
+                                    <input type="search" class="form-control assign-search" placeholder="Search student..." data-assign-search>
+                                    <div class="assign-students-list" data-assign-list>
+                                        <label class="assign-student-item" data-search-text="jeremyratbu 241-3312">
+                                            <input type="checkbox" name="studentIds" value="3" data-assign-checkbox>
+                                            <span>jeremyratbu (241-3312)</span>
+                                        </label><label class="assign-student-item" data-search-text="juan dela cruz 2021-0001">
+                                            <input type="checkbox" name="studentIds" value="5" data-assign-checkbox>
+                                            <span>Juan Dela Cruz (2021-0001)</span>
+                                        </label>
+                                        <div class="assign-empty" data-assign-empty hidden>No students match your search.</div>
+                                    </div>
+                                    <div class="assign-students-actions">
+                                        <small class="assign-selected-count" data-assign-count>0 selected</small>
+                                        <div class="assign-students-tools">
+                                            <button type="button" class="btn btn-sm btn-secondary" data-assign-select-all>Select All</button>
+                                            <button type="button" class="btn btn-sm btn-secondary" data-assign-clear>Clear</button>
+                                            <button type="submit" class="btn btn-sm btn-primary">Assign</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+<script src="/js/forms.js"></script>
+<script src="/js/layout.js"></script>
+<script>
+function closeAllProfileMenus() {
+    document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));
+    document.querySelectorAll('.profile-panel').forEach(panel => panel.classList.remove('show'));
+}
+function toggleProfileMenu(button) {
+    const widget = button.closest('.page-header-profile-widget') || button.closest('.sidebar-profile-widget');
+    const menu = widget ? widget.querySelector('.profile-menu') : null;
+    if (!menu) return;
+    const shouldOpen = !menu.classList.contains('show');
+    closeAllProfileMenus();
+    if (shouldOpen) menu.classList.add('show');
+}
+function toggleProfilePanel(panelId) {
+    closeAllProfileMenus();
+    const panel = document.getElementById(panelId);
+    if (panel) panel.classList.add('show');
+}
+document.addEventListener('click', function (event) {
+    const target = event.target;
+    if (!target.closest('.page-header-profile-widget') && !target.closest('.sidebar-profile-widget')) {
+        closeAllProfileMenus();
+    }
+});
+
+function bindAssignWidget(widget) {
+    const searchInput = widget.querySelector('[data-assign-search]');
+    const items = Array.from(widget.querySelectorAll('.assign-student-item'));
+    const checkboxes = Array.from(widget.querySelectorAll('[data-assign-checkbox]'));
+    const countEl = widget.querySelector('[data-assign-count]');
+    const emptyEl = widget.querySelector('[data-assign-empty]');
+    const selectAllBtn = widget.querySelector('[data-assign-select-all]');
+    const clearBtn = widget.querySelector('[data-assign-clear]');
+
+    function updateCount() {
+        const selected = checkboxes.filter(cb => cb.checked).length;
+        if (countEl) countEl.textContent = `${selected} selected`;
+    }
+
+    function applySearch() {
+        const query = (searchInput?.value || '').trim().toLowerCase();
+        let visibleCount = 0;
+        items.forEach((item) => {
+            const text = item.getAttribute('data-search-text') || '';
+            const visible = !query || text.includes(query);
+            item.hidden = !visible;
+            if (visible) visibleCount += 1;
+        });
+        if (emptyEl) emptyEl.hidden = visibleCount > 0;
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', applySearch);
+    }
+    checkboxes.forEach((cb) => cb.addEventListener('change', updateCount));
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', () => {
+            items.forEach((item) => {
+                if (item.hidden) return;
+                const checkbox = item.querySelector('[data-assign-checkbox]');
+                if (checkbox) checkbox.checked = true;
+            });
+            updateCount();
+        });
+    }
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            checkboxes.forEach((cb) => cb.checked = false);
+            updateCount();
+        });
+    }
+    widget.addEventListener('submit', (event) => {
+        const selected = checkboxes.filter(cb => cb.checked).length;
+        if (selected === 0) {
+            event.preventDefault();
+            if (window.amsConfirm) {
+                window.amsConfirm("Pumili ng kahit isang student bago mag-assign.", {
+                    title: "No Student Selected",
+                    okText: "OK",
+                    cancelText: "Close"
+                });
+            }
+        }
+    });
+
+    applySearch();
+    updateCount();
+}
+
+document.querySelectorAll('[data-assign-widget]').forEach(bindAssignWidget);
+</script>
+</body>
+</html>

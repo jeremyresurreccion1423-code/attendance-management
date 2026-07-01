@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Error - AMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="login-page">
+    <div class="login-card">
+        <h1>Something went wrong</h1>
+        <p class="subtitle" th:text="${status} + ' - ' + ${error}">Error</p>
+        <p th:if="${message}" th:text="${message}" style="margin:1rem 0; color:#64748b;"></p>
+        <a th:href="@{/login}" class="btn btn-primary" style="width:100%; text-align:center;">Back to Login</a>
+    </div>
+</div>
+</body>
+</html>

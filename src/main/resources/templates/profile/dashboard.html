@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile - AMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="brand">
+            <h2>AMS</h2>
+            <small th:text="${roleName == 'ADMIN' ? 'Admin Panel' : (roleName == 'TEACHER' ? 'Teacher Panel' : 'Student Portal')}">Panel</small>
+        </div>
+        <nav>
+            <a th:href="${dashboardPath}">Dashboard</a>
+            <a th:if="${roleName == 'ADMIN'}" href="/admin/create">Create / Add</a>
+            <a th:if="${roleName == 'ADMIN'}" href="/admin/students">Students</a>
+            <a th:if="${roleName == 'ADMIN'}" href="/admin/teachers">Teachers</a>
+            <a th:if="${roleName == 'ADMIN'}" href="/admin/subjects">Subjects</a>
+            <a th:if="${roleName == 'ADMIN'}" href="/admin/sections">Sections</a>
+            <a th:if="${roleName == 'ADMIN'}" href="/admin/reports">Reports</a>
+            <a th:if="${roleName == 'ADMIN'}" href="/admin/trends">Trends</a>
+
+            <a th:if="${roleName == 'TEACHER'}" href="/teacher/attendance">Attendance</a>
+            <a th:if="${roleName == 'TEACHER'}" href="/teacher/marks">Marks</a>
+            <a th:if="${roleName == 'TEACHER'}" href="/teacher/timetable">Timetable</a>
+            <a th:if="${roleName == 'TEACHER'}" href="/teacher/reports">Reports</a>
+            <a th:if="${roleName == 'TEACHER'}" href="/teacher/trends">Trends</a>
+
+            <a th:if="${roleName == 'STUDENT'}" href="/student/attendance">Attendance</a>
+            <a th:if="${roleName == 'STUDENT'}" href="/student/scan">QR Attendance</a>
+            <a th:if="${roleName == 'STUDENT'}" href="/student/grades">Grades</a>
+            <a th:if="${roleName == 'STUDENT'}" href="/student/schedule">Schedule</a>
+            <a th:if="${roleName == 'STUDENT'}" href="/student/trends">Trends</a>
+
+            <a href="/profile" class="active">My Profile</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <div class="profile-topbar">
+            <h2 style="color:#fff; margin:0; font-size:1.05rem;">Profile Dashboard</h2>
+            <div class="profile-topbar-actions">
+                <a th:href="${dashboardPath}" class="btn btn-secondary">Back</a>
+                <div class="profile-topbar-avatar">
+                    <img th:if="${profilePhotoUrl != null}" th:src="${profilePhotoUrl}" alt="Profile photo" />
+                    <span th:unless="${profilePhotoUrl != null}" th:text="${profileInitial ?: 'U'}">U</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-dashboard-grid profile-dashboard-grid-single">
+            <section class="profile-main-column">
+                <div class="profile-main-header card">
+                    <h2>My Profile</h2>
+                    <small th:text="${roleName + ' INFORMATION'}">USER INFORMATION</small>
+                </div>
+
+                <div class="profile-hero card">
+                    <div class="profile-hero-avatar">
+                        <img th:if="${profilePhotoUrl != null}" th:src="${profilePhotoUrl}" alt="Profile photo" />
+                        <span th:unless="${profilePhotoUrl != null}" th:text="${profileInitial ?: 'U'}">U</span>
+                    </div>
+                    <h3 th:text="${displayName}">User Name</h3>
+                    <span class="profile-badge" th:text="${profileCode}">CODE</span>
+                </div>
+
+                <div class="card">
+                    <h3>Personal Details</h3>
+                    <table>
+                        <tbody>
+                            <tr th:each="entry : ${profileDetails}">
+                                <th th:text="${entry.key}">Label</th>
+                                <td th:text="${entry.value}">Value</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3>Profile Settings</h3>
+                    <div class="form-row">
+                        <div>
+                            <h4 style="margin-bottom:0.55rem; color:#0f172a;">Upload Photo</h4>
+                            <form action="/profile/photo" method="post" enctype="multipart/form-data">
+                                <div class="form-group">
+                                    <input type="file" name="photo" class="form-control" accept="image/*" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Upload</button>
+                            </form>
+                        </div>
+                        <div>
+                            <h4 style="margin-bottom:0.55rem; color:#0f172a;">Change Password</h4>
+                            <form action="/profile/password" method="post">
+                                <div class="form-group">
+                                    <input type="password" name="currentPassword" class="form-control" placeholder="Current Password" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="password" name="newPassword" class="form-control" placeholder="New Password" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="password" name="confirmPassword" class="form-control" placeholder="Confirm Password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Password</button>
+                            </form>
+                            <p style="margin-top:0.65rem;">
+                                <a href="/forgot-password">Forgot password? Verify via OTP</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/layout.js}"></script>
+</body>
+</html>

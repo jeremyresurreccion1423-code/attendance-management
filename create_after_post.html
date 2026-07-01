@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Create / Add - AMS</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="brand"><h2>AMS</h2><small>Admin Panel</small></div>
+        <nav>
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/departments">Departments</a>
+            <a href="/admin/create" class="active">Create / Add</a>
+            <a href="/admin/students">Students</a>
+            <a href="/admin/teachers">Teachers</a>
+            <a href="/admin/subjects">Subjects</a>
+            <a href="/admin/sections">Sections</a>
+            <a href="/admin/reports">Reports</a>
+            <a href="/admin/trends">Trends</a>
+            <a href="/logout" style="margin-top:2rem; display:block;">Logout</a>
+        </nav>
+    </aside>
+    <main class="main-content">
+        
+        <div class="alert alert-error">Subject must have a section. Create a section in the selected department first.</div>
+
+        <div class="page-header">
+            <div>
+                <h1>Create / Add</h1>
+                <span>Manage departments, students, teachers, subjects, and sections</span>
+            </div>
+            <div class="page-header-profile-widget">
+                <button type="button" class="profile-trigger" onclick="toggleProfileMenu(this)">
+                    <img class="profile-avatar profile-avatar-img" src="/uploads/admin.jpg?v=1782573421995" alt="Profile photo" />
+                    
+                    <span class="profile-meta">
+                        <strong>My Profile</strong>
+                        <small>admin</small>
+                    </span>
+                    <span class="profile-caret">▾</span>
+                </button>
+                <div class="profile-menu">
+                    <button type="button" class="profile-menu-action" onclick="window.location.href='/profile'">My Profile</button>
+                    <a href="/logout" class="profile-menu-action profile-logout">Logout</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="create-nav">
+            <a href="#department" class="create-nav-link">Department</a>
+            <a href="#student" class="create-nav-link">Student</a>
+            <a href="#teacher" class="create-nav-link">Teacher</a>
+            <a href="#subject" class="create-nav-link">Subject</a>
+            <a href="#section" class="create-nav-link">Section</a>
+        </div>
+
+        <div class="card create-section" id="department">
+            <h3>Create Department</h3>
+            <form action="/admin/departments" method="post" class="ams-validate">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Department Name</label>
+                        <input type="text" class="form-control" required placeholder="e.g. Computer Science" id="name" name="name" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Description (optional)</label>
+                        <input type="text" class="form-control" placeholder="Short description" id="description" name="description" value="">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Department</button>
+            </form>
+            <div style="margin-top:1rem;">
+                <h4 style="font-size:0.92rem; color:#475569; margin-bottom:0.5rem;">Existing Departments</h4>
+                <div class="create-tag-list">
+                    <span class="create-tag">BS Computer Science</span><span class="create-tag">BS educ</span><span class="create-tag">BS Information Technology</span><span class="create-tag">BS Information Technology,BS Information Technology</span><span class="create-tag">BSIT</span><span class="create-tag">Computer Science</span><span class="create-tag">Education</span><span class="create-tag">General</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card create-section" id="student">
+            <h3>Add Student</h3>
+            <form action="/admin/students" method="post" class="ams-validate" data-lookup-form>
+                <input type="hidden" name="returnTo" value="create">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Student Number</label>
+                        <input type="text" class="form-control" required id="studentNumber" name="studentNumber" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" class="form-control" required id="fullName" name="fullName" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select class="form-control" data-lookup-role="department" required id="department.id" name="department.id">
+                            <option value="">-- Select Department --</option>
+                            <option value="5">BS Computer Science</option>
+                            <option value="1">BS educ</option>
+                            <option value="6">BS Information Technology</option>
+                            <option value="2">BS Information Technology,BS Information Technology</option>
+                            <option value="16">BSIT</option>
+                            <option value="3">Computer Science</option>
+                            <option value="7">Education</option>
+                            <option value="8">General</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Year Level</label>
+                        <select class="form-control" data-lookup-role="year-level" id="yearLevel" name="yearLevel">
+                            <option value="">-- Select --</option>
+                            <option value="1st Year">1st Year</option>
+                            <option value="2nd Year">2nd Year</option>
+                            <option value="3rd Year">3rd Year</option>
+                            <option value="4th Year">4th Year</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Section</label>
+                        <select class="form-control" data-lookup-role="section" id="section.id" name="section.id">
+                            <option value="">-- Select department & year first --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact</label>
+                        <input type="text" class="form-control" id="contactNumber" name="contactNumber" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="ACTIVE" selected="selected">ACTIVE</option>
+                            <option value="INACTIVE">INACTIVE</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Login Username</label>
+                        <input type="text" name="username" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Login Password</label>
+                        <input type="password" name="password" class="form-control" minlength="6">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Student</button>
+            </form>
+        </div>
+
+        <div class="card create-section" id="teacher">
+            <h3>Add Teacher</h3>
+            <form action="/admin/teachers" method="post" class="ams-validate">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Employee ID</label>
+                        <input type="text" class="form-control" required id="employeeId" name="employeeId" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" class="form-control" required id="fullName" name="fullName" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select class="form-control" required id="department.id" name="department.id">
+                            <option value="">-- Select Department --</option>
+                            <option value="5">BS Computer Science</option>
+                            <option value="1">BS educ</option>
+                            <option value="6">BS Information Technology</option>
+                            <option value="2">BS Information Technology,BS Information Technology</option>
+                            <option value="16">BSIT</option>
+                            <option value="3">Computer Science</option>
+                            <option value="7">Education</option>
+                            <option value="8">General</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact</label>
+                        <input type="text" class="form-control" id="contactNumber" name="contactNumber" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Login Username</label>
+                        <input type="text" name="username" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Login Password</label>
+                        <input type="password" name="password" class="form-control" minlength="6">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Teacher</button>
+            </form>
+        </div>
+
+        <div class="card create-section" id="subject">
+            <h3>Create Subject</h3>
+            <form action="/admin/subjects" method="post" class="ams-validate" data-lookup-form>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Subject Code</label>
+                        <input type="text" class="form-control" required id="subjectCode" name="subjectCode" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Subject Name</label>
+                        <input type="text" class="form-control" required id="subjectName" name="subjectName" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select class="form-control" data-lookup-role="department" required id="department.id" name="department.id">
+                            <option value="">-- Select Department --</option>
+                            <option value="5">BS Computer Science</option>
+                            <option value="1">BS educ</option>
+                            <option value="6">BS Information Technology</option>
+                            <option value="2">BS Information Technology,BS Information Technology</option>
+                            <option value="16">BSIT</option>
+                            <option value="3">Computer Science</option>
+                            <option value="7">Education</option>
+                            <option value="8">General</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Teacher</label>
+                        <select class="form-control" data-lookup-role="teacher" required id="teacher.id" name="teacher.id">
+                            <option value="">-- Select department first --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Section</label>
+                        <select class="form-control" data-lookup-role="section" required id="section.id" name="section.id">
+                            <option value="">-- Select department first --</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>Description (optional)</label>
+                        <input type="text" class="form-control" id="description" name="description" value="">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Subject</button>
+            </form>
+        </div>
+
+        <div class="card create-section" id="section">
+            <h3>Create Section</h3>
+            <form action="/admin/sections" method="post" class="ams-validate">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Section Name</label>
+                        <input type="text" class="form-control" required placeholder="e.g. BSIT-3A" id="name" name="name" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select class="form-control" required id="department.id" name="department.id">
+                            <option value="">-- Select Department --</option>
+                            <option value="5">BS Computer Science</option>
+                            <option value="1">BS educ</option>
+                            <option value="6">BS Information Technology</option>
+                            <option value="2">BS Information Technology,BS Information Technology</option>
+                            <option value="16">BSIT</option>
+                            <option value="3">Computer Science</option>
+                            <option value="7">Education</option>
+                            <option value="8">General</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Year Level</label>
+                        <select class="form-control" id="yearLevel" name="yearLevel">
+                            <option value="">-- Select --</option>
+                            <option value="1st Year">1st Year</option>
+                            <option value="2nd Year">2nd Year</option>
+                            <option value="3rd Year">3rd Year</option>
+                            <option value="4th Year">4th Year</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Section</button>
+            </form>
+        </div>
+    </main>
+</div>
+<script src="/js/forms.js"></script>
+<script src="/js/lookup-filter.js"></script>
+<script src="/js/layout.js"></script>
+<script>
+function toggleProfileMenu(button) {
+    const widget = button.closest('.page-header-profile-widget');
+    const menu = widget ? widget.querySelector('.profile-menu') : null;
+    if (!menu) return;
+    menu.classList.toggle('show');
+}
+document.addEventListener('click', function (event) {
+    if (!event.target.closest('.page-header-profile-widget')) {
+        document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));
+    }
+});
+if (window.location.hash) {
+    const target = document.querySelector(window.location.hash);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>

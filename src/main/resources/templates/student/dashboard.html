@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Dashboard - AMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="brand"><h2>AMS</h2><small>Student Portal</small></div>
+        <nav>
+            <a href="/student/dashboard" class="active">Dashboard</a>
+            <a href="/student/attendance">Attendance</a>
+            <a href="/student/scan">QR Attendance</a>
+            <a href="/student/grades">Grades</a>
+            <a href="/student/schedule">Schedule</a>
+            <a href="/student/trends">Trends</a>
+            <a href="/logout" style="margin-top:2rem; display:block;">Logout</a>
+        </nav>
+    </aside>
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1>Student Dashboard</h1>
+                <span th:text="'Welcome, ' + ${student.fullName}"></span>
+            </div>
+            <div class="page-header-profile-widget">
+                <button type="button" class="profile-trigger" onclick="toggleProfileMenu(this)">
+                    <img th:if="${profilePhotoUrl != null}" class="profile-avatar profile-avatar-img" th:src="${profilePhotoUrl}" alt="Profile photo" />
+                    <span th:unless="${profilePhotoUrl != null}" class="profile-avatar" th:text="${profileInitial ?: 'U'}">U</span>
+                    <span class="profile-meta">
+                        <strong>My Profile</strong>
+                        <small th:text="${#authentication.name != null ? #authentication.name : 'User'}">user</small>
+                    </span>
+                    <span class="profile-caret">▾</span>
+                </button>
+                <div class="profile-menu">
+                    <button type="button" class="profile-menu-action" onclick="toggleProfilePanel('profile-panel')">My Profile</button>
+                    <a href="/logout" class="profile-menu-action profile-logout">Logout</a>
+                </div>
+                <div class="profile-panel" id="profile-panel">
+                    <div class="profile-panel-title">My Profile</div>
+                    <div class="profile-summary">
+                        <div class="profile-summary-avatar">
+                            <img th:if="${profilePhotoUrl != null}" th:src="${profilePhotoUrl}" alt="Profile photo" />
+                            <span th:unless="${profilePhotoUrl != null}" th:text="${profileInitial ?: 'U'}">U</span>
+                        </div>
+                        <div class="profile-summary-meta">
+                            <strong th:text="${#authentication.name != null ? #authentication.name : 'User'}">user</strong>
+                            <small th:text="${#authentication.authorities[0].authority}">ROLE_STUDENT</small>
+                        </div>
+                    </div>
+                    <div class="profile-info">
+                        <p><strong>Username:</strong> <span th:text="${#authentication.name}">user</span></p>
+                        <p><strong>Role:</strong> <span th:text="${#authentication.authorities[0].authority}">ROLE_STUDENT</span></p>
+                    </div>
+                    <div class="profile-panel-section">
+                        <div class="profile-panel-section-title">Upload Photo</div>
+                        <form action="/profile/photo" method="post" enctype="multipart/form-data">
+                            <div class="form-group"><input type="file" name="photo" accept="image/*" required></div>
+                            <div class="profile-panel-actions"><button type="submit" class="btn btn-primary btn-sm">Upload</button></div>
+                        </form>
+                    </div>
+                    <div class="profile-panel-section">
+                        <div class="profile-panel-section-title">Change Password</div>
+                        <form action="/profile/password" method="post">
+                            <div class="form-group"><label>Current Password</label><input type="password" name="currentPassword" class="form-control" required></div>
+                            <div class="form-group"><label>New Password</label><input type="password" name="newPassword" class="form-control" required></div>
+                            <div class="form-group"><label>Confirm Password</label><input type="password" name="confirmPassword" class="form-control" required></div>
+                            <div class="profile-panel-actions"><button type="submit" class="btn btn-primary btn-sm">Save</button></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="value" th:text="${data.attendancePercentage} + '%'">0%</div>
+                <div class="label">Attendance Percentage</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" th:text="${data.attendanceStats.total}">0</div>
+                <div class="label">Total Attendance Records</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" th:text="${unreadCount}">0</div>
+                <div class="label">Unread Notifications</div>
+            </div>
+        </div>
+
+        <div th:if="${data.lowAttendanceAlert}" class="alert alert-error">
+            <strong>Low Attendance Alert:</strong> Your attendance is below 75%. Please improve your attendance to avoid academic issues.
+        </div>
+
+        <div class="card">
+            <h3>Today's Attendance Analytics</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="value" th:text="${data.attendanceStats.present}">0</div>
+                    <div class="label">Present</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" th:text="${data.attendanceStats.absent}">0</div>
+                    <div class="label">Absent</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" th:text="${data.attendanceStats.percentage} + '%'">0%</div>
+                    <div class="label">Overall Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" th:if="${!#lists.isEmpty(data.grades)}">
+            <h3>Student Performance Chart</h3>
+            <div class="chart-container" style="height:280px;">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card" th:if="${!#lists.isEmpty(notifications)}">
+            <h3>Notifications</h3>
+            <table>
+                <thead><tr><th>Title</th><th>Message</th><th>Date</th><th>Action</th></tr></thead>
+                <tbody>
+                    <tr th:each="n : ${notifications}" th:style="${!n.read} ? 'font-weight:bold' : ''">
+                        <td th:text="${n.title}"></td>
+                        <td th:text="${n.message}"></td>
+                        <td th:text="${#temporals.format(n.createdAt, 'dd MMM yyyy, hh:mm a')}"></td>
+                        <td>
+                            <form th:if="${!n.read}" th:action="@{/student/notifications/{id}/read(id=${n.id})}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-secondary">Mark Read</button>
+                            </form>
+                            <span th:if="${n.read}">Read</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card" th:if="${data.todaySchedule}">
+            <h3>Today's Schedule</h3>
+            <table>
+                <thead><tr><th>Subject</th><th>Time</th><th>Room</th></tr></thead>
+                <tbody>
+                    <tr th:each="s : ${data.todaySchedule}">
+                        <td th:text="${s.subject.subjectName}"></td>
+                        <td th:text="${s.startTime} + ' - ' + ${s.endTime}"></td>
+                        <td th:text="${s.room}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(data.todaySchedule)}"><td colspan="3">No classes today</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h3>Recent Attendance</h3>
+            <table>
+                <thead><tr><th>Date</th><th>Subject</th><th>Status</th><th>Time In</th></tr></thead>
+                <tbody>
+                    <tr th:each="a : ${data.attendanceHistory}">
+                        <td th:text="${a.attendanceDate}"></td>
+                        <td th:text="${a.subject.subjectName}"></td>
+                        <td><span th:class="'badge badge-' + ${#strings.toLowerCase(a.status.name())}" th:text="${a.status}"></span></td>
+                        <td th:text="${a.timeIn}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script th:src="@{/js/dashboard-charts.js}"></script>
+<script th:src="@{/js/layout.js}"></script>
+<script th:inline="javascript">
+document.addEventListener('DOMContentLoaded', function () {
+    const performance = /*[[${data.performanceChart}]]*/ {};
+    DashboardCharts.renderPerformanceBar('performanceChart', performance);
+});
+</script>
+<script>
+function closeAllProfileMenus() {
+    document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));
+    document.querySelectorAll('.profile-panel').forEach(panel => panel.classList.remove('show'));
+}
+function toggleProfileMenu(button) {
+    const widget = button.closest('.page-header-profile-widget') || button.closest('.sidebar-profile-widget');
+    const menu = widget ? widget.querySelector('.profile-menu') : null;
+    if (!menu) return;
+    const shouldOpen = !menu.classList.contains('show');
+    closeAllProfileMenus();
+    if (shouldOpen) menu.classList.add('show');
+}
+function toggleProfilePanel(panelId) {
+    closeAllProfileMenus();
+    const panel = document.getElementById(panelId);
+    if (panel) panel.classList.add('show');
+}
+document.addEventListener('click', function (event) {
+    const target = event.target;
+    if (!target.closest('.page-header-profile-widget') && !target.closest('.sidebar-profile-widget')) {
+        closeAllProfileMenus();
+    }
+});
+</script>
+</body>
+</html>

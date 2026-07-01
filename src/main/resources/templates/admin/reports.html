@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Reports - AMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="brand"><h2>AMS</h2><small>Admin Panel</small></div>
+        <nav>
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/create">Create / Add</a>
+            <a href="/admin/students">Students</a>
+            <a href="/admin/teachers">Teachers</a>
+            <a href="/admin/subjects">Subjects</a>
+            <a href="/admin/sections">Sections</a>
+            <a href="/admin/reports" class="active">Reports</a>
+            <a href="/admin/trends">Trends</a>
+            <a href="/logout" style="margin-top:2rem; display:block;">Logout</a>
+        </nav>
+    </aside>
+    <main class="main-content">
+        <div class="page-header">
+            <h1>Reports</h1>
+            <div class="page-header-profile-widget">
+                <button type="button" class="profile-trigger" onclick="toggleProfileMenu(this)">
+                    <img th:if="${profilePhotoUrl != null}" class="profile-avatar profile-avatar-img" th:src="${profilePhotoUrl}" alt="Profile photo" />
+                    <span th:unless="${profilePhotoUrl != null}" class="profile-avatar" th:text="${profileInitial ?: 'U'}">U</span>
+                    <span class="profile-meta">
+                        <strong>My Profile</strong>
+                        <small th:text="${#authentication.name != null ? #authentication.name : 'User'}">user</small>
+                    </span>
+                    <span class="profile-caret">▾</span>
+                </button>
+                <div class="profile-menu">
+                    <button type="button" class="profile-menu-action" onclick="toggleProfilePanel('profile-panel')">My Profile</button>
+                    <a href="/logout" class="profile-menu-action profile-logout">Logout</a>
+                </div>
+                <div class="profile-panel" id="profile-panel">
+                    <div class="profile-panel-title">My Profile</div>
+                    <div class="profile-summary">
+                        <div class="profile-summary-avatar">
+                            <img th:if="${profilePhotoUrl != null}" th:src="${profilePhotoUrl}" alt="Profile photo" />
+                            <span th:unless="${profilePhotoUrl != null}" th:text="${profileInitial ?: 'U'}">U</span>
+                        </div>
+                        <div class="profile-summary-meta">
+                            <strong th:text="${#authentication.name != null ? #authentication.name : 'User'}">user</strong>
+                            <small th:text="${#authentication.authorities[0].authority}">ROLE_ADMIN</small>
+                        </div>
+                    </div>
+                    <div class="profile-info">
+                        <p><strong>Username:</strong> <span th:text="${#authentication.name}">user</span></p>
+                        <p><strong>Role:</strong> <span th:text="${#authentication.authorities[0].authority}">ROLE_ADMIN</span></p>
+                    </div>
+                    <div class="profile-panel-section">
+                        <div class="profile-panel-section-title">Upload Photo</div>
+                        <form action="/profile/photo" method="post" enctype="multipart/form-data">
+                            <div class="form-group"><input type="file" name="photo" accept="image/*" required></div>
+                            <div class="profile-panel-actions"><button type="submit" class="btn btn-primary btn-sm">Upload</button></div>
+                        </form>
+                    </div>
+                    <div class="profile-panel-section">
+                        <div class="profile-panel-section-title">Change Password</div>
+                        <form action="/profile/password" method="post">
+                            <div class="form-group"><label>Current Password</label><input type="password" name="currentPassword" class="form-control" required></div>
+                            <div class="form-group"><label>New Password</label><input type="password" name="newPassword" class="form-control" required></div>
+                            <div class="form-group"><label>Confirm Password</label><input type="password" name="confirmPassword" class="form-control" required></div>
+                            <div class="profile-panel-actions"><button type="submit" class="btn btn-primary btn-sm">Save</button></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Attendance Report</h3>
+            <form class="form-row">
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" id="startDate" class="form-control" th:value="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
+                </div>
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="date" id="endDate" class="form-control" th:value="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
+                </div>
+            </form>
+            <a href="#" onclick="exportReport('excel')" class="btn btn-success">Export Excel</a>
+            <a href="#" onclick="exportReport('pdf')" class="btn btn-danger" style="margin-left:0.5rem;">Export PDF</a>
+        </div>
+
+        <div class="card">
+            <h3>Student Report</h3>
+            <a th:href="@{/admin/reports/students/pdf}" class="btn btn-danger">Export Student List (PDF)</a>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/layout.js}"></script>
+<script>
+function exportReport(type) {
+    const start = document.getElementById('startDate').value;
+    const end = document.getElementById('endDate').value;
+    window.location = '/admin/reports/attendance/' + type + '?start=' + start + '&end=' + end;
+}
+function closeAllProfileMenus() {
+    document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));
+    document.querySelectorAll('.profile-panel').forEach(panel => panel.classList.remove('show'));
+}
+function toggleProfileMenu(button) {
+    const widget = button.closest('.page-header-profile-widget') || button.closest('.sidebar-profile-widget');
+    const menu = widget ? widget.querySelector('.profile-menu') : null;
+    if (!menu) return;
+    const shouldOpen = !menu.classList.contains('show');
+    closeAllProfileMenus();
+    if (shouldOpen) menu.classList.add('show');
+}
+function toggleProfilePanel(panelId) {
+    closeAllProfileMenus();
+    const panel = document.getElementById(panelId);
+    if (panel) panel.classList.add('show');
+}
+document.addEventListener('click', function (event) {
+    const target = event.target;
+    if (!target.closest('.page-header-profile-widget') && !target.closest('.sidebar-profile-widget')) {
+        closeAllProfileMenus();
+    }
+});
+</script>
+</body>
+</html>
