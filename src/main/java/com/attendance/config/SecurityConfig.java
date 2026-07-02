@@ -22,8 +22,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // Temporary: use plain text passwords for testing
-        return org.springframework.security.crypto.password.NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

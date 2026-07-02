@@ -103,13 +103,10 @@ database/
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/v1/departments` | Paginated department list with counts |
-| GET | `/api/v1/departments/{id}` | Department detail |
-| POST | `/api/v1/departments` | Create department |
-| PUT | `/api/v1/departments/{id}` | Update department |
-| DELETE | `/api/v1/departments/{id}` | Delete (if no links) |
 | GET | `/api/v1/admin/lookups/teachers?departmentId=` | Teachers for dropdown |
 | GET | `/api/v1/admin/lookups/sections?departmentId=&yearLevel=` | Sections for dropdown |
+
+Department CRUD is handled via `/admin/**` web pages (not a separate REST API).
 
 ## Role-Based Access
 

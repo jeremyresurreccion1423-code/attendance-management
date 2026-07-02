@@ -23,11 +23,12 @@ public class StudentController {
     private final MarkService markService;
     private final TimetableService timetableService;
     private final ProfilePhotoService profilePhotoService;
+    private final SharedAttendanceStudentProfileBridgeService sharedAttendanceStudentProfileBridgeService;
 
     private Student getCurrentStudent(Authentication auth) {
         User user = authService.findByUsername(auth.getName())
                 .orElseThrow(() -> new IllegalStateException("User not found: " + auth.getName()));
-        return studentService.findByUserId(user.getId())
+        return sharedAttendanceStudentProfileBridgeService.ensureAttendanceStudent(user)
                 .orElseThrow(() -> new IllegalStateException("Student record not found for user: " + auth.getName()));
     }
 

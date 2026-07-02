@@ -26,13 +26,16 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         User adminUser = userRepository.findByUsername("admin")
-                .orElseGet(() -> authService.createUser("admin", "admin123", Role.ADMIN));
+                .orElseGet(() -> authService.createUser(
+                        "admin", "admin123", Role.ADMIN, "edulibrary67+admin@gmail.com", "System Admin"));
 
         User teacherUser = userRepository.findByUsername("teacher1")
-                .orElseGet(() -> authService.createUser("teacher1", "teacher123", Role.TEACHER));
+                .orElseGet(() -> authService.createUser(
+                        "teacher1", "teacher123", Role.TEACHER, "maria.santos@school.edu", "Dr. Maria Santos"));
 
         User studentUser = userRepository.findByUsername("student1")
-                .orElseGet(() -> authService.createUser("student1", "student123", Role.STUDENT));
+                .orElseGet(() -> authService.createUser(
+                        "student1", "student123", Role.STUDENT, "juan.delacruz@student.edu", "Juan Dela Cruz"));
 
         Department bsit = departmentRepository.findByNameIgnoreCase("BSIT")
                 .orElseGet(() -> departmentRepository.save(Department.builder()

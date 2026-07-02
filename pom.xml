@@ -15,7 +15,7 @@
     <artifactId>attendance-management-system</artifactId>
     <version>1.0.0</version>
     <name>Attendance Management System</name>
-    <description>Java Spring Boot Attendance Management System with MySQL</description>
+    <description>Java Spring Boot Attendance Management System with PostgreSQL (Supabase)</description>
 
     <properties>
         <java.version>17</java.version>

@@ -4,8 +4,10 @@ import com.attendance.model.User;
 import com.attendance.repository.StudentRepository;
 import com.attendance.repository.TeacherRepository;
 import com.attendance.service.AuthService;
+import com.attendance.service.SharedAttendanceStudentProfileBridgeService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,7 +42,11 @@ public class AuthController {
     private final AuthService authService;
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
+    private final SharedAttendanceStudentProfileBridgeService sharedAttendanceStudentProfileBridgeService;
     private final JavaMailSender mailSender;
+
+    @Value("${spring.mail.username:}")
+    private String mailUsername;
 
     private final Map<String, OtpEntry> forgotPasswordOtpStore = new ConcurrentHashMap<>();
 
@@ -66,9 +72,9 @@ public class AuthController {
     @PostMapping("/forgot-password/request-otp")
     public String requestForgotPasswordOtp(@RequestParam String username,
                                            RedirectAttributes redirect) {
-        Optional<User> userOpt = authService.findByUsername(username);
+        Optional<User> userOpt = authService.findByUsernameOrEmail(username);
         if (userOpt.isEmpty()) {
-            redirect.addFlashAttribute("error", "Username not found.");
+            redirect.addFlashAttribute("error", "Account not found.");
             return "redirect:/forgot-password";
         }
 
@@ -80,16 +86,21 @@ public class AuthController {
         }
 
         String otp = String.format("%06d", new Random().nextInt(1_000_000));
-        forgotPasswordOtpStore.put(username, new OtpEntry(otp, LocalDateTime.now().plusMinutes(10)));
+        forgotPasswordOtpStore.put(user.getUsername(), new OtpEntry(otp, LocalDateTime.now().plusMinutes(10)));
 
         try {
+            if (mailUsername == null || mailUsername.isBlank()) {
+                redirect.addFlashAttribute("error", "Mail is not configured. Set spring.mail.username and password in application-local.properties.");
+                return "redirect:/forgot-password";
+            }
             SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(mailUsername);
             message.setTo(recipientEmail);
             message.setSubject("AMS Password Reset OTP");
             message.setText("Your AMS OTP is " + otp + ". It will expire in 10 minutes.");
             mailSender.send(message);
             redirect.addFlashAttribute("message", "OTP sent to your Gmail: " + recipientEmail);
-            redirect.addFlashAttribute("otpUsername", username);
+            redirect.addFlashAttribute("otpUsername", user.getUsername());
         } catch (Exception ex) {
             redirect.addFlashAttribute("error", "Unable to send OTP email. Check mail configuration.");
         }
@@ -264,6 +275,9 @@ public class AuthController {
     }
 
     private String resolveEmailForUser(User user) {
+        if (user.getEmail() != null && !user.getEmail().isBlank()) {
+            return user.getEmail();
+        }
         if (user.getRole() == com.attendance.model.Role.STUDENT) {
             return studentRepository.findByUserId(user.getId()).map(s -> s.getEmail()).orElse(null);
         }
@@ -276,7 +290,7 @@ public class AuthController {
     private record OtpEntry(String code, LocalDateTime expiresAt) {}
 
     @GetMapping("/dashboard")
-    public String dashboard(Authentication auth) {
+    public String dashboard(Authentication auth, RedirectAttributes redirect) {
         User user = authService.findByUsername(auth.getName())
                 .orElseThrow(() -> new IllegalStateException("User not found: " + auth.getName()));
         authService.updateLastLogin(auth.getName());
@@ -284,8 +298,19 @@ public class AuthController {
         if (user.getRole() == com.attendance.model.Role.ADMIN) {
             return "redirect:/admin/dashboard";
         } else if (user.getRole() == com.attendance.model.Role.TEACHER) {
+            if (teacherRepository.findByUserId(user.getId()).isEmpty()) {
+                redirect.addFlashAttribute("error",
+                        "Your account is valid, but no teacher profile exists in Attendance yet. Contact an administrator.");
+                return "redirect:/login?logout=true";
+            }
             return "redirect:/teacher/dashboard";
         } else if (user.getRole() == com.attendance.model.Role.STUDENT) {
+            sharedAttendanceStudentProfileBridgeService.ensureAttendanceStudent(user);
+            if (studentRepository.findByUserId(user.getId()).isEmpty()) {
+                redirect.addFlashAttribute("error",
+                        "Your account is valid, but no student profile exists in Attendance yet. Contact an administrator.");
+                return "redirect:/login?logout=true";
+            }
             return "redirect:/student/dashboard";
         }
 

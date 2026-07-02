@@ -28,11 +28,28 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @Column(length = 255)
+    private String email;
+
+    @Column(name = "full_name", length = 160)
+    private String fullName;
+
     private LocalDateTime lastLogin;
 
     @Builder.Default
     private Boolean enabled = true;
 
+    @Version
+    @Builder.Default
+    private Long version = 0L;
+
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    private LocalDateTime updatedAt;
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

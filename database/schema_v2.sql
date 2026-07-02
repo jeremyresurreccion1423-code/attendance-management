@@ -9,10 +9,17 @@ CREATE TABLE IF NOT EXISTS departments (
 );
 
 CREATE TABLE IF NOT EXISTS users (
-    id       BIGSERIAL PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    role     VARCHAR(20) NOT NULL
+    id         BIGSERIAL PRIMARY KEY,
+    username   VARCHAR(50) NOT NULL UNIQUE,
+    password   VARCHAR(255) NOT NULL,
+    role       VARCHAR(20) NOT NULL,
+    email      VARCHAR(255),
+    full_name  VARCHAR(160),
+    last_login TIMESTAMP,
+    enabled    BOOLEAN DEFAULT true,
+    version    BIGINT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP(6)
 );
 
 CREATE TABLE IF NOT EXISTS teachers (

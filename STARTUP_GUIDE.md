@@ -1,76 +1,44 @@
-# Attendance Management System - Startup Guide
+# Attendance Management System — Startup Guide
 
-## Quick Start (Opening Windsurf Fresh)
+## Quick start
 
-### Step 1: Start the Application
-Simply run the batch file:
+```powershell
+cd "C:\Users\Jeremy\Downloads\ATTENDANCE MANAGEMENT SYSTEM"
+.\run.ps1
 ```
-run.bat
-```
 
-The application will start on **http://localhost:8081**
+Or double-click `run.bat` from File Explorer.
 
-### Step 2: Login
-Use these credentials:
-- **Username**: `admin`
-- **Password**: `admin123`
+Open **http://localhost:8081**
 
-## Current Configuration
+## Login
 
-### Database Connection
-- **Type**: Supabase PostgreSQL (Session Pooler)
-- **Host**: aws-1-ap-southeast-1.pooler.supabase.com
-- **Port**: 5432
-- **Database**: postgres
-- **Username**: postgres.zszwwwpzyepuduielccq
-- **Password**: Carlomercado@123
+| Role | Username | Password |
+|------|----------|----------|
+| Admin | `admin` | `admin123` |
 
-### Application Settings
-- **Port**: 8081
-- **DDL Auto**: none (validates schema but doesn't modify)
-- **Hibernate Dialect**: PostgreSQL
+## Configuration
 
-## Important Notes
+1. Copy `application-local.properties.example` → `src/main/resources/application-local.properties`
+2. Add your Supabase PostgreSQL URL, username, and password
+3. Restart the app
 
-### Database Schema
-The application uses existing Supabase tables with BIGINT ID columns. The Java entities are configured to match this schema.
+Default port: **8081** (change in `application.properties` if needed)
 
-### Data Initialization
-The DataInitializer is currently disabled to avoid schema conflicts. Users are created manually via SQL scripts.
+## Database
 
-### Adding New Users
-To add new users, run SQL commands in Supabase SQL Editor:
-```sql
-INSERT INTO users (username, password, role, last_login, enabled, created_at)
-VALUES ('newuser', 'password123', 'STUDENT', NULL, true, NOW());
-```
+- PostgreSQL via Supabase (Session Pooler)
+- Schema reference: `database/schema_v2.sql`
+- Maintenance: `database/fix_uuid_schema.sql`, `scripts/fix_database.py`
 
 ## Troubleshooting
 
-### Port Already in Use
-If port 8081 is busy, change it in `src/main/resources/application.properties`:
-```properties
-server.port=8082
-```
+**Port in use** — set `server.port=8082` in `application.properties`
 
-### Database Connection Issues
-1. Check Supabase project status (not paused)
-2. Verify credentials in application.properties
-3. Test connection using pgAdmin or DBeaver
+**Database errors** — verify Supabase project is active and credentials in `application-local.properties`
 
-### Application Won't Start
-1. Check if Java 17+ is installed
-2. Ensure Maven is available (run.bat will download if needed)
-3. Check for compilation errors in IDE
+**Won't start** — need Java 17+; `run.ps1` can download Maven if missing
 
-## File Locations
-- **Configuration**: `src/main/resources/application.properties`
-- **Startup Script**: `run.bat`
-- **Database Schema**: `database/schema_postgres.sql`
-- **Sample Users SQL**: `database/insert_sample_users.sql`
+## Related
 
-## Support
-For issues, check:
-1. Console output when running run.bat
-2. Supabase dashboard for database status
-3. IDE error logs for compilation issues
+Smart Library: `C:\Users\Jeremy\Downloads\LIBRARY MANAGEMENT\smart-library` (port 8080)

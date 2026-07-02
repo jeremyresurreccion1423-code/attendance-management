@@ -1,0 +1,11 @@
+# Copy to: src/main/resources/application-local.properties
+# (that file is gitignored — never commit secrets)
+
+# --- Supabase Database ---
+spring.datasource.url=jdbc:postgresql://aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require
+spring.datasource.username=postgres.YOUR_PROJECT_REF
+spring.datasource.password=your-database-password
+
+# --- Gmail SMTP (optional, for OTP) ---
+# spring.mail.username=your@gmail.com
+# spring.mail.password=your-app-password

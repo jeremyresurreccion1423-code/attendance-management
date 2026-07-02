@@ -20,6 +20,7 @@ public class StudentService {
     private final SectionRepository sectionRepository;
     private final AuthService authService;
     private final DomainValidationService domainValidationService;
+    private final SharedLibraryStudentProfileSyncService sharedLibraryStudentProfileSyncService;
 
     public List<Student> findAll() {
         return studentRepository.findAll();
@@ -58,13 +59,18 @@ public class StudentService {
                 ? student.getStudentNumber()
                 : username.trim();
         if (password != null && !password.isBlank()) {
-            User user = authService.createUser(loginUsername, password, Role.STUDENT);
+            User user = authService.createUser(
+                    loginUsername, password, Role.STUDENT, student.getEmail(), student.getFullName());
             student.setUser(user);
         }
         if (student.getStatus() == null) {
             student.setStatus(StudentStatus.ACTIVE);
         }
-        return studentRepository.save(student);
+        Student saved = studentRepository.save(student);
+        if (saved.getUser() != null) {
+            sharedLibraryStudentProfileSyncService.syncFromAttendanceStudent(saved.getUser(), saved);
+        }
+        return saved;
     }
 
     @Transactional
@@ -112,10 +118,6 @@ public class StudentService {
 
     public List<Student> findByDepartmentIdAndYearLevelAndSection(Long departmentId, String yearLevel, Long sectionId) {
         return studentRepository.findByDepartmentIdAndYearLevelAndSectionIdOrderByFullNameAsc(departmentId, yearLevel, sectionId);
-    }
-
-    public List<String> findYearLevelsByDepartmentId(Long departmentId) {
-        return studentRepository.findYearLevelsByDepartmentId(departmentId);
     }
 
     public List<Student> filterBySearch(List<Student> students, String query) {

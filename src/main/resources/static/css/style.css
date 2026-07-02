@@ -707,50 +707,16 @@ tr:hover { background:#f8fafc; }
     background: linear-gradient(135deg, #0f172a 0%, #0f766e 100%);
     padding: 2rem;
 }
-.login-panel {
-    width: min(1100px, 100%);
-    display:grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    background:#fff;
-    border-radius:24px;
-    overflow:hidden;
-    box-shadow: 0 30px 60px rgba(15, 23, 42, 0.2);
-}
-.login-hero {
-    background: linear-gradient(180deg, #0f172a 0%, #0f766e 100%);
-    color:#fff;
-    padding: 3rem 2rem;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-}
-.brand-badge {
-    width: fit-content;
-    background: rgba(255,255,255,0.1);
-    padding: 0.35rem 0.7rem;
-    border-radius:999px;
-    font-size:0.85rem;
-    font-weight:700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-bottom: 1rem;
-}
-.login-hero h2 { font-size:2rem; margin-bottom:0.75rem; }
-.login-hero p { color:#cbd5e1; max-width: 30rem; }
-.login-hero-list { list-style:none; margin-top:1rem; }
-.login-hero-list li { position:relative; padding-left:1.5rem; margin-bottom:0.5rem; color:#e2e8f0; }
-.login-hero-list li::before { content:'•'; position:absolute; left:0; color:var(--primary-light); }
 .login-card {
     background:#fff;
     padding: 3rem 2rem;
     display:flex;
     flex-direction:column;
     justify-content:center;
+    border-radius:24px;
+    box-shadow: 0 30px 60px rgba(15, 23, 42, 0.2);
+    width: min(480px, 100%);
 }
-.login-kicker { display:block; color: var(--primary); font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; }
-.login-card h1 { margin:0.2rem 0 1rem; font-size:1.9rem; color: var(--text); }
-.login-btn { width:100%; margin-top:0.5rem; }
-.login-footer-text { text-align:center; margin-top:1rem; font-size:0.9rem; }
 
 .page-header {
     display:flex;
@@ -1192,7 +1158,7 @@ tr:hover { background:#f8fafc; }
 .profile-side-item strong { color: #334155; font-size: 0.9rem; }
 .profile-side-item p { margin-top: 0.2rem; color: #4b5563; font-size: 0.88rem; }
 
-@media (max-width: 992px) { .qr-panel { grid-template-columns: 1fr; } .login-panel { grid-template-columns: 1fr; } }
+@media (max-width: 992px) { .qr-panel { grid-template-columns: 1fr; } }
 @media (max-width: 768px) {
     .app-layout { flex-direction: column; }
     .sidebar { width:100%; height:auto; position:relative; }
@@ -1203,7 +1169,7 @@ tr:hover { background:#f8fafc; }
     .profile-topbar { flex-wrap: wrap; }
     .profile-dashboard-grid { grid-template-columns: 1fr; }
     .login-page { padding:1rem; }
-    .login-card, .login-hero { padding: 2rem 1.25rem; }
+    .login-card { padding: 2rem 1.25rem; }
 }
 
 /* EduPresence System auth / login page */

@@ -111,22 +111,6 @@ public class AttendanceService {
         return saved;
     }
 
-    @Transactional
-    public Attendance recordFaceRecognition(Long studentId, Long subjectId, boolean match, double confidence) {
-        Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
-        Subject subject = subjectRepository.findById(subjectId)
-                .orElseThrow(() -> new IllegalArgumentException("Subject not found"));
-
-        faceRecognitionService.log(student, subject, match ? FaceRecognitionResult.MATCH : FaceRecognitionResult.NO_MATCH, confidence);
-
-        if (!match) {
-            throw new IllegalArgumentException("Face verification failed");
-        }
-
-        return recordManual(studentId, subjectId, AttendanceStatus.PRESENT, "system", "Face recognition verified");
-    }
-
     public double getAttendancePercentage(Long studentId) {
         long total = attendanceRepository.countByStudentId(studentId);
         if (total == 0) return 0;
@@ -242,5 +226,4 @@ public class AttendanceService {
     }
 
     private final QRService qrService;
-    private final FaceRecognitionService faceRecognitionService;
 }

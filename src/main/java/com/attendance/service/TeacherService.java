@@ -61,7 +61,8 @@ public class TeacherService {
                 ? teacher.getEmployeeId()
                 : username.trim();
         if (password != null && !password.isBlank()) {
-            User user = authService.createUser(loginUsername, password, Role.TEACHER);
+            User user = authService.createUser(
+                    loginUsername, password, Role.TEACHER, teacher.getEmail(), teacher.getFullName());
             teacher.setUser(user);
         }
         if (teacher.getStatus() == null) {

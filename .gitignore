@@ -1,6 +1,9 @@
 target/
 .idea/
+.vscode/
 data/
+uploads/*
+!uploads/.gitkeep
 *.iml
 .classpath
 .project
@@ -11,3 +14,18 @@ data/
 *.log
 .DS_Store
 Thumbs.db
+
+.env
+application-local.properties
+
+# Debug / scratch files at project root
+cookies*.txt
+t_cookies*.txt
+tmp_*
+*_result.html
+*_check.html
+*_live*.html
+*_headers.txt
+dept_*.json
+sections_*.json
+teachers_*.json

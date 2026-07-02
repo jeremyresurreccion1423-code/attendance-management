@@ -5,8 +5,6 @@ import com.attendance.model.StudentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +24,4 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     Page<Student> findByDepartmentId(Long departmentId, Pageable pageable);
     Page<Student> findAllByOrderByFullNameAsc(Pageable pageable);
-
-    @Query("SELECT DISTINCT s.yearLevel FROM Student s WHERE s.department.id = :departmentId AND s.yearLevel IS NOT NULL ORDER BY s.yearLevel")
-    List<String> findYearLevelsByDepartmentId(@Param("departmentId") Long departmentId);
 }

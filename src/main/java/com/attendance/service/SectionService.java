@@ -70,8 +70,4 @@ public class SectionService {
     public List<Section> findByDepartmentIdAndYearLevel(Long departmentId, String yearLevel) {
         return sectionRepository.findByDepartmentIdAndYearLevelOrderBySectionNameAsc(departmentId, yearLevel);
     }
-
-    public List<String> findYearLevelsByDepartmentId(Long departmentId) {
-        return sectionRepository.findYearLevelsByDepartmentId(departmentId);
-    }
 }

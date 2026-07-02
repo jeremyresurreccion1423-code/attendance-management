@@ -1,124 +1,83 @@
-# Attendance Management System (AMS)
+# Attendance Management System (EduPresence)
 
-A full-featured **Java Spring Boot** web application with **MySQL** database for managing school attendance, grades, timetables, and reports.
+Spring Boot web app for school attendance, grades, timetables, and reports.
 
 ## Features
 
 | Module | Capabilities |
 |--------|-------------|
-| **Authentication** | Login, Logout, Forgot Password, Role-Based Access (Admin / Teacher / Student) |
-| **Student Management** | Add, Update, Delete, View profiles |
-| **Teacher Management** | Add, Update, Delete, Assign subjects |
-| **Subject & Class** | Create subjects, assign teachers & students, manage sections |
-| **Smart Attendance** | Manual entry, QR code sessions, face verification (demo), geo-location validation |
-| **Marks** | Quiz / Assignment / Exam scores, weighted grade computation |
+| **Authentication** | Login, logout, forgot password (OTP), role-based access (Admin / Teacher / Student) |
+| **Student Management** | Add, update, delete, view profiles |
+| **Teacher Management** | Add, update, delete, assign subjects |
+| **Subject & Class** | Create subjects, assign teachers and students, manage sections |
+| **Smart Attendance** | Manual entry, QR code sessions, geo-location validation |
+| **Marks** | Quiz / assignment / exam scores, weighted grade computation |
 | **Timetable** | Create schedules, assign rooms, publish for students |
-| **Reports** | Attendance & grade reports, export PDF & Excel |
-| **Dashboards** | Role-specific analytics and widgets |
+| **Reports** | Attendance and grade reports, export PDF and Excel |
+| **Dashboards** | Role-specific analytics |
 
-## Tech Stack
+## Tech stack
 
-- **Java 17**
-- **Spring Boot 3.2** (Web, Security, JPA, Thymeleaf)
-- **MySQL 8**
-- **ZXing** (QR codes)
-- **Apache POI** (Excel export)
-- **iText** (PDF export)
+- Java 17, Spring Boot 3.2
+- PostgreSQL (Supabase)
+- Thymeleaf, Spring Security
+- ZXing (QR), Apache POI (Excel), iText (PDF)
 
-## Prerequisites
+## Project structure
 
-1. [Java JDK 17+](https://adoptium.net/)
-2. [Apache Maven 3.8+](https://maven.apache.org/)
-3. [MySQL Server 8](https://dev.mysql.com/downloads/mysql/)
-
-## Database Setup
-
-### Option A: Auto-create (recommended)
-
-Spring Boot will create the `attendance_db` database and tables automatically on first run.
-
-### Option B: Manual setup
-
-```sql
-mysql -u root -p < database/schema.sql
+```
+ATTENDANCE MANAGEMENT SYSTEM/
+├── database/          # SQL schemas and maintenance scripts
+├── docs/              # Architecture notes
+├── scripts/           # Utility scripts (e.g. fix_database.py)
+├── src/main/java/com/attendance/
+│   ├── config/        # Security, data initialization
+│   ├── controller/    # Web and REST controllers
+│   ├── dto/           # Data transfer objects
+│   ├── model/         # JPA entities and enums
+│   ├── repository/    # Spring Data JPA
+│   ├── security/      # UserDetailsService
+│   ├── service/       # Business logic
+│   └── util/          # Helpers
+├── src/main/resources/
+│   ├── application.properties
+│   ├── application-local.properties   # gitignored — your secrets
+│   ├── static/        # CSS, JS, images
+│   └── templates/     # Thymeleaf pages (admin, auth, student, teacher, profile)
+├── run.ps1            # Start app (PowerShell)
+├── run.bat            # Start app (CMD)
+└── pom.xml
 ```
 
 ## Configuration
 
-Edit `src/main/resources/application.properties`:
+1. Copy `application-local.properties.example` to  
+   `src/main/resources/application-local.properties`
+2. Set your Supabase PostgreSQL URL, username, and password
+3. Optionally set `MAIL_USERNAME` and `MAIL_PASSWORD` for OTP email
 
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/attendance_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-spring.datasource.username=root
-spring.datasource.password=YOUR_MYSQL_PASSWORD
+## Run
+
+```powershell
+cd "C:\Users\Jeremy\Downloads\ATTENDANCE MANAGEMENT SYSTEM"
+.\run.ps1
 ```
 
-## Run the Application
+Open **http://localhost:8081**
+
+Or with Maven directly:
 
 ```bash
-cd "ATTENDANCE MANAGEMENT SYSTEM"
 mvn spring-boot:run
 ```
 
-Open **http://localhost:8080** in your browser.
-
-## Demo Accounts
+## Demo accounts
 
 | Role | Username | Password |
 |------|----------|----------|
 | Admin | `admin` | `admin123` |
 | Teacher | `teacher1` | `teacher123` |
 | Student | `student1` | `student123` |
-
-Sample data includes one teacher, one student, one subject (CS301 Database Systems), enrollments, and a published timetable.
-
-## System Architecture
-
-```
-Login → Role Validation → Admin / Teacher / Student Dashboard
-                              ↓
-                         MySQL Database
-                              ↓
-                    Analytics & Reports
-```
-
-### Database Tables
-
-- `users` — Authentication & roles
-- `students`, `teachers`, `sections`
-- `subjects`, `enrollments`
-- `attendance`, `attendance_qr`, `face_recognition_log`
-- `marks`, `timetables`
-- `notifications`, `reports`, `audit_logs`
-
-## Usage Guide
-
-### Teacher Attendance Flow
-1. Login as teacher → **Attendance**
-2. Select subject → choose **Manual Entry** or **Generate QR Code**
-3. Students scan QR (with optional face verification & geo-location)
-
-### Student Attendance Flow
-1. Login as student → **Scan QR**
-2. Paste the session code from teacher's QR display
-3. Allow location access → Submit
-
-### Marks Flow
-1. Teacher → **Marks** → select subject
-2. Enter quiz, assignment, exam scores → **Save**
-3. Click **Compute All Final Grades** (20% / 30% / 50% weighting)
-
-## Project Structure
-
-```
-src/main/java/com/attendance/
-├── config/          # Security, data initialization
-├── controller/      # Web controllers (Admin, Teacher, Student)
-├── model/           # JPA entities & enums
-├── repository/      # Spring Data JPA repositories
-├── security/        # UserDetailsService
-└── service/         # Business logic
-```
 
 ## Build JAR
 
@@ -127,12 +86,6 @@ mvn clean package -DskipTests
 java -jar target/attendance-management-system-1.0.0.jar
 ```
 
-## Notes
+## Related project
 
-- **Face recognition** is simulated for demo purposes. Integrate OpenCV or a cloud API for production.
-- **Geo-validation** uses a configurable radius (default 100m) in `application.properties`.
-- **CSRF** is enabled by default in Spring Security; forms use standard POST submissions.
-
-## License
-
-Educational project — free to use and modify.
+Library system: `C:\Users\Jeremy\Downloads\LIBRARY MANAGEMENT\smart-library` (port **8080**)

@@ -22,6 +22,15 @@ public class AuthService {
         return userRepository.findByUsername(username);
     }
 
+    public Optional<User> findByUsernameOrEmail(String identifier) {
+        if (identifier == null || identifier.isBlank()) {
+            return Optional.empty();
+        }
+        String key = identifier.trim();
+        return userRepository.findByUsername(key)
+                .or(() -> userRepository.findByEmailIgnoreCase(key));
+    }
+
     @Transactional
     public void updateLastLogin(String username) {
         userRepository.findByUsername(username).ifPresent(user -> {
@@ -53,13 +62,23 @@ public class AuthService {
 
     @Transactional
     public User createUser(String username, String password, Role role) {
+        return createUser(username, password, role, null, null);
+    }
+
+    @Transactional
+    public User createUser(String username, String password, Role role, String email, String fullName) {
         if (userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("Username already exists");
+        }
+        if (email != null && !email.isBlank() && userRepository.existsByEmailIgnoreCase(email.trim())) {
+            throw new IllegalArgumentException("Email already exists");
         }
         User user = User.builder()
                 .username(username)
                 .password(passwordEncoder.encode(password))
                 .role(role)
+                .email(email != null && !email.isBlank() ? email.trim().toLowerCase() : null)
+                .fullName(fullName != null && !fullName.isBlank() ? fullName.trim() : null)
                 .enabled(true)
                 .build();
         return userRepository.save(user);

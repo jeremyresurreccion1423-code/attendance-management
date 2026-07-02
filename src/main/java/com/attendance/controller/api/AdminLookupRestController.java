@@ -38,9 +38,4 @@ public class AdminLookupRestController {
                 .map(s -> new LookupDTO(s.getId(), s.getSectionName() + " (" + s.getYearLevel() + ")"))
                 .toList();
     }
-
-    @GetMapping("/year-levels")
-    public List<String> yearLevels(@RequestParam Long departmentId) {
-        return sectionService.findYearLevelsByDepartmentId(departmentId);
-    }
 }
