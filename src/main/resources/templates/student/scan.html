@@ -106,32 +106,9 @@
         </div>
     </main>
 </div>
+<script th:src="@{/js/profile-menu.js}"></script>
+<script th:src="@{/js/forms.js}"></script>
 <script th:src="@{/js/layout.js}"></script>
-<script>
-function closeAllProfileMenus() {
-    document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));
-    document.querySelectorAll('.profile-panel').forEach(panel => panel.classList.remove('show'));
-}
-function toggleProfileMenu(button) {
-    const widget = button.closest('.page-header-profile-widget') || button.closest('.sidebar-profile-widget');
-    const menu = widget ? widget.querySelector('.profile-menu') : null;
-    if (!menu) return;
-    const shouldOpen = !menu.classList.contains('show');
-    closeAllProfileMenus();
-    if (shouldOpen) menu.classList.add('show');
-}
-function toggleProfilePanel(panelId) {
-    closeAllProfileMenus();
-    const panel = document.getElementById(panelId);
-    if (panel) panel.classList.add('show');
-}
-document.addEventListener('click', function (event) {
-    const target = event.target;
-    if (!target.closest('.page-header-profile-widget') && !target.closest('.sidebar-profile-widget')) {
-        closeAllProfileMenus();
-    }
-});
-</script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
     const form = document.getElementById('scanForm');
