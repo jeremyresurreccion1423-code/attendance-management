@@ -68,7 +68,9 @@ public class TeacherService {
         if (teacher.getStatus() == null) {
             teacher.setStatus(TeacherStatus.ACTIVE);
         }
-        return teacherRepository.save(teacher);
+        Teacher saved = teacherRepository.save(teacher);
+        syncLoginAccessWithStatus(saved);
+        return saved;
     }
 
     @Transactional
@@ -90,7 +92,17 @@ public class TeacherService {
         if (updated.getStatus() != null) {
             teacher.setStatus(updated.getStatus());
         }
-        return teacherRepository.save(teacher);
+        Teacher saved = teacherRepository.save(teacher);
+        syncLoginAccessWithStatus(saved);
+        return saved;
+    }
+
+    private void syncLoginAccessWithStatus(Teacher teacher) {
+        if (teacher.getUser() == null || teacher.getStatus() == null) {
+            return;
+        }
+        boolean canLogin = teacher.getStatus() == TeacherStatus.ACTIVE;
+        authService.updateAccountEnabledById(teacher.getUser().getId(), canLogin);
     }
 
     @Transactional

@@ -46,8 +46,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         User resolved = user.orElseThrow(() -> new UsernameNotFoundException("User not found: " + key));
 
         boolean accountEnabled = Boolean.TRUE.equals(resolved.getEnabled());
-        if (resolved.getRole() == Role.STUDENT) {
-            // Validate student status after password check in StudentAwareAuthenticationProvider.
+        if (resolved.getRole() == Role.STUDENT || resolved.getRole() == Role.TEACHER) {
+            // Validate role status after password check in StudentAwareAuthenticationProvider.
             accountEnabled = true;
         }
 
