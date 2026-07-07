@@ -11,4 +11,5 @@ public interface AttendanceQRRepository extends JpaRepository<AttendanceQR, Long
     Optional<AttendanceQR> findByQrCodeAndActiveTrue(String qrCode);
     List<AttendanceQR> findBySubjectIdAndSessionDate(Long subjectId, LocalDate sessionDate);
     List<AttendanceQR> findBySessionDate(LocalDate sessionDate);
+    void deleteByTimetable_Id(Long timetableId);
 }

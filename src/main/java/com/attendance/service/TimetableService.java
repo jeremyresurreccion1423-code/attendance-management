@@ -1,5 +1,6 @@
 package com.attendance.service;
 
+import com.attendance.exception.BusinessException;
 import com.attendance.model.*;
 import com.attendance.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ public class TimetableService {
     private final SubjectRepository subjectRepository;
     private final TeacherRepository teacherRepository;
     private final EnrollmentRepository enrollmentRepository;
+    private final AttendanceQRRepository attendanceQRRepository;
 
     public List<Timetable> findAll() {
         return timetableRepository.findAll();
@@ -88,6 +90,9 @@ public class TimetableService {
 
     @Transactional
     public void delete(Long id) {
-        timetableRepository.deleteById(id);
+        Timetable timetable = timetableRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Schedule not found."));
+        attendanceQRRepository.deleteByTimetable_Id(id);
+        timetableRepository.delete(timetable);
     }
 }

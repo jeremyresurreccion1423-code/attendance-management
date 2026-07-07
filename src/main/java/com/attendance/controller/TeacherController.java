@@ -205,8 +205,12 @@ public class TeacherController {
 
     @PostMapping("/timetable/{id}/delete")
     public String deleteSchedule(@PathVariable Long id, RedirectAttributes redirect) {
-        timetableService.delete(id);
-        redirect.addFlashAttribute("message", "Schedule deleted");
+        try {
+            timetableService.delete(id);
+            redirect.addFlashAttribute("message", "Schedule deleted");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
         return "redirect:/teacher/timetable";
     }
 
