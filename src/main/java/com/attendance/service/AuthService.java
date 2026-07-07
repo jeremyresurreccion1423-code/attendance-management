@@ -61,6 +61,12 @@ public class AuthService {
     }
 
     @Transactional
+    public void updateAccountEnabled(User user, boolean enabled) {
+        user.setEnabled(enabled);
+        userRepository.save(user);
+    }
+
+    @Transactional
     public User createUser(String username, String password, Role role) {
         return createUser(username, password, role, null, null);
     }

@@ -1,6 +1,10 @@
 package com.attendance.config;
 
+import com.attendance.repository.StudentRepository;
+import com.attendance.repository.UserRepository;
 import com.attendance.security.CustomUserDetailsService;
+import com.attendance.security.LoginAuthenticationFailureHandler;
+import com.attendance.security.StudentAwareAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +23,9 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
+    private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
+    private final LoginAuthenticationFailureHandler loginFailureHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -27,7 +34,8 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        StudentAwareAuthenticationProvider provider = new StudentAwareAuthenticationProvider(
+                userRepository, studentRepository);
         provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
@@ -50,7 +58,7 @@ public class SecurityConfig {
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
                 .defaultSuccessUrl("/dashboard", true)
-                .failureUrl("/login?error=true")
+                .failureHandler(loginFailureHandler)
                 .permitAll()
             )
             .logout(logout -> logout

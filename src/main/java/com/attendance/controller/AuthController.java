@@ -57,10 +57,17 @@ public class AuthController {
 
     @GetMapping("/login")
     public String login(@RequestParam(required = false) String error,
+                        @RequestParam(required = false) String message,
                         @RequestParam(required = false) String logout,
                         Model model) {
         if ("session".equals(error)) {
             model.addAttribute("error", "Your session has expired. Please log in again.");
+        } else if ("inactive".equals(error)) {
+            model.addAttribute("error", message != null && !message.isBlank()
+                    ? message
+                    : "Your student account is INACTIVE. You cannot log in at this time. Please contact the administrator.");
+        } else if ("disabled".equals(error)) {
+            model.addAttribute("error", "Your account has been disabled. Please contact the administrator.");
         } else if (error != null) {
             model.addAttribute("error", "Invalid username or password.");
         }

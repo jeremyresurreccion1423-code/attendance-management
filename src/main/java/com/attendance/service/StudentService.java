@@ -69,6 +69,7 @@ public class StudentService {
             student.setStatus(StudentStatus.ACTIVE);
         }
         Student saved = studentRepository.save(student);
+        syncLoginAccessWithStatus(saved);
         if (saved.getUser() != null) {
             try {
                 sharedLibraryStudentProfileSyncService.syncFromAttendanceStudent(saved.getUser(), saved);
@@ -107,7 +108,17 @@ public class StudentService {
             }
             student.setSection(section);
         }
-        return studentRepository.save(student);
+        Student saved = studentRepository.save(student);
+        syncLoginAccessWithStatus(saved);
+        return saved;
+    }
+
+    private void syncLoginAccessWithStatus(Student student) {
+        if (student.getUser() == null || student.getStatus() == null) {
+            return;
+        }
+        boolean canLogin = student.getStatus() == StudentStatus.ACTIVE;
+        authService.updateAccountEnabled(student.getUser(), canLogin);
     }
 
     @Transactional

@@ -1,5 +1,6 @@
 package com.attendance.security;
 
+import com.attendance.model.Role;
 import com.attendance.model.User;
 import com.attendance.repository.StudentRepository;
 import com.attendance.repository.TeacherRepository;
@@ -44,10 +45,16 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         User resolved = user.orElseThrow(() -> new UsernameNotFoundException("User not found: " + key));
 
+        boolean accountEnabled = Boolean.TRUE.equals(resolved.getEnabled());
+        if (resolved.getRole() == Role.STUDENT) {
+            // Validate student status after password check in StudentAwareAuthenticationProvider.
+            accountEnabled = true;
+        }
+
         return new org.springframework.security.core.userdetails.User(
                 resolved.getUsername(),
                 resolved.getPassword(),
-                resolved.getEnabled(),
+                accountEnabled,
                 true, true, true,
                 List.of(new SimpleGrantedAuthority("ROLE_" + resolved.getRole().name()))
         );
