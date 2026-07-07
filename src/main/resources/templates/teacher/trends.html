@@ -27,7 +27,7 @@
                 <span th:text="'Analytics for ' + ${teacher.fullName}"></span>
             </div>
             <div class="page-header-profile-widget">
-                <button type="button" class="profile-trigger">
+                <button type="button" class="profile-trigger" onclick="toggleProfileMenu(this)">
                     <img th:if="${profilePhotoUrl != null}" class="profile-avatar profile-avatar-img" th:src="${profilePhotoUrl}" alt="Profile photo" />
                     <span th:unless="${profilePhotoUrl != null}" class="profile-avatar" th:text="${profileInitial ?: 'U'}">U</span>
                     <span class="profile-meta">
@@ -37,7 +37,7 @@
                     <span class="profile-caret">▾</span>
                 </button>
                 <div class="profile-menu">
-                    <button type="button" class="profile-menu-action" data-open-profile>My Profile</button>
+                    <button type="button" class="profile-menu-action" onclick="toggleProfilePanel('profile-panel')">My Profile</button>
                     <a href="/logout" class="profile-menu-action profile-logout">Logout</a>
                 </div>
                 <div class="profile-panel" id="profile-panel">
@@ -119,6 +119,8 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script th:src="@{/js/dashboard-charts.js}"></script>
+<script th:src="@{/js/profile-menu.js}"></script>
+<script th:src="@{/js/forms.js}"></script>
 <script th:src="@{/js/layout.js}"></script>
 <script th:inline="javascript">
 document.addEventListener('DOMContentLoaded', function () {
