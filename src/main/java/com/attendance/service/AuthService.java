@@ -67,6 +67,11 @@ public class AuthService {
     }
 
     @Transactional
+    public void updateAccountEnabledById(Long userId, boolean enabled) {
+        userRepository.findById(userId).ifPresent(user -> updateAccountEnabled(user, enabled));
+    }
+
+    @Transactional
     public User createUser(String username, String password, Role role) {
         return createUser(username, password, role, null, null);
     }

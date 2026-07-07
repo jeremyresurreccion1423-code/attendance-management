@@ -118,7 +118,7 @@ public class StudentService {
             return;
         }
         boolean canLogin = student.getStatus() == StudentStatus.ACTIVE;
-        authService.updateAccountEnabled(student.getUser(), canLogin);
+        authService.updateAccountEnabledById(student.getUser().getId(), canLogin);
     }
 
     @Transactional
