@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Create / Add - AMS</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/create.css}">
 </head>
 <body>
 <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
@@ -82,16 +83,48 @@
             </div>
         </div>
 
-        <div class="create-nav">
-            <a href="#department" class="create-nav-link">Department</a>
-            <a href="#student" class="create-nav-link">Student</a>
-            <a href="#teacher" class="create-nav-link">Teacher</a>
-            <a href="#subject" class="create-nav-link">Subject</a>
-            <a href="#section" class="create-nav-link">Section</a>
+        <div class="create-flow-hint">
+            <strong>Recommended setup order:</strong>
+            Department → Section → Teacher → Student → Subject.
+            Gumawa muna ng department at section bago mag-add ng students at subjects.
         </div>
 
-        <div class="card create-section" id="department">
-            <h3>Create Department</h3>
+        <div class="create-steps" role="tablist" aria-label="Create steps">
+            <button type="button" class="create-step-btn active" data-create-tab="department" role="tab" aria-selected="true">
+                <span class="create-step-num">1</span>
+                <span class="create-step-label">Department</span>
+                <span class="create-step-sub">Program / course</span>
+            </button>
+            <button type="button" class="create-step-btn" data-create-tab="section" role="tab" aria-selected="false">
+                <span class="create-step-num">2</span>
+                <span class="create-step-label">Section</span>
+                <span class="create-step-sub">Class group</span>
+            </button>
+            <button type="button" class="create-step-btn" data-create-tab="teacher" role="tab" aria-selected="false">
+                <span class="create-step-num">3</span>
+                <span class="create-step-label">Teacher</span>
+                <span class="create-step-sub">Faculty account</span>
+            </button>
+            <button type="button" class="create-step-btn" data-create-tab="student" role="tab" aria-selected="false">
+                <span class="create-step-num">4</span>
+                <span class="create-step-label">Student</span>
+                <span class="create-step-sub">Enroll learner</span>
+            </button>
+            <button type="button" class="create-step-btn" data-create-tab="subject" role="tab" aria-selected="false">
+                <span class="create-step-num">5</span>
+                <span class="create-step-label">Subject</span>
+                <span class="create-step-sub">Link class</span>
+            </button>
+        </div>
+
+        <div class="card create-section create-panel active" id="department" data-create-panel="department" role="tabpanel">
+            <div class="create-panel-head">
+                <div>
+                    <h3>Create Department</h3>
+                    <p>Start here — all other records depend on a department.</p>
+                </div>
+                <span class="create-panel-step-badge">Step 1 of 5</span>
+            </div>
             <form th:action="@{/admin/departments}" method="post" th:object="${department}" class="ams-validate">
                 <div class="form-row">
                     <div class="form-group">
@@ -103,7 +136,10 @@
                         <input type="text" th:field="*{description}" class="form-control" placeholder="Short description">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Create Department</button>
+                <div class="create-panel-actions">
+                    <button type="submit" class="btn btn-primary">Create Department</button>
+                    <button type="button" class="btn btn-secondary" data-create-next="section">Next: Section →</button>
+                </div>
             </form>
             <div th:if="${!#lists.isEmpty(departmentList)}" style="margin-top:1rem;">
                 <h4 style="font-size:0.92rem; color:#475569; margin-bottom:0.5rem;">Existing Departments</h4>
@@ -113,8 +149,111 @@
             </div>
         </div>
 
-        <div class="card create-section" id="student">
-            <h3>Add Student</h3>
+        <div class="card create-section create-panel" id="section" data-create-panel="section" role="tabpanel">
+            <div class="create-panel-head">
+                <div>
+                    <h3>Create Section</h3>
+                    <p>Sections group students by year level within a department.</p>
+                </div>
+                <span class="create-panel-step-badge">Step 2 of 5</span>
+            </div>
+            <form th:action="@{/admin/sections}" method="post" th:object="${section}" class="ams-validate">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Section Name</label>
+                        <input type="text" th:field="*{name}" class="form-control" required placeholder="e.g. BSIT-3A">
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select th:field="*{department.id}" class="form-control" required>
+                            <option value="">-- Select Department --</option>
+                            <option th:each="d : ${departmentList}" th:value="${d.id}" th:text="${d.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Year Level</label>
+                        <select th:field="*{yearLevel}" class="form-control">
+                            <option value="">-- Select --</option>
+                            <option value="1st Year">1st Year</option>
+                            <option value="2nd Year">2nd Year</option>
+                            <option value="3rd Year">3rd Year</option>
+                            <option value="4th Year">4th Year</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="create-panel-actions">
+                    <button type="button" class="btn btn-secondary" data-create-prev="department">← Department</button>
+                    <button type="submit" class="btn btn-primary">Create Section</button>
+                    <button type="button" class="btn btn-secondary" data-create-next="teacher">Next: Teacher →</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card create-section create-panel" id="teacher" data-create-panel="teacher" role="tabpanel">
+            <div class="create-panel-head">
+                <div>
+                    <h3>Add Teacher</h3>
+                    <p>Teachers can be assigned to subjects after they are created.</p>
+                </div>
+                <span class="create-panel-step-badge">Step 3 of 5</span>
+            </div>
+            <form th:action="@{/admin/teachers}" method="post" th:object="${teacher}" class="ams-validate">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Employee ID</label>
+                        <input type="text" th:field="*{employeeId}" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" th:field="*{fullName}" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select th:field="*{department.id}" class="form-control" required>
+                            <option value="">-- Select Department --</option>
+                            <option th:each="d : ${departmentList}" th:value="${d.id}" th:text="${d.name}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact</label>
+                        <input type="text" th:field="*{contactNumber}" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" th:field="*{email}" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select th:field="*{status}" class="form-control">
+                            <option value="ACTIVE">ACTIVE</option>
+                            <option value="INACTIVE">INACTIVE</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Login Username</label>
+                        <input type="text" name="username" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Login Password</label>
+                        <input type="password" name="password" class="form-control" minlength="6">
+                    </div>
+                </div>
+                <div class="create-panel-actions">
+                    <button type="button" class="btn btn-secondary" data-create-prev="section">← Section</button>
+                    <button type="submit" class="btn btn-primary">Add Teacher</button>
+                    <button type="button" class="btn btn-secondary" data-create-next="student">Next: Student →</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card create-section create-panel" id="student" data-create-panel="student" role="tabpanel">
+            <div class="create-panel-head">
+                <div>
+                    <h3>Add Student</h3>
+                    <p>Requires department and section from the previous steps.</p>
+                </div>
+                <span class="create-panel-step-badge">Step 4 of 5</span>
+            </div>
             <form th:action="@{/admin/students}" method="post" th:object="${student}" class="ams-validate" data-lookup-form>
                 <input type="hidden" name="returnTo" value="create">
                 <div class="form-row">
@@ -173,52 +312,22 @@
                         <input type="password" name="password" class="form-control" minlength="6">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Add Student</button>
-            </form>
-        </div>
-
-        <div class="card create-section" id="teacher">
-            <h3>Add Teacher</h3>
-            <form th:action="@{/admin/teachers}" method="post" th:object="${teacher}" class="ams-validate">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Employee ID</label>
-                        <input type="text" th:field="*{employeeId}" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Full Name</label>
-                        <input type="text" th:field="*{fullName}" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Department</label>
-                        <select th:field="*{department.id}" class="form-control" required>
-                            <option value="">-- Select Department --</option>
-                            <option th:each="d : ${departmentList}" th:value="${d.id}" th:text="${d.name}"></option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Contact</label>
-                        <input type="text" th:field="*{contactNumber}" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" th:field="*{email}" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Login Username</label>
-                        <input type="text" name="username" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Login Password</label>
-                        <input type="password" name="password" class="form-control" minlength="6">
-                    </div>
+                <div class="create-panel-actions">
+                    <button type="button" class="btn btn-secondary" data-create-prev="teacher">← Teacher</button>
+                    <button type="submit" class="btn btn-primary">Add Student</button>
+                    <button type="button" class="btn btn-secondary" data-create-next="subject">Next: Subject →</button>
                 </div>
-                <button type="submit" class="btn btn-primary">Add Teacher</button>
             </form>
         </div>
 
-        <div class="card create-section" id="subject">
-            <h3>Create Subject</h3>
+        <div class="card create-section create-panel" id="subject" data-create-panel="subject" role="tabpanel">
+            <div class="create-panel-head">
+                <div>
+                    <h3>Create Subject</h3>
+                    <p>Link a subject to department, teacher, and section.</p>
+                </div>
+                <span class="create-panel-step-badge">Step 5 of 5</span>
+            </div>
             <form th:action="@{/admin/subjects}" method="post" th:object="${subject}" class="ams-validate" data-lookup-form>
                 <div class="form-row">
                     <div class="form-group">
@@ -253,37 +362,10 @@
                         <input type="text" th:field="*{description}" class="form-control">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Create Subject</button>
-            </form>
-        </div>
-
-        <div class="card create-section" id="section">
-            <h3>Create Section</h3>
-            <form th:action="@{/admin/sections}" method="post" th:object="${section}" class="ams-validate">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Section Name</label>
-                        <input type="text" th:field="*{name}" class="form-control" required placeholder="e.g. BSIT-3A">
-                    </div>
-                    <div class="form-group">
-                        <label>Department</label>
-                        <select th:field="*{department.id}" class="form-control" required>
-                            <option value="">-- Select Department --</option>
-                            <option th:each="d : ${departmentList}" th:value="${d.id}" th:text="${d.name}"></option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Year Level</label>
-                        <select th:field="*{yearLevel}" class="form-control">
-                            <option value="">-- Select --</option>
-                            <option value="1st Year">1st Year</option>
-                            <option value="2nd Year">2nd Year</option>
-                            <option value="3rd Year">3rd Year</option>
-                            <option value="4th Year">4th Year</option>
-                        </select>
-                    </div>
+                <div class="create-panel-actions">
+                    <button type="button" class="btn btn-secondary" data-create-prev="student">← Student</button>
+                    <button type="submit" class="btn btn-primary">Create Subject</button>
                 </div>
-                <button type="submit" class="btn btn-primary">Create Section</button>
             </form>
         </div>
     </main>
@@ -293,10 +375,47 @@
 <script th:src="@{/js/lookup-filter.js}"></script>
 <script th:src="@{/js/layout.js}"></script>
 <script>
-if (window.location.hash) {
-    const target = document.querySelector(window.location.hash);
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+(function () {
+    const tabs = document.querySelectorAll('[data-create-tab]');
+    const panels = document.querySelectorAll('[data-create-panel]');
+    const validTabs = ['department', 'section', 'teacher', 'student', 'subject'];
+
+    function showTab(tabId) {
+        if (!validTabs.includes(tabId)) return;
+        tabs.forEach(function (tab) {
+            const active = tab.getAttribute('data-create-tab') === tabId;
+            tab.classList.toggle('active', active);
+            tab.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        panels.forEach(function (panel) {
+            panel.classList.toggle('active', panel.getAttribute('data-create-panel') === tabId);
+        });
+        if (history.replaceState) {
+            history.replaceState(null, '', '#' + tabId);
+        }
+    }
+
+    tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            showTab(tab.getAttribute('data-create-tab'));
+        });
+    });
+
+    document.querySelectorAll('[data-create-next]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            showTab(btn.getAttribute('data-create-next'));
+        });
+    });
+
+    document.querySelectorAll('[data-create-prev]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            showTab(btn.getAttribute('data-create-prev'));
+        });
+    });
+
+    const hash = window.location.hash ? window.location.hash.substring(1) : 'department';
+    showTab(validTabs.includes(hash) ? hash : 'department');
+})();
 </script>
 </body>
 </html>

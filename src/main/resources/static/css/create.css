@@ -1,0 +1,136 @@
+.create-flow-hint {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+    border: 1px solid #c7e6d2;
+    border-left: 4px solid var(--primary);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 1rem;
+    color: #475569;
+    font-size: 0.88rem;
+}
+
+.create-flow-hint strong {
+    color: var(--primary-dark);
+}
+
+.create-steps {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.create-step-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid #dce4ea;
+    border-radius: 12px;
+    background: #fff;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.create-step-btn:hover {
+    border-color: #86efac;
+    background: #f8fdf9;
+}
+
+.create-step-btn.active {
+    border-color: var(--primary);
+    background: linear-gradient(135deg, #ecfdf3 0%, #ffffff 100%);
+    box-shadow: 0 4px 14px rgba(18, 147, 71, 0.12);
+}
+
+.create-step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 999px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.create-step-btn.active .create-step-num {
+    background: var(--primary-dark);
+}
+
+.create-step-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.create-step-sub {
+    font-size: 0.72rem;
+    color: #64748b;
+    line-height: 1.3;
+}
+
+.create-panel {
+    display: none;
+}
+
+.create-panel.active {
+    display: block;
+}
+
+.create-panel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #edf8f1;
+}
+
+.create-panel-head h3 {
+    margin: 0;
+}
+
+.create-panel-head p {
+    margin: 0.25rem 0 0;
+    color: #64748b;
+    font-size: 0.86rem;
+}
+
+.create-panel-step-badge {
+    flex-shrink: 0;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.create-panel-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #edf2f7;
+}
+
+@media (max-width: 960px) {
+    .create-steps {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 520px) {
+    .create-steps {
+        grid-template-columns: 1fr;
+    }
+}
