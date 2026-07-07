@@ -15,15 +15,6 @@
         const stored = localStorage.getItem(storageKey) === "1";
         applyState(stored);
 
-        document.querySelectorAll(".profile-menu-action").forEach((action) => {
-            if (action.textContent && action.textContent.trim().toLowerCase() === "my profile") {
-                action.addEventListener("click", (event) => {
-                    event.preventDefault();
-                    window.location.href = "/profile";
-                });
-            }
-        });
-
         toggleButton.addEventListener("click", () => {
             const collapsed = !document.body.classList.contains("sidebar-collapsed");
             applyState(collapsed);
@@ -39,3 +30,54 @@
         document.head.appendChild(formsScript);
     }
 })();
+
+function closeAllProfileMenus() {
+    document.querySelectorAll(".profile-menu").forEach((menu) => menu.classList.remove("show"));
+    document.querySelectorAll(".profile-panel").forEach((panel) => panel.classList.remove("show"));
+}
+
+function toggleProfileMenu(button) {
+    const widget = button.closest(".page-header-profile-widget") || button.closest(".sidebar-profile-widget");
+    const menu = widget ? widget.querySelector(".profile-menu") : null;
+    if (!menu) return;
+    const shouldOpen = !menu.classList.contains("show");
+    closeAllProfileMenus();
+    if (shouldOpen) menu.classList.add("show");
+}
+
+function toggleProfilePanel(panelId) {
+    closeAllProfileMenus();
+    const panel = document.getElementById(panelId);
+    if (panel) panel.classList.add("show");
+}
+
+document.addEventListener("click", function (event) {
+    const target = event.target;
+
+    const profileAction = target.closest(".profile-menu-action[data-open-profile]");
+    if (profileAction) {
+        event.preventDefault();
+        const widget = profileAction.closest(".page-header-profile-widget") || profileAction.closest(".sidebar-profile-widget");
+        const panel = widget ? widget.querySelector(".profile-panel") : document.getElementById("profile-panel");
+        if (panel) {
+            toggleProfilePanel(panel.id);
+        } else {
+            window.location.href = "/profile";
+        }
+        return;
+    }
+
+    if (!target.closest(".page-header-profile-widget") && !target.closest(".sidebar-profile-widget")) {
+        closeAllProfileMenus();
+    }
+});
+
+document.querySelectorAll(".profile-trigger").forEach((trigger) => {
+    if (trigger.getAttribute("onclick")) {
+        return;
+    }
+    trigger.addEventListener("click", (event) => {
+        event.preventDefault();
+        toggleProfileMenu(trigger);
+    });
+});
