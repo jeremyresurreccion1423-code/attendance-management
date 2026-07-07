@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>My Schedule - AMS</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/schedule.css}">
 </head>
 <body>
 <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
@@ -76,27 +77,27 @@
             </div>
         </div>
 
-        <div th:if="${!#lists.isEmpty(schedules)}" class="student-schedule-stats">
-            <div class="student-schedule-stat">
-                <strong th:text="${scheduleCount}">0</strong>
-                <span>Total Classes</span>
+        <div th:if="${!#lists.isEmpty(schedules)}" class="stats-grid schedule-stats-grid">
+            <div class="stat-card">
+                <div class="value" th:text="${scheduleCount}">0</div>
+                <div class="label">Total Classes</div>
             </div>
-            <div class="student-schedule-stat">
-                <strong th:text="${subjectCount}">0</strong>
-                <span>Subjects</span>
+            <div class="stat-card">
+                <div class="value" th:text="${subjectCount}">0</div>
+                <div class="label">Subjects</div>
             </div>
-            <div class="student-schedule-stat">
-                <strong th:text="${schedulesByDay.size()}">0</strong>
-                <span>Days with Classes</span>
+            <div class="stat-card">
+                <div class="value" th:text="${schedulesByDay.size()}">0</div>
+                <div class="label">Days with Classes</div>
             </div>
         </div>
 
-        <div th:if="${!#lists.isEmpty(schedules)}" class="schedule-toolbar">
+        <div th:if="${!#lists.isEmpty(schedules)}" class="card schedule-toolbar">
             <div class="schedule-view-toggle" role="tablist" aria-label="Schedule view">
                 <button type="button" class="active" data-schedule-view="group" aria-selected="true">By Day</button>
                 <button type="button" data-schedule-view="table" aria-selected="false">Table View</button>
             </div>
-            <small style="color:#64748b;">Sorted by day and start time</small>
+            <span class="schedule-toolbar-note">Sorted by day and start time</span>
         </div>
 
         <div th:if="${#lists.isEmpty(schedules)}" class="card schedule-empty">
@@ -105,8 +106,8 @@
         </div>
 
         <div id="scheduleGroupView" th:if="${!#lists.isEmpty(schedules)}">
-            <div class="schedule-day-group" th:each="entry : ${schedulesByDay}">
-                <div class="schedule-day-header">
+            <div class="card schedule-day-card" th:each="entry : ${schedulesByDay}">
+                <div class="card-head">
                     <span class="schedule-day-badge" th:text="${#strings.capitalize(#strings.toLowerCase(entry.key.name()))}">Monday</span>
                     <span class="schedule-day-count" th:text="${entry.value.size()} + ' class(es)'">0 class(es)</span>
                 </div>

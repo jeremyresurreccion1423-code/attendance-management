@@ -1,0 +1,204 @@
+/* Student schedule page styles */
+.page-header > div:first-child span {
+    display: block;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.88rem;
+    margin-top: 0.15rem;
+}
+
+.schedule-stats-grid {
+    margin-bottom: 1.25rem;
+}
+
+.schedule-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+}
+
+.schedule-toolbar-note {
+    color: #64748b;
+    font-size: 0.84rem;
+}
+
+.schedule-view-toggle {
+    display: inline-flex;
+    background: #edf2f7;
+    border-radius: 999px;
+    padding: 0.25rem;
+    border: 1px solid #dde5ea;
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.schedule-view-toggle button {
+    border: 0;
+    background: transparent;
+    color: #64748b;
+    padding: 0.5rem 1.1rem;
+    border-radius: 999px;
+    font-size: 0.86rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.schedule-view-toggle button:hover {
+    color: #0d7438;
+}
+
+.schedule-view-toggle button.active {
+    background: #ffffff;
+    color: #0d7438;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.1);
+}
+
+.schedule-day-card {
+    margin-bottom: 1.25rem;
+}
+
+.schedule-day-card .card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #edf8f1;
+}
+
+.schedule-day-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem 0.95rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #0d7438, #129347);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    box-shadow: 0 4px 12px rgba(18, 147, 71, 0.25);
+}
+
+.schedule-day-count {
+    color: #64748b;
+    font-size: 0.84rem;
+    font-weight: 600;
+}
+
+.schedule-day-items {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.schedule-item-card {
+    display: grid;
+    grid-template-columns: minmax(130px, 160px) 1fr;
+    gap: 1rem;
+    align-items: center;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fdf9 100%);
+    border: 1px solid #dde5ea;
+    border-left: 4px solid #129347;
+    border-radius: 14px;
+    padding: 1rem 1.1rem;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.schedule-item-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(18, 147, 71, 0.1);
+}
+
+.schedule-item-time {
+    font-size: 0.86rem;
+    color: #0d7438;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.schedule-item-time small {
+    display: block;
+    color: #64748b;
+    font-weight: 500;
+    margin-top: 0.15rem;
+}
+
+.schedule-item-subject {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.35rem;
+}
+
+.schedule-item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    color: #475569;
+    font-size: 0.86rem;
+}
+
+.schedule-item-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.schedule-item-meta span::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #129347;
+    flex-shrink: 0;
+}
+
+.schedule-empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: #64748b;
+}
+
+.schedule-empty strong {
+    display: block;
+    color: #334155;
+    font-size: 1.05rem;
+    margin-bottom: 0.4rem;
+}
+
+.schedule-table-card table th {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.schedule-table-card table th.sort-asc::after {
+    content: " ▲";
+    font-size: 0.65rem;
+}
+
+.schedule-table-card table th.sort-desc::after {
+    content: " ▼";
+    font-size: 0.65rem;
+}
+
+@media (max-width: 720px) {
+    .schedule-item-card {
+        grid-template-columns: 1fr;
+    }
+
+    .schedule-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .schedule-view-toggle {
+        width: 100%;
+        justify-content: center;
+    }
+}
