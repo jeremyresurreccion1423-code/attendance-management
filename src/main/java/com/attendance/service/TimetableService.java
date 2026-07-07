@@ -39,8 +39,25 @@ public class TimetableService {
     }
 
     public List<Timetable> findByStudent(Long studentId) {
-        // Optimized single query - prevents N+1 query problem
-        return timetableRepository.findByStudentId(studentId);
+        return timetableRepository.findByStudentId(studentId).stream()
+                .sorted(Comparator
+                        .comparing(Timetable::getDayOfWeek)
+                        .thenComparing(Timetable::getStartTime)
+                        .thenComparing(t -> t.getSubject().getSubjectName(), String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    public java.util.Map<DayOfWeek, List<Timetable>> groupByDay(List<Timetable> schedules) {
+        java.util.Map<DayOfWeek, List<Timetable>> grouped = new java.util.LinkedHashMap<>();
+        for (DayOfWeek day : DayOfWeek.values()) {
+            List<Timetable> daySchedules = schedules.stream()
+                    .filter(t -> t.getDayOfWeek() == day)
+                    .toList();
+            if (!daySchedules.isEmpty()) {
+                grouped.put(day, daySchedules);
+            }
+        }
+        return grouped;
     }
 
     public List<Timetable> findPublishedBySubjectAndDate(Long subjectId, LocalDate date) {

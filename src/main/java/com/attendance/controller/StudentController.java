@@ -94,7 +94,15 @@ public class StudentController {
     @GetMapping("/schedule")
     public String schedule(Authentication auth, Model model) {
         Student student = getCurrentStudent(auth);
-        model.addAttribute("schedules", timetableService.findByStudent(student.getId()));
+        var schedules = timetableService.findByStudent(student.getId());
+        model.addAttribute("student", student);
+        model.addAttribute("schedules", schedules);
+        model.addAttribute("schedulesByDay", timetableService.groupByDay(schedules));
+        model.addAttribute("scheduleCount", schedules.size());
+        model.addAttribute("subjectCount", schedules.stream()
+                .map(t -> t.getSubject().getId())
+                .distinct()
+                .count());
         return "student/schedule";
     }
 

@@ -22,7 +22,10 @@
     </aside>
     <main class="main-content">
         <div class="page-header">
-            <h1>Class Schedule</h1>
+            <div>
+                <h1>Class Schedule</h1>
+                <span th:text="'Weekly timetable for ' + ${student.fullName}"></span>
+            </div>
             <div class="page-header-profile-widget">
                 <button type="button" class="profile-trigger" onclick="toggleProfileMenu(this)">
                     <img th:if="${profilePhotoUrl != null}" class="profile-avatar profile-avatar-img" th:src="${profilePhotoUrl}" alt="Profile photo" />
@@ -72,27 +75,157 @@
                 </div>
             </div>
         </div>
-        <div class="card">
-            <table>
-                <thead><tr><th>Subject</th><th>Day</th><th>Time</th><th>Room</th><th>Teacher</th></tr></thead>
-                <tbody>
-                    <tr th:each="s : ${schedules}">
+
+        <div th:if="${!#lists.isEmpty(schedules)}" class="student-schedule-stats">
+            <div class="student-schedule-stat">
+                <strong th:text="${scheduleCount}">0</strong>
+                <span>Total Classes</span>
+            </div>
+            <div class="student-schedule-stat">
+                <strong th:text="${subjectCount}">0</strong>
+                <span>Subjects</span>
+            </div>
+            <div class="student-schedule-stat">
+                <strong th:text="${schedulesByDay.size()}">0</strong>
+                <span>Days with Classes</span>
+            </div>
+        </div>
+
+        <div th:if="${!#lists.isEmpty(schedules)}" class="schedule-toolbar">
+            <div class="schedule-view-toggle" role="tablist" aria-label="Schedule view">
+                <button type="button" class="active" data-schedule-view="group" aria-selected="true">By Day</button>
+                <button type="button" data-schedule-view="table" aria-selected="false">Table View</button>
+            </div>
+            <small style="color:#64748b;">Sorted by day and start time</small>
+        </div>
+
+        <div th:if="${#lists.isEmpty(schedules)}" class="card schedule-empty">
+            <strong>No published schedule yet</strong>
+            <span>Your class schedule will appear here once your teachers publish it.</span>
+        </div>
+
+        <div id="scheduleGroupView" th:if="${!#lists.isEmpty(schedules)}">
+            <div class="schedule-day-group" th:each="entry : ${schedulesByDay}">
+                <div class="schedule-day-header">
+                    <span class="schedule-day-badge" th:text="${#strings.capitalize(#strings.toLowerCase(entry.key.name()))}">Monday</span>
+                    <span class="schedule-day-count" th:text="${entry.value.size()} + ' class(es)'">0 class(es)</span>
+                </div>
+                <div class="schedule-day-items">
+                    <article class="schedule-item-card" th:each="s : ${entry.value}">
+                        <div class="schedule-item-time">
+                            <span th:text="${#temporals.format(s.startTime, 'hh:mm a')}">08:00 AM</span>
+                            <small th:text="'to ' + ${#temporals.format(s.endTime, 'hh:mm a')}">to 10:00 AM</small>
+                        </div>
+                        <div>
+                            <div class="schedule-item-subject" th:text="${s.subject.subjectName}">Subject</div>
+                            <div class="schedule-item-meta">
+                                <span th:text="|Room: ${s.room != null and !#strings.isEmpty(s.room) ? s.room : 'TBA'}|">Room: TBA</span>
+                                <span th:text="|Teacher: ${s.teacher != null ? s.teacher.fullName : 'TBA'}|">Teacher: TBA</span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+
+        <div id="scheduleTableView" class="card schedule-table-card" th:if="${!#lists.isEmpty(schedules)}" hidden>
+            <div class="table-wrapper">
+                <table id="scheduleTable">
+                    <thead>
+                    <tr>
+                        <th data-sort="day">Day</th>
+                        <th data-sort="time">Time</th>
+                        <th data-sort="subject">Subject</th>
+                        <th data-sort="room">Room</th>
+                        <th data-sort="teacher">Teacher</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="s : ${schedules}"
+                        th:attr="data-day=${s.dayOfWeek.ordinal()},data-time=${s.startTime},data-subject=${s.subject.subjectName},data-room=${s.room != null ? s.room : ''},data-teacher=${s.teacher != null ? s.teacher.fullName : ''}">
+                        <td th:text="${#strings.capitalize(#strings.toLowerCase(s.dayOfWeek.name()))}"></td>
+                        <td th:text="|${#temporals.format(s.startTime, 'hh:mm a')} - ${#temporals.format(s.endTime, 'hh:mm a')}|"></td>
                         <td th:text="${s.subject.subjectName}"></td>
-                        <td th:text="${s.dayOfWeek}"></td>
-                        <td th:text="${s.startTime} + ' - ' + ${s.endTime}"></td>
-                        <td th:text="${s.room}"></td>
-                        <td th:text="${s.teacher != null ? s.teacher.fullName : '-'}"></td>
+                        <td th:text="${s.room != null and !#strings.isEmpty(s.room) ? s.room : 'TBA'}"></td>
+                        <td th:text="${s.teacher != null ? s.teacher.fullName : 'TBA'}"></td>
                     </tr>
-                    <tr th:if="${#lists.isEmpty(schedules)}">
-                        <td colspan="5" style="text-align:center; color:#666;">No published schedule yet.</td>
-                    </tr>
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 </div>
 <script th:src="@{/js/profile-menu.js}"></script>
 <script th:src="@{/js/forms.js}"></script>
 <script th:src="@{/js/layout.js}"></script>
+<script>
+(function () {
+    const groupView = document.getElementById('scheduleGroupView');
+    const tableView = document.getElementById('scheduleTableView');
+    const toggleButtons = document.querySelectorAll('[data-schedule-view]');
+    const table = document.getElementById('scheduleTable');
+
+    toggleButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            toggleButtons.forEach((item) => {
+                item.classList.remove('active');
+                item.setAttribute('aria-selected', 'false');
+            });
+            button.classList.add('active');
+            button.setAttribute('aria-selected', 'true');
+            const view = button.getAttribute('data-schedule-view');
+            if (view === 'table') {
+                groupView.hidden = true;
+                tableView.hidden = false;
+            } else {
+                groupView.hidden = false;
+                tableView.hidden = true;
+            }
+        });
+    });
+
+    if (!table) return;
+
+    const headers = table.querySelectorAll('th[data-sort]');
+    let currentSort = { key: 'day', asc: true };
+
+    headers.forEach((header) => {
+        header.addEventListener('click', () => {
+            const key = header.getAttribute('data-sort');
+            if (currentSort.key === key) {
+                currentSort.asc = !currentSort.asc;
+            } else {
+                currentSort.key = key;
+                currentSort.asc = true;
+            }
+            headers.forEach((item) => item.classList.remove('sort-asc', 'sort-desc'));
+            header.classList.add(currentSort.asc ? 'sort-asc' : 'sort-desc');
+            sortRows();
+        });
+    });
+
+    function sortRows() {
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        rows.sort((a, b) => {
+            const left = (a.dataset[currentSort.key] || '').toString().toLowerCase();
+            const right = (b.dataset[currentSort.key] || '').toString().toLowerCase();
+            if (currentSort.key === 'day') {
+                const dayLeft = Number(a.dataset.day || 0);
+                const dayRight = Number(b.dataset.day || 0);
+                return currentSort.asc ? dayLeft - dayRight : dayRight - dayLeft;
+            }
+            if (currentSort.key === 'time') {
+                return currentSort.asc
+                    ? (a.dataset.time || '').localeCompare(b.dataset.time || '')
+                    : (b.dataset.time || '').localeCompare(a.dataset.time || '');
+            }
+            const result = left.localeCompare(right);
+            return currentSort.asc ? result : -result;
+        });
+        rows.forEach((row) => tbody.appendChild(row));
+    }
+})();
+</script>
 </body>
 </html>
