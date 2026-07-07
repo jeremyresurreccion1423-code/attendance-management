@@ -4,6 +4,7 @@ import com.attendance.exception.BusinessException;
 import com.attendance.model.*;
 import com.attendance.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class StudentService {
 
     private final StudentRepository studentRepository;
@@ -68,7 +70,16 @@ public class StudentService {
         }
         Student saved = studentRepository.save(student);
         if (saved.getUser() != null) {
-            sharedLibraryStudentProfileSyncService.syncFromAttendanceStudent(saved.getUser(), saved);
+            try {
+                sharedLibraryStudentProfileSyncService.syncFromAttendanceStudent(saved.getUser(), saved);
+            } catch (Exception ex) {
+                log.error(
+                        "Attendance student {} saved but Library profile sync failed for user {}: {}",
+                        saved.getStudentNumber(),
+                        saved.getUser().getUsername(),
+                        ex.getMessage(),
+                        ex);
+            }
         }
         return saved;
     }

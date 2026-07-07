@@ -3,7 +3,9 @@ package com.attendance.config;
 import com.attendance.model.*;
 import com.attendance.repository.*;
 import com.attendance.service.AuthService;
+import com.attendance.service.SharedLibrarySchemaRepairService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -22,9 +24,20 @@ public class DataInitializer implements CommandLineRunner {
     private final EnrollmentRepository enrollmentRepository;
     private final TimetableRepository timetableRepository;
     private final AuthService authService;
+    private final SharedLibrarySchemaRepairService sharedLibrarySchemaRepairService;
+
+    @Value("${attendance.seed-on-startup:false}")
+    private boolean seedOnStartup;
 
     @Override
     public void run(String... args) {
+        sharedLibrarySchemaRepairService.repairStudentProfileUserForeignKey();
+
+        if (!seedOnStartup) {
+            System.out.println("=== Attendance seed-on-startup disabled ===");
+            return;
+        }
+
         User adminUser = userRepository.findByUsername("admin")
                 .orElseGet(() -> authService.createUser(
                         "admin", "admin123", Role.ADMIN, "edulibrary67+admin@gmail.com", "System Admin"));
