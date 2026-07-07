@@ -1,75 +1,35 @@
 # Attendance Management System (EduPresence)
 
-Spring Boot web app for school attendance, grades, timetables, and reports.
+Spring Boot web application for school attendance, grades, timetables, and reports. Shares authentication and a Supabase PostgreSQL database with the [Smart Library](../LIBRARY%20MANAGEMENT/smart-library) app (port 8080).
 
-## Features
+## Stack
 
-| Module | Capabilities |
-|--------|-------------|
-| **Authentication** | Login, logout, forgot password (OTP), role-based access (Admin / Teacher / Student) |
-| **Student Management** | Add, update, delete, view profiles |
-| **Teacher Management** | Add, update, delete, assign subjects |
-| **Subject & Class** | Create subjects, assign teachers and students, manage sections |
-| **Smart Attendance** | Manual entry, QR code sessions, geo-location validation |
-| **Marks** | Quiz / assignment / exam scores, weighted grade computation |
-| **Timetable** | Create schedules, assign rooms, publish for students |
-| **Reports** | Attendance and grade reports, export PDF and Excel |
-| **Dashboards** | Role-specific analytics |
+Java 17 · Spring Boot 3.2 · PostgreSQL (Supabase) · Thymeleaf · Spring Security · BCrypt
 
-## Tech stack
+## Quick start
 
-- Java 17, Spring Boot 3.2
-- PostgreSQL (Supabase)
-- Thymeleaf, Spring Security
-- ZXing (QR), Apache POI (Excel), iText (PDF)
+**Prerequisites:** JDK 17+, Maven (or use `run.ps1`)
 
-## Project structure
-
-```
-ATTENDANCE MANAGEMENT SYSTEM/
-├── database/          # SQL schemas and maintenance scripts
-├── docs/              # Architecture notes
-├── scripts/           # Utility scripts (e.g. fix_database.py)
-├── src/main/java/com/attendance/
-│   ├── config/        # Security, data initialization
-│   ├── controller/    # Web and REST controllers
-│   ├── dto/           # Data transfer objects
-│   ├── model/         # JPA entities and enums
-│   ├── repository/    # Spring Data JPA
-│   ├── security/      # UserDetailsService
-│   ├── service/       # Business logic
-│   └── util/          # Helpers
-├── src/main/resources/
-│   ├── application.properties
-│   ├── application-local.properties   # gitignored — your secrets
-│   ├── static/        # CSS, JS, images
-│   └── templates/     # Thymeleaf pages (admin, auth, student, teacher, profile)
-├── run.ps1            # Start app (PowerShell)
-├── run.bat            # Start app (CMD)
-└── pom.xml
-```
-
-## Configuration
-
-1. Copy `application-local.properties.example` to  
-   `src/main/resources/application-local.properties`
-2. Set your Supabase PostgreSQL URL, username, and password
-3. Optionally set `MAIL_USERNAME` and `MAIL_PASSWORD` for OTP email
-
-## Run
+1. Copy `application-local.properties.example` → `src/main/resources/application-local.properties`
+2. Set Supabase URL, username, and password (same credentials as Library)
+3. Run:
 
 ```powershell
-cd "C:\Users\Jeremy\Downloads\ATTENDANCE MANAGEMENT SYSTEM"
 .\run.ps1
 ```
 
 Open **http://localhost:8081**
 
-Or with Maven directly:
+Or: `mvn spring-boot:run "-Djava.net.preferIPv4Stack=true"`
 
-```bash
-mvn spring-boot:run
-```
+## Configuration
+
+| Variable | Purpose |
+|----------|---------|
+| `SUPABASE_DB_URL` | JDBC URL (Session Pooler) |
+| `SUPABASE_DB_USER` | `postgres.<project-ref>` |
+| `SUPABASE_DB_PASSWORD` | Database password |
+| `MAIL_USERNAME` / `MAIL_PASSWORD` | Gmail SMTP for OTP (optional) |
 
 ## Demo accounts
 
@@ -79,13 +39,29 @@ mvn spring-boot:run
 | Teacher | `teacher1` | `teacher123` |
 | Student | `student1` | `student123` |
 
-## Build JAR
+Student credentials also work in the Library app (shared `public.users`).
+
+## Project layout
+
+```
+attendance-management/
+├── database/          # SQL schemas and migrations
+├── scripts/           # Maintenance utilities
+├── src/               # Application source
+├── uploads/           # Profile photos (gitignored)
+├── run.ps1 / run.bat  # Startup scripts
+└── pom.xml
+```
+
+## Build
 
 ```bash
 mvn clean package -DskipTests
 java -jar target/attendance-management-system-1.0.0.jar
 ```
 
-## Related project
+## Related
 
-Library system: `C:\Users\Jeremy\Downloads\LIBRARY MANAGEMENT\smart-library` (port **8080**)
+**Smart Library** — `../LIBRARY MANAGEMENT/smart-library` on port **8080**
+
+Both apps use one Supabase database: `public` schema (Attendance) and `library` schema (Library).

@@ -1,22 +1,36 @@
+# Build output
 target/
+
+# IDE
 .idea/
 .vscode/
-data/
-uploads/*
-!uploads/.gitkeep
 *.iml
 .classpath
 .project
 .settings/
+
+# Local data
+data/
+uploads/*
+!uploads/.gitkeep
+
+# Compiled artifacts
 *.class
 *.jar
 *.war
+
+# Logs
 *.log
+logs/
+
+# OS files
 .DS_Store
 Thumbs.db
 
+# Secrets — never commit
 .env
 application-local.properties
+src/main/resources/application-local.properties
 
 # Debug / scratch files at project root
 cookies*.txt
@@ -29,3 +43,14 @@ tmp_*
 dept_*.json
 sections_*.json
 teachers_*.json
+response.txt
+headers.txt
+post_subject_headers.txt
+teacher_dashboard_headers.txt
+downloaded_*.png
+create_*.html
+login_result.html
+post_subject_result.html
+phase4_integration_report.json
+clean_attendance.py
+clean_users.sql

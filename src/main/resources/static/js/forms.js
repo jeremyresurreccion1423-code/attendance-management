@@ -293,7 +293,10 @@
                 title: "Confirm Delete",
                 okText: "Yes, Delete",
             }).then((confirmed) => {
-                if (confirmed) form.submit();
+                if (confirmed) {
+                    applyFormLoading(form);
+                    form.submit();
+                }
             });
             return;
         }
@@ -307,7 +310,10 @@
                 title: "Confirm Action",
                 okText: "Yes, Proceed",
             }).then((confirmed) => {
-                if (confirmed) form.submit();
+                if (confirmed) {
+                    applyFormLoading(form);
+                    form.submit();
+                }
             });
             return;
         }
@@ -337,11 +343,134 @@
             if (loginPassword && loginPassword.value && loginPassword.value.length < 6) {
                 showFieldError(loginPassword, "Password must be at least 6 characters.");
                 event.preventDefault();
+                return;
             }
+        }
+
+        if (!event.defaultPrevented && form.dataset.noLoading !== "true") {
+            applyFormLoading(form);
         }
     });
 
-    document.querySelectorAll('form[action*="/profile/password"], form[action*="/forgot-password"]').forEach((form) => {
+    function isAuthPage() {
+        return Boolean(document.querySelector(".auth-page, .login-page, [data-auth-page]"));
+    }
+
+    function applyFormLoading(form) {
+        const btn = form.querySelector('button[type="submit"]:not([disabled])');
+        if (btn) setButtonLoading(btn, true);
+        form.classList.add("is-submitting");
+    }
+
+    function setButtonLoading(button, loading) {
+        if (!button) return;
+        if (loading) {
+            if (!button.dataset.originalText) {
+                button.dataset.originalText = button.textContent.trim();
+            }
+            button.disabled = true;
+            button.classList.add("btn-loading");
+            button.innerHTML = '<span class="loading-spinner" aria-hidden="true"></span><span>Please wait...</span>';
+        }
+    }
+
+    function initLoginUsernameRestore() {
+        const loginForm = document.querySelector('form[action*="/login"]');
+        if (!loginForm) return;
+        const usernameInput = loginForm.querySelector('input[name="username"]');
+        if (!usernameInput) return;
+        const storageKey = "ams_login_username";
+        const hasLoginError = Boolean(document.querySelector(".alert.alert-error"));
+        if (hasLoginError) {
+            const saved = sessionStorage.getItem(storageKey);
+            if (saved) usernameInput.value = saved;
+        } else {
+            sessionStorage.removeItem(storageKey);
+        }
+        loginForm.addEventListener("submit", () => {
+            const value = usernameInput.value.trim();
+            if (value) sessionStorage.setItem(storageKey, value);
+        });
+    }
+
+    function initEmptyStates() {
+        document.querySelectorAll("table tbody tr").forEach((row) => {
+            const cell = row.querySelector("td[colspan]");
+            if (!cell || row.children.length !== 1) return;
+            const text = cell.textContent.trim().toLowerCase();
+            if (text.includes("no ") || text.includes("walang") || text.includes("yet") || text.includes("empty")) {
+                row.classList.add("empty-state-row");
+                cell.classList.add("empty-state-cell");
+            }
+        });
+    }
+
+    let sessionToastEl = null;
+
+    function hideSessionToast() {
+        if (sessionToastEl) {
+            sessionToastEl.classList.remove("show");
+        }
+    }
+
+    function showSessionToast(message, isExpired) {
+        if (!sessionToastEl) {
+            sessionToastEl = document.createElement("div");
+            sessionToastEl.className = "session-timeout-toast";
+            sessionToastEl.setAttribute("role", "alert");
+            sessionToastEl.innerHTML = '<span class="session-timeout-icon" aria-hidden="true">⏱</span><span class="session-timeout-text"></span>';
+            document.body.appendChild(sessionToastEl);
+        }
+        sessionToastEl.querySelector(".session-timeout-text").textContent = message;
+        sessionToastEl.classList.toggle("session-timeout-toast--expired", Boolean(isExpired));
+        sessionToastEl.classList.add("show");
+    }
+
+    function initSessionTimeout() {
+        if (isAuthPage()) return;
+        const isLoggedIn = document.querySelector('a[href="/logout"], a.profile-logout, .sidebar');
+        if (!isLoggedIn) return;
+
+        const timeoutMs = (Number(document.body.dataset.sessionMinutes) || 30) * 60 * 1000;
+        const warningMs = 2 * 60 * 1000;
+        let expiry = Date.now() + timeoutMs;
+        let warned = false;
+
+        const resetTimer = () => {
+            expiry = Date.now() + timeoutMs;
+            warned = false;
+            hideSessionToast();
+        };
+
+        ["click", "keydown", "mousemove", "scroll", "touchstart"].forEach((evt) => {
+            document.addEventListener(evt, resetTimer, { passive: true });
+        });
+
+        setInterval(() => {
+            const remaining = expiry - Date.now();
+            if (remaining <= 0) {
+                showSessionToast("Your session has expired. Redirecting to login...", true);
+                setTimeout(() => { window.location.href = "/login?error=session"; }, 2500);
+            } else if (remaining <= warningMs && !warned) {
+                warned = true;
+                showSessionToast("Your session will expire in 2 minutes due to inactivity.");
+            }
+        }, 10000);
+    }
+
+    document.querySelectorAll('form[action*="/forgot-password"]:not([action*="request-otp"])').forEach((form) => {
+        if (form.querySelector('input[name="newPassword"]')) {
+            form.classList.add("confirm-action");
+            form.setAttribute("data-confirm-message", "Reset your password with this OTP?");
+        }
+    });
+
+    document.querySelectorAll('form[action*="/profile/password"]').forEach((form) => {
+        form.classList.add("ams-validate", "confirm-action");
+        form.setAttribute("data-confirm-message", "Change your password?");
+    });
+
+    document.querySelectorAll('form[action*="/forgot-password"]').forEach((form) => {
         form.classList.add("ams-validate");
     });
 
@@ -374,16 +503,26 @@
         }
     });
 
-    // Show flash messages as centered popups instead of top alerts.
+    // Show flash messages as centered popups on app pages; keep inline on auth pages.
+    const authPage = isAuthPage();
     const successAlert = document.querySelector(".alert.alert-success");
     const errorAlert = document.querySelector(".alert.alert-error");
     if (successAlert && successAlert.textContent.trim()) {
-        showStatusModal("success", successAlert.textContent.trim());
-        successAlert.style.display = "none";
+        if (!authPage) {
+            showStatusModal("success", successAlert.textContent.trim());
+            successAlert.style.display = "none";
+        }
     } else if (errorAlert && errorAlert.textContent.trim()) {
-        showStatusModal("error", errorAlert.textContent.trim());
-        errorAlert.style.display = "none";
+        if (!authPage) {
+            showStatusModal("error", errorAlert.textContent.trim());
+            errorAlert.style.display = "none";
+        }
     }
 
+    initLoginUsernameRestore();
+    initEmptyStates();
+    initSessionTimeout();
+
     window.amsConfirm = confirmAction;
+    window.amsShowStatus = showStatusModal;
 })();

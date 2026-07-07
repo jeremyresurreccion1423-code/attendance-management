@@ -59,8 +59,12 @@ public class AuthController {
     public String login(@RequestParam(required = false) String error,
                         @RequestParam(required = false) String logout,
                         Model model) {
-        if (error != null) model.addAttribute("error", "Invalid username or password");
-        if (logout != null) model.addAttribute("message", "You have been logged out");
+        if ("session".equals(error)) {
+            model.addAttribute("error", "Your session has expired. Please log in again.");
+        } else if (error != null) {
+            model.addAttribute("error", "Invalid username or password.");
+        }
+        if (logout != null) model.addAttribute("message", "You have been logged out successfully.");
         return "auth/login";
     }
 

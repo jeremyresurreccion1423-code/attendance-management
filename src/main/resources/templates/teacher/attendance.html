@@ -186,35 +186,53 @@ if (qrBtn) {
             return;
         }
         if (!timetableId) {
-            alert('Please choose a published schedule time first.');
+            if (window.amsShowStatus) {
+                window.amsShowStatus('error', 'Please choose a published schedule time first.');
+            } else {
+                alert('Please choose a published schedule time first.');
+            }
             return;
         }
-        if (!confirm('Generate QR attendance session? Your location will be captured for geo-validation.')) {
-            return;
-        }
-        qrBtn.disabled = true;
-        qrBtn.textContent = 'Getting location...';
-        let targetUrl = '/teacher/attendance/qr?subjectId=' + encodeURIComponent(subjectId)
-            + '&timetableId=' + encodeURIComponent(timetableId);
-        if (selectedDate) {
-            targetUrl += '&date=' + encodeURIComponent(selectedDate);
-        }
-        if (!navigator.geolocation) {
-            window.location.href = targetUrl;
-            return;
-        }
-        navigator.geolocation.getCurrentPosition(
-            function (pos) {
-                window.location.href = targetUrl
-                    + '&latitude=' + pos.coords.latitude
-                    + '&longitude=' + pos.coords.longitude;
-            },
-            function () {
-                alert('Location access denied. QR will be generated without geo-validation.');
+        const doGenerate = function() {
+            qrBtn.disabled = true;
+            qrBtn.textContent = 'Getting location...';
+            let targetUrl = '/teacher/attendance/qr?subjectId=' + encodeURIComponent(subjectId)
+                + '&timetableId=' + encodeURIComponent(timetableId);
+            if (selectedDate) {
+                targetUrl += '&date=' + encodeURIComponent(selectedDate);
+            }
+            if (!navigator.geolocation) {
                 window.location.href = targetUrl;
-            },
-            { enableHighAccuracy: true, timeout: 10000 }
-        );
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    window.location.href = targetUrl
+                        + '&latitude=' + pos.coords.latitude
+                        + '&longitude=' + pos.coords.longitude;
+                },
+                function () {
+                    if (window.amsShowStatus) {
+                        window.amsShowStatus('error', 'Location access denied. QR will be generated without geo-validation.');
+                    } else {
+                        alert('Location access denied. QR will be generated without geo-validation.');
+                    }
+                    window.location.href = targetUrl;
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        };
+        if (window.amsConfirm) {
+            window.amsConfirm('Generate QR attendance session? Your location will be captured for geo-validation.', {
+                type: 'warning',
+                title: 'Generate QR Session',
+                okText: 'Generate QR'
+            }).then(function(confirmed) {
+                if (confirmed) doGenerate();
+            });
+        } else if (confirm('Generate QR attendance session? Your location will be captured for geo-validation.')) {
+            doGenerate();
+        }
     });
 }
 </script>
