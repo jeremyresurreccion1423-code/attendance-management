@@ -222,9 +222,14 @@ public class TeacherController {
     }
 
     @GetMapping("/reports/attendance/excel")
-    public ResponseEntity<byte[]> exportAttendanceExcel(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) throws Exception {
+    public Object exportAttendanceExcel(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            RedirectAttributes redirect) throws Exception {
+        String validationRedirect = validateReportDateRange(start, end, redirect);
+        if (validationRedirect != null) {
+            return validationRedirect;
+        }
         byte[] data = reportService.exportAttendanceExcel(start, end);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=attendance_report.xlsx")
@@ -233,14 +238,31 @@ public class TeacherController {
     }
 
     @GetMapping("/reports/attendance/pdf")
-    public ResponseEntity<byte[]> exportAttendancePdf(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) throws Exception {
+    public Object exportAttendancePdf(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            RedirectAttributes redirect) throws Exception {
+        String validationRedirect = validateReportDateRange(start, end, redirect);
+        if (validationRedirect != null) {
+            return validationRedirect;
+        }
         byte[] data = reportService.exportAttendancePdf(start, end);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=attendance_report.pdf")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(data);
+    }
+
+    private String validateReportDateRange(LocalDate start, LocalDate end, RedirectAttributes redirect) {
+        if (start == null || end == null) {
+            redirect.addFlashAttribute("error", "Please select both start and end dates.");
+            return "redirect:/teacher/reports";
+        }
+        if (end.isBefore(start)) {
+            redirect.addFlashAttribute("error", "End date must be on or after start date.");
+            return "redirect:/teacher/reports";
+        }
+        return null;
     }
 
     @GetMapping("/reports/grades/excel")

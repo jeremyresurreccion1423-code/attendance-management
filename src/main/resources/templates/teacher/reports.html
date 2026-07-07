@@ -72,14 +72,24 @@
                 </div>
             </div>
         </div>
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
         <div class="card">
             <h3>Export Attendance Report</h3>
             <div class="form-row">
-                <div class="form-group"><label>Start</label><input type="date" id="start" class="form-control"></div>
-                <div class="form-group"><label>End</label><input type="date" id="end" class="form-control"></div>
+                <div class="form-group">
+                    <label>Start</label>
+                    <input type="date" id="start" class="form-control"
+                           th:value="${#temporals.format(#temporals.createToday().withDayOfMonth(1), 'yyyy-MM-dd')}">
+                </div>
+                <div class="form-group">
+                    <label>End</label>
+                    <input type="date" id="end" class="form-control"
+                           th:value="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
+                </div>
             </div>
-            <a href="#" onclick="exportAtt('excel')" class="btn btn-success">Excel</a>
-            <a href="#" onclick="exportAtt('pdf')" class="btn btn-danger" style="margin-left:0.5rem;">PDF</a>
+            <a href="#" onclick="exportAtt('excel'); return false;" class="btn btn-success">Excel</a>
+            <a href="#" onclick="exportAtt('pdf'); return false;" class="btn btn-danger" style="margin-left:0.5rem;">PDF</a>
         </div>
         <div class="card">
             <h3>Export Grades Report</h3>
@@ -95,9 +105,28 @@
     </main>
 </div>
 <script th:src="@{/js/layout.js}"></script>
+<script th:src="@{/js/forms.js}"></script>
 <script>
-function exportAtt(t) {
-    window.location = '/teacher/reports/attendance/' + t + '?start=' + document.getElementById('start').value + '&end=' + document.getElementById('end').value;
+function exportAtt(type) {
+    const start = document.getElementById('start').value;
+    const end = document.getElementById('end').value;
+    if (!start || !end) {
+        if (window.amsShowStatus) {
+            window.amsShowStatus('error', 'Please select both start and end dates.');
+        } else {
+            alert('Please select both start and end dates.');
+        }
+        return;
+    }
+    if (end < start) {
+        if (window.amsShowStatus) {
+            window.amsShowStatus('error', 'End date must be on or after start date.');
+        } else {
+            alert('End date must be on or after start date.');
+        }
+        return;
+    }
+    window.location = '/teacher/reports/attendance/' + type + '?start=' + encodeURIComponent(start) + '&end=' + encodeURIComponent(end);
 }
 function exportGrades() {
     const subjectId = document.getElementById('gradeSubject').value;

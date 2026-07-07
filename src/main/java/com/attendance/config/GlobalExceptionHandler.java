@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -36,6 +37,18 @@ public class GlobalExceptionHandler {
         log.warn("AccessDeniedException: {}", ex.getMessage());
         redirect.addFlashAttribute("error", "You don't have permission to access this page.");
         return "redirect:/";
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public String handleTypeMismatch(MethodArgumentTypeMismatchException ex, RedirectAttributes redirect) {
+        String param = ex.getName();
+        log.warn("Invalid request parameter {}: {}", param, ex.getMessage());
+        if ("start".equals(param) || "end".equals(param)) {
+            redirect.addFlashAttribute("error", "Please select valid start and end dates.");
+            return "redirect:/teacher/reports";
+        }
+        redirect.addFlashAttribute("error", "Invalid request. Please check your input and try again.");
+        return "redirect:/login";
     }
 
     @ExceptionHandler(Exception.class)
