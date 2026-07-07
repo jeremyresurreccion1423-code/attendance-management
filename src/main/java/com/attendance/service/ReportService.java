@@ -43,7 +43,7 @@ public class ReportService {
                 row.createCell(4).setCellValue(a.getStatus().name());
                 row.createCell(5).setCellValue(a.getMethod().name());
             }
-            for (int i = 0; i < columns.length; i++) sheet.autoSizeColumn(i);
+            applyColumnWidths(sheet, columns.length);
             workbook.write(out);
             return out.toByteArray();
         }
@@ -90,6 +90,7 @@ public class ReportService {
                 row.createCell(3).setCellValue(m.getExamScore());
                 row.createCell(4).setCellValue(m.getFinalGrade() != null ? m.getFinalGrade() : 0);
             }
+            applyColumnWidths(sheet, columns.length);
             workbook.write(out);
             return out.toByteArray();
         }
@@ -122,6 +123,14 @@ public class ReportService {
         for (String h : headers) {
             PdfPCell cell = new PdfPCell(new Phrase(h, FontFactory.getFont(FontFactory.HELVETICA_BOLD)));
             table.addCell(cell);
+        }
+    }
+
+    /** Fixed widths — autoSizeColumn() uses AWT fonts and fails on headless Linux (Railway). */
+    private void applyColumnWidths(Sheet sheet, int columnCount) {
+        int width = 18 * 256;
+        for (int i = 0; i < columnCount; i++) {
+            sheet.setColumnWidth(i, width);
         }
     }
 }
