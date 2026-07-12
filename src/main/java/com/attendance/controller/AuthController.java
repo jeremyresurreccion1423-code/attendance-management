@@ -59,6 +59,7 @@ public class AuthController {
     public String login(@RequestParam(required = false) String error,
                         @RequestParam(required = false) String message,
                         @RequestParam(required = false) String logout,
+                        @RequestParam(required = false) String superAdmin,
                         Model model) {
         if ("session".equals(error)) {
             model.addAttribute("error", "Your session has expired. Please log in again.");
@@ -70,6 +71,9 @@ public class AuthController {
             model.addAttribute("error", "Your account has been disabled. Please contact the administrator.");
         } else if (error != null) {
             model.addAttribute("error", "Invalid username or password.");
+        }
+        if (superAdmin != null) {
+            model.addAttribute("error", "Super Admin accounts must sign in via the System Control Center.");
         }
         if (logout != null) model.addAttribute("message", "You have been logged out successfully.");
         return "auth/login";
@@ -170,6 +174,7 @@ public class AuthController {
         model.addAttribute("todayDay", today.format(DateTimeFormatter.ofPattern("EEEE")));
         model.addAttribute("profileDetails", profileDetails);
         model.addAttribute("dashboardPath", switch (user.getRole()) {
+            case SUPER_ADMIN -> "/super-admin";
             case ADMIN -> "/admin/dashboard";
             case TEACHER -> "/teacher/dashboard";
             case STUDENT -> "/student/dashboard";
@@ -306,7 +311,9 @@ public class AuthController {
                 .orElseThrow(() -> new IllegalStateException("User not found: " + auth.getName()));
         authService.updateLastLogin(auth.getName());
 
-        if (user.getRole() == com.attendance.model.Role.ADMIN) {
+        if (user.getRole() == com.attendance.model.Role.SUPER_ADMIN) {
+            return "redirect:/super-admin";
+        } else if (user.getRole() == com.attendance.model.Role.ADMIN) {
             return "redirect:/admin/dashboard";
         } else if (user.getRole() == com.attendance.model.Role.TEACHER) {
             if (teacherRepository.findByUserId(user.getId()).isEmpty()) {

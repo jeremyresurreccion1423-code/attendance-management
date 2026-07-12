@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
@@ -31,6 +32,14 @@ public class StudentLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHa
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
+        boolean isSuperAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_SUPER_ADMIN".equals(a.getAuthority()));
+        if (isSuperAdmin) {
+            new SecurityContextLogoutHandler().logout(request, response, authentication);
+            getRedirectStrategy().sendRedirect(request, response, "/login?superAdmin=true");
+            return;
+        }
+
         var denied = studentLoginAccessService.checkLogin(authentication.getName());
         if (denied.isPresent()) {
             SecurityContextHolder.clearContext();

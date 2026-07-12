@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Control Center - Super Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="auth-page super-admin-auth-page">
+    <div class="auth-card">
+        <div class="auth-brand super-admin-brand">
+            <div class="auth-brand-blob auth-brand-blob-1"></div>
+            <div class="auth-brand-blob auth-brand-blob-2"></div>
+            <div class="auth-brand-content">
+                <div class="auth-brand-logo-ring super-admin-logo-ring">
+                    <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <path d="M9 12l2 2 4-4"></path>
+                    </svg>
+                </div>
+            </div>
+            <ul class="auth-brand-points">
+                <li><span>Attendance Management System</span></li>
+                <li><span>Library Management System</span></li>
+                <li><span>One console. Full oversight.</span></li>
+            </ul>
+        </div>
+
+        <div class="auth-form">
+            <div class="auth-form-head">
+                <div>
+                    <h1>System <span>Control Center</span></h1>
+                    <p>Super Admin access only<br>Centralized administration hub</p>
+                </div>
+            </div>
+
+            <div class="auth-divider"></div>
+
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+            <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
+            <form th:action="@{/super-admin/login}" method="post" class="auth-fields">
+                <div class="form-group">
+                    <label for="username">Super Admin Username</label>
+                    <div class="auth-input">
+                        <input type="text" id="username" name="username" class="form-control" required autofocus minlength="3" placeholder="superadmin">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="auth-input">
+                        <input type="password" id="password" name="password" class="form-control" required minlength="6" placeholder="••••••••">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn super-admin-submit auth-submit">ENTER CONTROL CENTER</button>
+            </form>
+
+            <p class="auth-footer-text">Not a Super Admin? <a th:href="@{/login}">Go to the regular login</a></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

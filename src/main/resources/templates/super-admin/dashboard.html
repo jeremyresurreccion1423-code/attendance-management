@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>System Control Center - Super Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="super-admin-body">
+<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
+<div class="app-layout">
+    <aside class="sidebar super-admin-sidebar">
+        <div class="brand"><h2>SYSTEM</h2><small>Super Admin Console</small></div>
+        <nav>
+            <a th:href="@{/super-admin}" class="active">Overview</a>
+            <a href="/super-admin/logout" style="margin-top:2rem; border-top:1px solid #334155; padding-top:1rem; display:block;">Logout</a>
+        </nav>
+    </aside>
+    <main class="main-content">
+        <div class="page-header">
+            <h1>System Control Center</h1>
+        </div>
+
+        <div class="card super-admin-intro-card">
+            <h3>Centralized Administration</h3>
+            <p>Manage both the Attendance Management System and the Library Management System from one place.
+               Every link below opens that system's real admin page — no student, teacher, or other end-user
+               screens are exposed here.</p>
+        </div>
+
+        <div class="system-section">
+            <div class="system-section-title">
+                <span class="badge system-badge-attendance">Attendance Management System</span>
+            </div>
+            <div class="system-grid">
+                <a class="system-link-card" th:href="@{/admin/dashboard}">
+                    <span class="system-link-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a class="system-link-card" th:href="@{/admin/departments}">
+                    <span class="system-link-icon">🏢</span>
+                    <span>Departments</span>
+                </a>
+                <a class="system-link-card" th:href="@{/admin/create}">
+                    <span class="system-link-icon">➕</span>
+                    <span>Create / Add</span>
+                </a>
+                <a class="system-link-card" th:href="@{/admin/students}">
+                    <span class="system-link-icon">🎓</span>
+                    <span>Students</span>
+                </a>
+                <a class="system-link-card" th:href="@{/admin/teachers}">
+                    <span class="system-link-icon">👩‍🏫</span>
+                    <span>Teachers</span>
+                </a>
+                <a class="system-link-card" th:href="@{/admin/subjects}">
+                    <span class="system-link-icon">📚</span>
+                    <span>Subjects</span>
+                </a>
+                <a class="system-link-card" th:href="@{/admin/sections}">
+                    <span class="system-link-icon">🏫</span>
+                    <span>Sections</span>
+                </a>
+                <a class="system-link-card" th:href="@{/admin/reports}">
+                    <span class="system-link-icon">📄</span>
+                    <span>Reports</span>
+                </a>
+                <a class="system-link-card" th:href="@{/admin/trends}">
+                    <span class="system-link-icon">📈</span>
+                    <span>Trends</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="system-section">
+            <div class="system-section-title">
+                <span class="badge system-badge-library">Library Management System</span>
+            </div>
+            <div class="system-grid">
+                <a class="system-link-card" th:href="@{/super-admin/bridge/library(path='/admin')}">
+                    <span class="system-link-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a class="system-link-card" th:href="@{/super-admin/bridge/library(path='/admin/categories')}">
+                    <span class="system-link-icon">🗂️</span>
+                    <span>Categories</span>
+                </a>
+                <a class="system-link-card" th:href="@{/super-admin/bridge/library(path='/admin/authors')}">
+                    <span class="system-link-icon">✍️</span>
+                    <span>Authors</span>
+                </a>
+                <a class="system-link-card" th:href="@{/super-admin/bridge/library(path='/admin/books')}">
+                    <span class="system-link-icon">📖</span>
+                    <span>Books</span>
+                </a>
+                <a class="system-link-card" th:href="@{/super-admin/bridge/library(path='/admin/scan-issue')}">
+                    <span class="system-link-icon">🔍</span>
+                    <span>Scan &amp; Issue</span>
+                </a>
+                <a class="system-link-card" th:href="@{/super-admin/bridge/library(path='/admin/issues')}">
+                    <span class="system-link-icon">🔄</span>
+                    <span>Issue / Return</span>
+                </a>
+                <a class="system-link-card" th:href="@{/super-admin/bridge/library(path='/admin/issues/reservations')}">
+                    <span class="system-link-icon">🗓️</span>
+                    <span>Reservations</span>
+                </a>
+                <a class="system-link-card" th:href="@{/super-admin/bridge/library(path='/admin/students')}">
+                    <span class="system-link-icon">🎓</span>
+                    <span>Students</span>
+                </a>
+                <a class="system-link-card" th:href="@{/super-admin/bridge/library(path='/admin/analytics')}">
+                    <span class="system-link-icon">📈</span>
+                    <span>Analytics</span>
+                </a>
+                <a class="system-link-card" th:href="@{/super-admin/bridge/library(path='/admin/admins')}">
+                    <span class="system-link-icon">🛡️</span>
+                    <span>Admins</span>
+                </a>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>
