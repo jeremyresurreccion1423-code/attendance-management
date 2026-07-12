@@ -4,5 +4,6 @@ public enum StudentStatus {
     ACTIVE,
     INACTIVE,
     GRADUATED,
-    DROPPED
+    DROPPED,
+    ARCHIVED
 }

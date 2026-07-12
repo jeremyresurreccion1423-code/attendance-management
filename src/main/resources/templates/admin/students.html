@@ -192,6 +192,24 @@
                             <td th:text="${s.status}"></td>
                             <td>
                                 <button type="button" class="btn btn-secondary btn-sm" th:onclick="'toggleEdit(' + ${s.id} + ')'">Edit</button>
+                                <form th:if="${s.status == null or s.status.name() != 'ARCHIVED'}"
+                                      th:action="@{/admin/students/{id}/archive(id=${s.id})}" method="post" style="display:inline;" class="confirm-action" th:attr="data-confirm-message='Archive student ' + ${s.fullName} + '?'">
+                                    <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
+                                    <input type="hidden" name="returnYearLevel" th:value="${selectedYearLevel}">
+                                    <input type="hidden" name="returnSectionId" th:if="${selectedSectionId != null}" th:value="${selectedSectionId}">
+                                    <input type="hidden" name="returnViewAll" th:if="${viewAll}" value="true">
+                                    <input type="hidden" name="returnSearch" th:value="${searchQuery}">
+                                    <button type="submit" class="btn btn-warning btn-sm">Archive</button>
+                                </form>
+                                <form th:if="${s.status != null and s.status.name() == 'ARCHIVED'}"
+                                      th:action="@{/admin/students/{id}/unarchive(id=${s.id})}" method="post" style="display:inline;" class="confirm-action" th:attr="data-confirm-message='Unarchive student ' + ${s.fullName} + '?'">
+                                    <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
+                                    <input type="hidden" name="returnYearLevel" th:value="${selectedYearLevel}">
+                                    <input type="hidden" name="returnSectionId" th:if="${selectedSectionId != null}" th:value="${selectedSectionId}">
+                                    <input type="hidden" name="returnViewAll" th:if="${viewAll}" value="true">
+                                    <input type="hidden" name="returnSearch" th:value="${searchQuery}">
+                                    <button type="submit" class="btn btn-warning btn-sm">Unarchive</button>
+                                </form>
                                 <form th:action="@{/admin/students/{id}/delete(id=${s.id})}" method="post" style="display:inline;" class="confirm-delete" th:attr="data-confirm-message='Delete student ' + ${s.fullName} + '?'">
                                     <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
                                     <input type="hidden" name="returnYearLevel" th:value="${selectedYearLevel}">
@@ -233,6 +251,7 @@
                                                 <option value="">-- Select Status --</option>
                                                 <option value="ACTIVE" th:selected="${s.status != null and s.status.name() == 'ACTIVE'}">ACTIVE</option>
                                                 <option value="INACTIVE" th:selected="${s.status != null and s.status.name() == 'INACTIVE'}">INACTIVE</option>
+                                                <option value="ARCHIVED" th:selected="${s.status != null and s.status.name() == 'ARCHIVED'}">ARCHIVED</option>
                                             </select>
                                         </div>
                                     </div>

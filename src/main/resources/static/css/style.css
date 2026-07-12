@@ -690,6 +690,8 @@ tr:hover { background:#f8fafc; }
 .btn-success { background: var(--success); color:#fff; }
 .btn-success:hover { background:#0b7a45; text-decoration:none; color:#fff; }
 .btn-danger { background: var(--danger); color:#fff; }
+.btn-warning { background: #f59e0b; color:#fff; }
+.btn-warning:hover { background: #d97706; text-decoration:none; color:#fff; }
 .btn-secondary { background: #e6f4ec; color: var(--primary-dark); border: 1px solid #c7e6d2; }
 .btn-secondary:hover { background: #d9efe4; color: var(--primary-dark); text-decoration:none; }
 .btn-sm { padding:0.4rem 0.7rem; font-size:0.8rem; }

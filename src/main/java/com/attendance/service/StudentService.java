@@ -126,6 +126,24 @@ public class StudentService {
         studentRepository.deleteById(id);
     }
 
+    @Transactional
+    public void archive(Long id) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Student not found."));
+        student.setStatus(StudentStatus.ARCHIVED);
+        Student saved = studentRepository.save(student);
+        syncLoginAccessWithStatus(saved);
+    }
+
+    @Transactional
+    public void unarchive(Long id) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Student not found."));
+        student.setStatus(StudentStatus.ACTIVE);
+        Student saved = studentRepository.save(student);
+        syncLoginAccessWithStatus(saved);
+    }
+
     public long count() {
         return studentRepository.count();
     }

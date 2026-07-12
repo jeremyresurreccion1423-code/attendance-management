@@ -243,6 +243,40 @@ public class AdminController {
         return buildStudentsRedirect(returnDepartmentId, returnYearLevel, returnSectionId, returnViewAll, returnSearch);
     }
 
+    @PostMapping("/students/{id}/archive")
+    public String archiveStudent(@PathVariable Long id,
+                                @RequestParam(required = false) Long returnDepartmentId,
+                                @RequestParam(required = false) String returnYearLevel,
+                                @RequestParam(required = false) Long returnSectionId,
+                                @RequestParam(required = false) Boolean returnViewAll,
+                                @RequestParam(required = false) String returnSearch,
+                                RedirectAttributes redirect) {
+        try {
+            studentService.archive(id);
+            redirect.addFlashAttribute("message", "Student archived");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
+        return buildStudentsRedirect(returnDepartmentId, returnYearLevel, returnSectionId, returnViewAll, returnSearch);
+    }
+
+    @PostMapping("/students/{id}/unarchive")
+    public String unarchiveStudent(@PathVariable Long id,
+                                @RequestParam(required = false) Long returnDepartmentId,
+                                @RequestParam(required = false) String returnYearLevel,
+                                @RequestParam(required = false) Long returnSectionId,
+                                @RequestParam(required = false) Boolean returnViewAll,
+                                @RequestParam(required = false) String returnSearch,
+                                RedirectAttributes redirect) {
+        try {
+            studentService.unarchive(id);
+            redirect.addFlashAttribute("message", "Student unarchived");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
+        return buildStudentsRedirect(returnDepartmentId, returnYearLevel, returnSectionId, returnViewAll, returnSearch);
+    }
+
     @PostMapping("/students/{id}/update")
     public String updateStudent(@PathVariable Long id,
                                 @ModelAttribute Student student,
