@@ -199,7 +199,7 @@
                                     <input type="hidden" name="returnSectionId" th:if="${selectedSectionId != null}" th:value="${selectedSectionId}">
                                     <input type="hidden" name="returnViewAll" th:if="${viewAll}" value="true">
                                     <input type="hidden" name="returnSearch" th:value="${searchQuery}">
-                                    <button type="submit" class="btn btn-warning btn-sm">Archive</button>
+                                    <button type="submit" class="btn btn-success btn-sm">Archive</button>
                                 </form>
                                 <form th:if="${s.status != null and s.status.name() == 'ARCHIVED'}"
                                       th:action="@{/admin/students/{id}/unarchive(id=${s.id})}" method="post" style="display:inline;" class="confirm-action" th:attr="data-confirm-message='Unarchive student ' + ${s.fullName} + '?'">
@@ -208,7 +208,7 @@
                                     <input type="hidden" name="returnSectionId" th:if="${selectedSectionId != null}" th:value="${selectedSectionId}">
                                     <input type="hidden" name="returnViewAll" th:if="${viewAll}" value="true">
                                     <input type="hidden" name="returnSearch" th:value="${searchQuery}">
-                                    <button type="submit" class="btn btn-warning btn-sm">Unarchive</button>
+                                    <button type="submit" class="btn btn-light btn-sm">Unarchive</button>
                                 </form>
                                 <form th:action="@{/admin/students/{id}/delete(id=${s.id})}" method="post" style="display:inline;" class="confirm-delete" th:attr="data-confirm-message='Delete student ' + ${s.fullName} + '?'">
                                     <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
