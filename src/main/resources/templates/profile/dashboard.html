@@ -57,6 +57,7 @@
                         <span class="profile-caret">▾</span>
                     </button>
                     <div class="profile-menu">
+                        <a href="/profile" class="profile-menu-action">My Profile</a>
                         <a th:href="${dashboardPath}" class="profile-menu-action">Dashboard</a>
                         <a th:href="${roleName == 'SUPER_ADMIN' ? '/super-admin/logout' : '/logout'}"
                            class="profile-menu-action profile-logout">Logout</a>
