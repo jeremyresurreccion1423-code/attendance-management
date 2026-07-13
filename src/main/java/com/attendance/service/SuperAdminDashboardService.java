@@ -78,7 +78,7 @@ public class SuperAdminDashboardService {
     }
 
     /** Accepts host-only Railway values and makes them absolute https URLs. */
-    static String normalizeBaseUrl(String raw) {
+    public static String normalizeBaseUrl(String raw) {
         if (raw == null || raw.isBlank()) {
             return null;
         }
