@@ -1,13 +1,13 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Create Dashboard - AMS</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="stylesheet" th:href="@{/css/create.css(v=2)}">
+    <link rel="stylesheet" th:href="@{/css/create.css(v=3)}">
 </head>
 <body>
-<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
+<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">â˜°</button>
 <div class="app-layout">
     <div th:replace="~{fragments/admin-sidebar :: sidebar('ams-create')}"></div>
     <main class="main-content">
@@ -29,7 +29,7 @@
                                 <strong>My Profile</strong>
                                 <small th:text="${#authentication.name != null ? #authentication.name : 'User'}">user</small>
                             </span>
-                            <span class="profile-caret">▾</span>
+                            <span class="profile-caret">â–¾</span>
                         </button>
                         <div class="profile-menu">
                             <a href="/profile" class="profile-menu-action">My Profile</a>
@@ -63,21 +63,11 @@
             </div>
 
             <div class="create-tabs" role="tablist" aria-label="Create sections">
-                <button type="button" class="create-tab active" data-tab="department" role="tab" aria-selected="true">
-                    <span class="create-tab-index">1</span> Department
-                </button>
-                <button type="button" class="create-tab" data-tab="student" role="tab" aria-selected="false">
-                    <span class="create-tab-index">2</span> Student
-                </button>
-                <button type="button" class="create-tab" data-tab="teacher" role="tab" aria-selected="false">
-                    <span class="create-tab-index">3</span> Teacher
-                </button>
-                <button type="button" class="create-tab" data-tab="subject" role="tab" aria-selected="false">
-                    <span class="create-tab-index">4</span> Subject
-                </button>
-                <button type="button" class="create-tab" data-tab="section" role="tab" aria-selected="false">
-                    <span class="create-tab-index">5</span> Section
-                </button>
+                <button type="button" class="create-tab active" data-tab="department" role="tab" aria-selected="true">Department</button>
+                <button type="button" class="create-tab" data-tab="student" role="tab" aria-selected="false">Student</button>
+                <button type="button" class="create-tab" data-tab="teacher" role="tab" aria-selected="false">Teacher</button>
+                <button type="button" class="create-tab" data-tab="subject" role="tab" aria-selected="false">Subject</button>
+                <button type="button" class="create-tab" data-tab="section" role="tab" aria-selected="false">Section</button>
             </div>
 
             <!-- Department -->
@@ -110,7 +100,7 @@
                         </div>
                     </div>
                     <div class="create-panel-actions">
-                        <button type="button" class="btn create-next-btn" data-goto="student">Next: Add Student →</button>
+                        <button type="button" class="btn create-next-btn" data-goto="student">Next: Add Student â†’</button>
                     </div>
                 </div>
             </section>
@@ -186,8 +176,8 @@
                         <button type="submit" class="btn btn-primary">Add Student</button>
                     </form>
                     <div class="create-panel-actions">
-                        <button type="button" class="btn create-next-btn" data-goto="department">← Back</button>
-                        <button type="button" class="btn create-next-btn" data-goto="teacher">Next: Add Teacher →</button>
+                        <button type="button" class="btn create-next-btn" data-goto="department">â† Back</button>
+                        <button type="button" class="btn create-next-btn" data-goto="teacher">Next: Add Teacher â†’</button>
                     </div>
                 </div>
             </section>
@@ -239,8 +229,8 @@
                         <button type="submit" class="btn btn-primary">Add Teacher</button>
                     </form>
                     <div class="create-panel-actions">
-                        <button type="button" class="btn create-next-btn" data-goto="student">← Back</button>
-                        <button type="button" class="btn create-next-btn" data-goto="subject">Next: Create Subject →</button>
+                        <button type="button" class="btn create-next-btn" data-goto="student">â† Back</button>
+                        <button type="button" class="btn create-next-btn" data-goto="subject">Next: Create Subject â†’</button>
                     </div>
                 </div>
             </section>
@@ -292,8 +282,8 @@
                         <button type="submit" class="btn btn-primary">Create Subject</button>
                     </form>
                     <div class="create-panel-actions">
-                        <button type="button" class="btn create-next-btn" data-goto="teacher">← Back</button>
-                        <button type="button" class="btn create-next-btn" data-goto="section">Next: Create Section →</button>
+                        <button type="button" class="btn create-next-btn" data-goto="teacher">â† Back</button>
+                        <button type="button" class="btn create-next-btn" data-goto="section">Next: Create Section â†’</button>
                     </div>
                 </div>
             </section>
@@ -335,7 +325,7 @@
                         <button type="submit" class="btn btn-primary">Create Section</button>
                     </form>
                     <div class="create-panel-actions">
-                        <button type="button" class="btn create-next-btn" data-goto="subject">← Back</button>
+                        <button type="button" class="btn create-next-btn" data-goto="subject">â† Back</button>
                         <button type="button" class="btn create-next-btn" data-goto="department">Back to Department</button>
                     </div>
                 </div>

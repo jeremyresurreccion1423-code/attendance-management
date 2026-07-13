@@ -116,24 +116,6 @@
     box-shadow: 0 8px 18px rgba(18, 147, 71, 0.25);
 }
 
-.create-tab-index {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.35rem;
-    height: 1.35rem;
-    border-radius: 999px;
-    font-size: 0.72rem;
-    font-weight: 800;
-    background: rgba(18, 147, 71, 0.12);
-    color: var(--primary-dark);
-}
-
-.create-tab.active .create-tab-index {
-    background: rgba(255, 255, 255, 0.22);
-    color: #fff;
-}
-
 .create-panel {
     display: none;
     animation: createFadeIn 0.28s ease;
