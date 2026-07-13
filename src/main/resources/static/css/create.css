@@ -7,7 +7,7 @@
 
 .create-hero {
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     border-radius: 18px;
     padding: 1.35rem 1.5rem;
     background:
@@ -15,6 +15,7 @@
         radial-gradient(circle at 88% 10%, rgba(14, 116, 144, 0.12), transparent 38%),
         linear-gradient(135deg, #f4fbf7 0%, #ffffff 55%, #eef7f2 100%);
     border: 1px solid #cfe8d8;
+    z-index: 5;
 }
 
 .create-hero::after {
@@ -27,12 +28,19 @@
     border-radius: 50%;
     background: rgba(18, 147, 71, 0.08);
     pointer-events: none;
+    z-index: 0;
+}
+
+.create-hero .page-header {
+    position: relative;
+    z-index: 2;
 }
 
 .create-hero h1 {
     margin: 0;
     font-size: 1.55rem;
     letter-spacing: -0.02em;
+    color: #0f172a;
 }
 
 .create-hero p {
@@ -40,6 +48,49 @@
     color: #5b6b7c;
     font-size: 0.92rem;
     max-width: 42rem;
+}
+
+/* Profile overlay on light hero — readable trigger + unclipped Logout menu */
+.create-hero .page-header-profile-widget {
+    z-index: 40;
+}
+
+.create-hero .page-header-profile-widget .profile-trigger {
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px solid #cfe8d8;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+.create-hero .page-header-profile-widget .profile-trigger:hover {
+    background: #f7fcf9;
+    border-color: #9fd4b3;
+}
+
+.create-hero .page-header-profile-widget .profile-meta strong {
+    color: #0f172a;
+}
+
+.create-hero .page-header-profile-widget .profile-meta small {
+    color: #64748b;
+}
+
+.create-hero .page-header-profile-widget .profile-caret {
+    color: #334155;
+}
+
+.create-hero .page-header-profile-widget .profile-avatar {
+    background: #e8f7ee;
+    border-color: #b9e0c8;
+}
+
+.create-hero .page-header-profile-widget .profile-menu {
+    z-index: 50;
+    display: none;
+}
+
+.create-hero .page-header-profile-widget .profile-menu.show {
+    display: block;
 }
 
 .create-stats {
