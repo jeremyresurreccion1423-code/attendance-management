@@ -44,7 +44,10 @@ public class SuperAdminSsoController {
     @GetMapping("/super-admin/bridge/library")
     public String bridgeToLibrary(@RequestParam(defaultValue = "/super-admin") String path, Authentication auth) {
         String token = ssoTokenService.generateToken(auth.getName());
-        String base = libraryAppUrl.endsWith("/") ? libraryAppUrl.substring(0, libraryAppUrl.length() - 1) : libraryAppUrl;
+        String base = com.attendance.service.SuperAdminDashboardService.normalizeBaseUrl(libraryAppUrl);
+        if (base == null) {
+            return "redirect:/super-admin?error=library-url";
+        }
         String next = URLEncoder.encode(path, StandardCharsets.UTF_8);
         return "redirect:" + base + "/super-admin/sso?token=" + token + "&next=" + next;
     }

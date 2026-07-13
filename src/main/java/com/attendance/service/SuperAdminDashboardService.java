@@ -8,7 +8,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -55,9 +54,10 @@ public class SuperAdminDashboardService {
         fallback.put("overdueLoans", 0);
 
         try {
-            String base = libraryAppUrl.endsWith("/")
-                    ? libraryAppUrl.substring(0, libraryAppUrl.length() - 1)
-                    : libraryAppUrl;
+            String base = normalizeBaseUrl(libraryAppUrl);
+            if (base == null) {
+                return fallback;
+            }
             HttpHeaders headers = new HttpHeaders();
             headers.set("X-Super-Admin-Secret", ssoSecret);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
@@ -72,8 +72,23 @@ public class SuperAdminDashboardService {
             Map<String, Object> body = new HashMap<>(response.getBody());
             body.put("available", true);
             return body;
-        } catch (RestClientException ex) {
+        } catch (Exception ex) {
             return fallback;
         }
+    }
+
+    /** Accepts host-only Railway values and makes them absolute https URLs. */
+    static String normalizeBaseUrl(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        String base = raw.trim();
+        while (base.endsWith("/")) {
+            base = base.substring(0, base.length() - 1);
+        }
+        if (!base.startsWith("http://") && !base.startsWith("https://")) {
+            base = "https://" + base;
+        }
+        return base;
     }
 }
