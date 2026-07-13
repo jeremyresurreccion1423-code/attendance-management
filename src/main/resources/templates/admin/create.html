@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <title>Create Dashboard - AMS</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="stylesheet" th:href="@{/css/create.css(v=3)}">
+    <link rel="stylesheet" th:href="@{/css/create.css(v=4)}">
 </head>
 <body>
-<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">â˜°</button>
+<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
 <div class="app-layout">
     <div th:replace="~{fragments/admin-sidebar :: sidebar('ams-create')}"></div>
     <main class="main-content">
@@ -19,7 +19,7 @@
                 <div class="page-header" style="margin:0; border:none; padding:0; background:transparent; box-shadow:none;">
                     <div>
                         <h1>Create Dashboard</h1>
-                        <p>Magdagdag ng department, student, teacher, subject, at section sa isang lugar.</p>
+                        <p>Add department, student, teacher, subject, and section in one place.</p>
                     </div>
                     <div class="page-header-profile-widget">
                         <button type="button" class="profile-trigger" onclick="toggleProfileMenu(this)">
@@ -29,7 +29,7 @@
                                 <strong>My Profile</strong>
                                 <small th:text="${#authentication.name != null ? #authentication.name : 'User'}">user</small>
                             </span>
-                            <span class="profile-caret">â–¾</span>
+                            <span class="profile-caret">▾</span>
                         </button>
                         <div class="profile-menu">
                             <a href="/profile" class="profile-menu-action">My Profile</a>
@@ -77,7 +77,7 @@
                     <div class="create-card-head">
                         <div>
                             <h3>Create Department</h3>
-                            <p>Magdagdag ng bagong department na gagamitin sa students, teachers, at sections.</p>
+                            <p>Add a new department for students, teachers, and sections.</p>
                         </div>
                         <span class="create-badge">Step 1 of 5</span>
                     </div>
@@ -101,7 +101,7 @@
                         </div>
                     </div>
                     <div class="create-panel-actions">
-                        <button type="button" class="btn create-next-btn" data-goto="student">Next: Add Student â†’</button>
+                        <button type="button" class="btn create-next-btn" data-goto="student">Next: Add Student →</button>
                     </div>
                 </div>
             </section>
@@ -112,7 +112,7 @@
                     <div class="create-card-head">
                         <div>
                             <h3>Add Student</h3>
-                            <p>Irehistro ang bagong student at opsyonal na gumawa ng login account.</p>
+                            <p>Register a new student and optionally create a login account.</p>
                         </div>
                         <span class="create-badge">Step 2 of 5</span>
                     </div>
@@ -147,7 +147,7 @@
                             <div class="form-group">
                                 <label>Section</label>
                                 <select th:field="*{section.id}" class="form-control" data-lookup-role="section">
-                                    <option value="">-- Select department & year first --</option>
+                                    <option value="">-- Select department &amp; year first --</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -167,18 +167,18 @@
                             </div>
                             <div class="form-group">
                                 <label>Login Username</label>
-                                <input type="text" name="username" class="form-control">
+                                <input type="text" name="username" class="form-control" autocomplete="off">
                             </div>
                             <div class="form-group">
                                 <label>Login Password</label>
-                                <input type="password" name="password" class="form-control" minlength="6">
+                                <input type="password" name="password" class="form-control" minlength="6" autocomplete="new-password">
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary">Add Student</button>
                     </form>
                     <div class="create-panel-actions">
-                        <button type="button" class="btn create-next-btn" data-goto="department">â† Back</button>
-                        <button type="button" class="btn create-next-btn" data-goto="teacher">Next: Add Teacher â†’</button>
+                        <button type="button" class="btn create-next-btn" data-goto="department">← Back</button>
+                        <button type="button" class="btn create-next-btn" data-goto="teacher">Next: Add Teacher →</button>
                     </div>
                 </div>
             </section>
@@ -189,7 +189,7 @@
                     <div class="create-card-head">
                         <div>
                             <h3>Add Teacher</h3>
-                            <p>Magdagdag ng guro at i-assign sa department.</p>
+                            <p>Add a teacher and assign them to a department.</p>
                         </div>
                         <span class="create-badge">Step 3 of 5</span>
                     </div>
@@ -220,18 +220,18 @@
                             </div>
                             <div class="form-group">
                                 <label>Login Username</label>
-                                <input type="text" name="username" class="form-control">
+                                <input type="text" name="username" class="form-control" autocomplete="off">
                             </div>
                             <div class="form-group">
                                 <label>Login Password</label>
-                                <input type="password" name="password" class="form-control" minlength="6">
+                                <input type="password" name="password" class="form-control" minlength="6" autocomplete="new-password">
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary">Add Teacher</button>
                     </form>
                     <div class="create-panel-actions">
-                        <button type="button" class="btn create-next-btn" data-goto="student">â† Back</button>
-                        <button type="button" class="btn create-next-btn" data-goto="subject">Next: Create Subject â†’</button>
+                        <button type="button" class="btn create-next-btn" data-goto="student">← Back</button>
+                        <button type="button" class="btn create-next-btn" data-goto="subject">Next: Create Subject →</button>
                     </div>
                 </div>
             </section>
@@ -242,7 +242,7 @@
                     <div class="create-card-head">
                         <div>
                             <h3>Create Subject</h3>
-                            <p>Gumawa ng subject at i-link sa teacher at section.</p>
+                            <p>Create a subject and link it to a teacher and section.</p>
                         </div>
                         <span class="create-badge">Step 4 of 5</span>
                     </div>
@@ -283,8 +283,8 @@
                         <button type="submit" class="btn btn-primary">Create Subject</button>
                     </form>
                     <div class="create-panel-actions">
-                        <button type="button" class="btn create-next-btn" data-goto="teacher">â† Back</button>
-                        <button type="button" class="btn create-next-btn" data-goto="section">Next: Create Section â†’</button>
+                        <button type="button" class="btn create-next-btn" data-goto="teacher">← Back</button>
+                        <button type="button" class="btn create-next-btn" data-goto="section">Next: Create Section →</button>
                     </div>
                 </div>
             </section>
@@ -295,7 +295,7 @@
                     <div class="create-card-head">
                         <div>
                             <h3>Create Section</h3>
-                            <p>Magdagdag ng section para sa students ayon sa department at year level.</p>
+                            <p>Add a section for students by department and year level.</p>
                         </div>
                         <span class="create-badge">Step 5 of 5</span>
                     </div>
@@ -326,7 +326,7 @@
                         <button type="submit" class="btn btn-primary">Create Section</button>
                     </form>
                     <div class="create-panel-actions">
-                        <button type="button" class="btn create-next-btn" data-goto="subject">â† Back</button>
+                        <button type="button" class="btn create-next-btn" data-goto="subject">← Back</button>
                         <button type="button" class="btn create-next-btn" data-goto="department">Back to Department</button>
                     </div>
                 </div>
