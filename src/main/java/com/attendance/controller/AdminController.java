@@ -59,15 +59,26 @@ public class AdminController {
         Section section = new Section();
         section.setDepartment(new Department());
 
+        var departmentList = departmentService.findAll();
+        var teachers = teacherService.findAll();
+        var sections = sectionService.findAll();
+        var students = studentService.findAll();
+        var subjects = subjectService.findAll();
+
         model.addAttribute("student", student);
         model.addAttribute("teacher", teacher);
         model.addAttribute("subject", subject);
         model.addAttribute("section", section);
         model.addAttribute("department", new Department());
         model.addAttribute("departments", departmentService.findAllNames());
-        model.addAttribute("departmentList", departmentService.findAll());
-        model.addAttribute("sections", sectionService.findAll());
-        model.addAttribute("teachers", teacherService.findAll());
+        model.addAttribute("departmentList", departmentList);
+        model.addAttribute("sections", sections);
+        model.addAttribute("teachers", teachers);
+        model.addAttribute("deptCount", departmentList.size());
+        model.addAttribute("studentCount", students.size());
+        model.addAttribute("teacherCount", teachers.size());
+        model.addAttribute("subjectCount", subjects.size());
+        model.addAttribute("sectionCount", sections.size());
         model.addAttribute("profilePhotoUrl", profilePhotoService.resolveProfilePhotoUrl(auth.getName()));
         return "admin/create";
     }
