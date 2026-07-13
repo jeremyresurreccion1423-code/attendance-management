@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <th:block th:fragment="sidebar(activePage)">
+    <link rel="stylesheet" th:href="@{/css/super-admin-nav.css}">
     <!-- Super Admin: full cross-system nav with collapsible groups -->
     <aside class="sidebar" sec:authorize="hasRole('SUPER_ADMIN')">
         <div class="brand"><h2>AMS</h2><small>Super Admin</small></div>
@@ -9,41 +10,41 @@
             <nav>
                 <a th:href="@{/super-admin}" th:classappend="${activePage == 'dashboard'} ? 'active' : ''">Dashboard</a>
 
-                <div class="sidebar-group" th:classappend="${activePage != null and activePage.startsWith('ams-')} ? 'open' : ''">
-                    <button type="button" class="sidebar-group-btn" onclick="toggleSidebarGroup(this)" aria-expanded="false">
+                <div class="sidebar-group" th:classappend="${activePage != null and #strings.startsWith(activePage, 'ams-')} ? 'open' : ''">
+                    <button type="button" class="sidebar-group-btn" onclick="window.toggleSidebarGroup && window.toggleSidebarGroup(this)" aria-expanded="false">
                         <span>Attendance</span>
                         <span class="sidebar-group-arrow">▾</span>
                     </button>
-                    <div class="sidebar-group-panel">
-                        <a th:href="@{/admin/dashboard}" th:classappend="${activePage == 'ams-dashboard'} ? 'active' : ''">Dashboard</a>
-                        <a th:href="@{/admin/departments}" th:classappend="${activePage == 'ams-departments'} ? 'active' : ''">Departments</a>
-                        <a th:href="@{/admin/create}" th:classappend="${activePage == 'ams-create'} ? 'active' : ''">Create / Add</a>
-                        <a th:href="@{/admin/students}" th:classappend="${activePage == 'ams-students'} ? 'active' : ''">Students</a>
-                        <a th:href="@{/admin/teachers}" th:classappend="${activePage == 'ams-teachers'} ? 'active' : ''">Teachers</a>
-                        <a th:href="@{/admin/subjects}" th:classappend="${activePage == 'ams-subjects'} ? 'active' : ''">Subjects</a>
-                        <a th:href="@{/admin/sections}" th:classappend="${activePage == 'ams-sections'} ? 'active' : ''">Sections</a>
-                        <a th:href="@{/admin/reports}" th:classappend="${activePage == 'ams-reports'} ? 'active' : ''">Reports</a>
-                        <a th:href="@{/admin/trends}" th:classappend="${activePage == 'ams-trends'} ? 'active' : ''">Trends</a>
-                    </div>
+                    <ul class="sidebar-group-panel">
+                        <li><a th:href="@{/admin/dashboard}" th:classappend="${activePage == 'ams-dashboard'} ? 'active' : ''">Dashboard</a></li>
+                        <li><a th:href="@{/admin/departments}" th:classappend="${activePage == 'ams-departments'} ? 'active' : ''">Departments</a></li>
+                        <li><a th:href="@{/admin/create}" th:classappend="${activePage == 'ams-create'} ? 'active' : ''">Create / Add</a></li>
+                        <li><a th:href="@{/admin/students}" th:classappend="${activePage == 'ams-students'} ? 'active' : ''">Students</a></li>
+                        <li><a th:href="@{/admin/teachers}" th:classappend="${activePage == 'ams-teachers'} ? 'active' : ''">Teachers</a></li>
+                        <li><a th:href="@{/admin/subjects}" th:classappend="${activePage == 'ams-subjects'} ? 'active' : ''">Subjects</a></li>
+                        <li><a th:href="@{/admin/sections}" th:classappend="${activePage == 'ams-sections'} ? 'active' : ''">Sections</a></li>
+                        <li><a th:href="@{/admin/reports}" th:classappend="${activePage == 'ams-reports'} ? 'active' : ''">Reports</a></li>
+                        <li><a th:href="@{/admin/trends}" th:classappend="${activePage == 'ams-trends'} ? 'active' : ''">Trends</a></li>
+                    </ul>
                 </div>
 
-                <div class="sidebar-group" th:classappend="${activePage != null and activePage.startsWith('lib-')} ? 'open' : ''">
-                    <button type="button" class="sidebar-group-btn" onclick="toggleSidebarGroup(this)" aria-expanded="false">
+                <div class="sidebar-group" th:classappend="${activePage != null and #strings.startsWith(activePage, 'lib-')} ? 'open' : ''">
+                    <button type="button" class="sidebar-group-btn" onclick="window.toggleSidebarGroup && window.toggleSidebarGroup(this)" aria-expanded="false">
                         <span>Library</span>
                         <span class="sidebar-group-arrow">▾</span>
                     </button>
-                    <div class="sidebar-group-panel">
-                        <a th:href="@{/super-admin/bridge/library(path='/admin')}" th:classappend="${activePage == 'lib-dashboard'} ? 'active' : ''">Dashboard</a>
-                        <a th:href="@{/super-admin/bridge/library(path='/admin/categories')}" th:classappend="${activePage == 'lib-categories'} ? 'active' : ''">Categories</a>
-                        <a th:href="@{/super-admin/bridge/library(path='/admin/authors')}" th:classappend="${activePage == 'lib-authors'} ? 'active' : ''">Authors</a>
-                        <a th:href="@{/super-admin/bridge/library(path='/admin/books')}" th:classappend="${activePage == 'lib-books'} ? 'active' : ''">Books</a>
-                        <a th:href="@{/super-admin/bridge/library(path='/admin/scan-issue')}" th:classappend="${activePage == 'lib-scan'} ? 'active' : ''">Scan &amp; Issue</a>
-                        <a th:href="@{/super-admin/bridge/library(path='/admin/issues')}" th:classappend="${activePage == 'lib-issues'} ? 'active' : ''">Issue / Return</a>
-                        <a th:href="@{/super-admin/bridge/library(path='/admin/issues/reservations')}" th:classappend="${activePage == 'lib-reservations'} ? 'active' : ''">Reservations</a>
-                        <a th:href="@{/super-admin/bridge/library(path='/admin/students')}" th:classappend="${activePage == 'lib-students'} ? 'active' : ''">Students</a>
-                        <a th:href="@{/super-admin/bridge/library(path='/admin/analytics')}" th:classappend="${activePage == 'lib-analytics'} ? 'active' : ''">Analytics</a>
-                        <a th:href="@{/super-admin/bridge/library(path='/admin/admins')}" th:classappend="${activePage == 'lib-admins'} ? 'active' : ''">Admins</a>
-                    </div>
+                    <ul class="sidebar-group-panel">
+                        <li><a th:href="@{/super-admin/bridge/library(path='/admin')}" th:classappend="${activePage == 'lib-dashboard'} ? 'active' : ''">Dashboard</a></li>
+                        <li><a th:href="@{/super-admin/bridge/library(path='/admin/categories')}" th:classappend="${activePage == 'lib-categories'} ? 'active' : ''">Categories</a></li>
+                        <li><a th:href="@{/super-admin/bridge/library(path='/admin/authors')}" th:classappend="${activePage == 'lib-authors'} ? 'active' : ''">Authors</a></li>
+                        <li><a th:href="@{/super-admin/bridge/library(path='/admin/books')}" th:classappend="${activePage == 'lib-books'} ? 'active' : ''">Books</a></li>
+                        <li><a th:href="@{/super-admin/bridge/library(path='/admin/scan-issue')}" th:classappend="${activePage == 'lib-scan'} ? 'active' : ''">Scan &amp; Issue</a></li>
+                        <li><a th:href="@{/super-admin/bridge/library(path='/admin/issues')}" th:classappend="${activePage == 'lib-issues'} ? 'active' : ''">Issue / Return</a></li>
+                        <li><a th:href="@{/super-admin/bridge/library(path='/admin/issues/reservations')}" th:classappend="${activePage == 'lib-reservations'} ? 'active' : ''">Reservations</a></li>
+                        <li><a th:href="@{/super-admin/bridge/library(path='/admin/students')}" th:classappend="${activePage == 'lib-students'} ? 'active' : ''">Students</a></li>
+                        <li><a th:href="@{/super-admin/bridge/library(path='/admin/analytics')}" th:classappend="${activePage == 'lib-analytics'} ? 'active' : ''">Analytics</a></li>
+                        <li><a th:href="@{/super-admin/bridge/library(path='/admin/admins')}" th:classappend="${activePage == 'lib-admins'} ? 'active' : ''">Admins</a></li>
+                    </ul>
                 </div>
             </nav>
         </div>
@@ -72,6 +73,14 @@
             <a href="/logout" class="sidebar-logout-link">Logout</a>
         </div>
     </aside>
+    <script>
+      window.toggleSidebarGroup = function (button) {
+        var group = button && button.closest ? button.closest('.sidebar-group') : null;
+        if (!group) return;
+        group.classList.toggle('open');
+        button.setAttribute('aria-expanded', group.classList.contains('open') ? 'true' : 'false');
+      };
+    </script>
 </th:block>
 </body>
 </html>
