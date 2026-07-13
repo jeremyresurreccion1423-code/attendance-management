@@ -1146,7 +1146,30 @@ tr:hover { background:#f8fafc; }
     gap: 0.8rem;
     margin-bottom: 1rem;
 }
-.profile-topbar-actions { display: flex; align-items: center; gap: 0.55rem; }
+.profile-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+.profile-topbar .page-header-profile-widget {
+    margin-left: 0;
+}
+.profile-topbar .page-header-profile-widget .profile-trigger {
+    min-width: 200px;
+    padding: 0.45rem 0.85rem;
+}
+.profile-topbar .page-header-profile-widget .profile-avatar {
+    width: 34px;
+    height: 34px;
+}
+.page-header-profile-widget .profile-menu-action.profile-logout {
+    color: #b91c1c;
+    font-weight: 600;
+}
+.page-header-profile-widget .profile-menu-action.profile-logout:hover {
+    background: #fef2f2;
+    color: #991b1b;
+}
 .profile-topbar-avatar {
     width: 36px;
     height: 36px;

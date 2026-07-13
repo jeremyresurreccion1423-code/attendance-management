@@ -6,8 +6,9 @@ public enum Role {
     TEACHER,
     STUDENT;
 
+    /** Attendance or system admin (includes Super Admin). */
     public boolean isAdminLevel() {
-        return this == ADMIN || this == SUPER_ADMIN;
+        return this == SUPER_ADMIN || this == ADMIN;
     }
 
     public boolean isSuperAdmin() {

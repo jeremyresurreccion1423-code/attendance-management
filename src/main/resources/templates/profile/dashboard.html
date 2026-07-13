@@ -46,10 +46,21 @@
         <div class="profile-topbar">
             <h2 style="color:#fff; margin:0; font-size:1.05rem;">Profile Dashboard</h2>
             <div class="profile-topbar-actions">
-                <a th:href="${dashboardPath}" class="btn btn-secondary">Back</a>
-                <div class="profile-topbar-avatar">
-                    <img th:if="${profilePhotoUrl != null}" th:src="${profilePhotoUrl}" alt="Profile photo" />
-                    <span th:unless="${profilePhotoUrl != null}" th:text="${profileInitial ?: 'U'}">U</span>
+                <div class="page-header-profile-widget">
+                    <button type="button" class="profile-trigger" onclick="toggleProfileMenu(this)">
+                        <img th:if="${profilePhotoUrl != null}" class="profile-avatar profile-avatar-img" th:src="${profilePhotoUrl}" alt="Profile photo" />
+                        <span th:unless="${profilePhotoUrl != null}" class="profile-avatar" th:text="${profileInitial ?: 'U'}">U</span>
+                        <span class="profile-meta">
+                            <strong>My Profile</strong>
+                            <small th:text="${#authentication.name != null ? #authentication.name : 'User'}">user</small>
+                        </span>
+                        <span class="profile-caret">▾</span>
+                    </button>
+                    <div class="profile-menu">
+                        <a th:href="${dashboardPath}" class="profile-menu-action">Dashboard</a>
+                        <a th:href="${roleName == 'SUPER_ADMIN' ? '/super-admin/logout' : '/logout'}"
+                           class="profile-menu-action profile-logout">Logout</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -119,5 +130,23 @@
     </main>
 </div>
 <script th:src="@{/js/layout.js}"></script>
+<script>
+function closeAllProfileMenus() {
+    document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));
+}
+function toggleProfileMenu(button) {
+    const widget = button.closest('.page-header-profile-widget');
+    const menu = widget ? widget.querySelector('.profile-menu') : null;
+    if (!menu) return;
+    const shouldOpen = !menu.classList.contains('show');
+    closeAllProfileMenus();
+    if (shouldOpen) menu.classList.add('show');
+}
+document.addEventListener('click', function (event) {
+    if (!event.target.closest('.page-header-profile-widget')) {
+        closeAllProfileMenus();
+    }
+});
+</script>
 </body>
 </html>
