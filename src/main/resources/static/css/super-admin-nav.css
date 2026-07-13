@@ -1,6 +1,6 @@
-/* AMS Super Admin sidebar dropdowns — separate file to bust Railway CSS cache */
+/* AMS Super Admin sidebar — match Library EduLibrary sidebar look */
 .sidebar .sidebar-group {
-  margin: 0.15rem 0 !important;
+  margin: 0.1rem 0 !important;
   width: 100% !important;
 }
 
@@ -11,39 +11,45 @@
   width: calc(100% - 1.1rem) !important;
   margin: 0.2rem 0.55rem !important;
   padding: 0.68rem 0.92rem !important;
-  border: 1px solid var(--border, #dde5ea) !important;
+  border: none !important;
   border-radius: 12px !important;
-  background: #fff !important;
-  color: var(--sidebar-text, #334155) !important;
+  background: transparent !important;
+  color: #334155 !important;
   font: inherit !important;
   font-weight: 600 !important;
   cursor: pointer !important;
   text-align: left !important;
   appearance: none !important;
   -webkit-appearance: none !important;
+  box-shadow: none !important;
 }
 
-.sidebar .sidebar-group-btn:hover,
+.sidebar .sidebar-group-btn:hover {
+  background: #ecfdf3 !important;
+  color: #0d7438 !important;
+}
+
 .sidebar .sidebar-group.open > .sidebar-group-btn {
-  background: linear-gradient(135deg, #129347 0%, #0d7438 100%) !important;
-  color: #fff !important;
-  border-color: transparent !important;
+  background: #ecfdf3 !important;
+  color: #0d7438 !important;
 }
 
 .sidebar .sidebar-group-arrow {
   font-size: 0.8rem !important;
+  color: #94a3b8 !important;
   transition: transform 0.2s ease !important;
 }
 
 .sidebar .sidebar-group.open .sidebar-group-arrow {
   transform: rotate(180deg) !important;
+  color: #0d7438 !important;
 }
 
 .sidebar .sidebar-group-panel {
   display: none !important;
   list-style: none !important;
   margin: 0 !important;
-  padding: 0.15rem 0 0.35rem !important;
+  padding: 0.1rem 0 0.35rem !important;
 }
 
 .sidebar .sidebar-group.open > .sidebar-group-panel {
@@ -59,19 +65,23 @@
 
 .sidebar .sidebar-group-panel a {
   display: block !important;
-  width: auto !important;
   font-size: 0.9rem !important;
-  padding: 0.52rem 0.92rem 0.52rem 1.35rem !important;
-  margin: 0.12rem 0.55rem !important;
+  padding: 0.55rem 0.92rem 0.55rem 1.45rem !important;
+  margin: 0.1rem 0.55rem !important;
   border-radius: 12px !important;
-  color: var(--sidebar-text, #334155) !important;
+  color: #64748b !important;
   text-decoration: none !important;
   white-space: nowrap !important;
+  font-weight: 500 !important;
 }
 
-.sidebar .sidebar-group-panel a:hover,
+.sidebar .sidebar-group-panel a:hover {
+  background: #ecfdf3 !important;
+  color: #0d7438 !important;
+  text-decoration: none !important;
+}
+
 .sidebar .sidebar-group-panel a.active {
   background: linear-gradient(135deg, #129347 0%, #0d7438 100%) !important;
   color: #fff !important;
-  text-decoration: none !important;
 }
