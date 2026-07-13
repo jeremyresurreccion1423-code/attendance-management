@@ -23,41 +23,8 @@
                     <span class="profile-caret">▾</span>
                 </button>
                 <div class="profile-menu">
-                    <button type="button" class="profile-menu-action" onclick="toggleProfilePanel('profile-panel')">My Profile</button>
+                    <a href="/profile" class="profile-menu-action">My Profile</a>
                     <a th:href="@{/logout}" class="profile-menu-action profile-logout">Logout</a>
-                </div>
-                <div class="profile-panel" id="profile-panel">
-                    <div class="profile-panel-title">My Profile</div>
-                    <div class="profile-summary">
-                        <div class="profile-summary-avatar">
-                            <img th:if="${profilePhotoUrl != null}" th:src="${profilePhotoUrl}" alt="Profile photo" />
-                            <span th:unless="${profilePhotoUrl != null}" th:text="${profileInitial ?: 'U'}">U</span>
-                        </div>
-                        <div class="profile-summary-meta">
-                            <strong th:text="${#authentication.name != null ? #authentication.name : 'User'}">user</strong>
-                            <small th:text="${#authentication.authorities[0].authority}">ROLE_ADMIN</small>
-                        </div>
-                    </div>
-                    <div class="profile-info">
-                        <p><strong>Username:</strong> <span th:text="${#authentication.name}">user</span></p>
-                        <p><strong>Role:</strong> <span th:text="${#authentication.authorities[0].authority}">ROLE_ADMIN</span></p>
-                    </div>
-                    <div class="profile-panel-section">
-                        <div class="profile-panel-section-title">Upload Photo</div>
-                        <form action="/profile/photo" method="post" enctype="multipart/form-data">
-                            <div class="form-group"><input type="file" name="photo" accept="image/*" required></div>
-                            <div class="profile-panel-actions"><button type="submit" class="btn btn-primary btn-sm">Upload</button></div>
-                        </form>
-                    </div>
-                    <div class="profile-panel-section">
-                        <div class="profile-panel-section-title">Change Password</div>
-                        <form action="/profile/password" method="post">
-                            <div class="form-group"><label>Current Password</label><input type="password" name="currentPassword" class="form-control" required></div>
-                            <div class="form-group"><label>New Password</label><input type="password" name="newPassword" class="form-control" required></div>
-                            <div class="form-group"><label>Confirm Password</label><input type="password" name="confirmPassword" class="form-control" required></div>
-                            <div class="profile-panel-actions"><button type="submit" class="btn btn-primary btn-sm">Save</button></div>
-                        </form>
-                    </div>
                 </div>
             </div>
         </div>
@@ -124,7 +91,6 @@
 <script>
 function closeAllProfileMenus() {
     document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));
-    document.querySelectorAll('.profile-panel').forEach(panel => panel.classList.remove('show'));
 }
 function toggleProfileMenu(button) {
     const widget = button.closest('.page-header-profile-widget') || button.closest('.sidebar-profile-widget');
@@ -133,11 +99,6 @@ function toggleProfileMenu(button) {
     const shouldOpen = !menu.classList.contains('show');
     closeAllProfileMenus();
     if (shouldOpen) menu.classList.add('show');
-}
-function toggleProfilePanel(panelId) {
-    closeAllProfileMenus();
-    const panel = document.getElementById(panelId);
-    if (panel) panel.classList.add('show');
 }
 document.addEventListener('click', function (event) {
     const target = event.target;
