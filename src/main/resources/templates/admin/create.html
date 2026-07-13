@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Create Dashboard - AMS</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="stylesheet" th:href="@{/css/create.css(v=5)}">
+    <link rel="stylesheet" th:href="@{/css/create.css(v=6)}">
 </head>
 <body>
 <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
@@ -15,27 +15,25 @@
         <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
         <div class="create-dash">
-            <div class="create-hero">
-                <div class="page-header" style="margin:0; border:none; padding:0; background:transparent; box-shadow:none;">
-                    <div>
-                        <h1>Create Dashboard</h1>
-                        <p>Add department, student, teacher, subject, and section in one place.</p>
-                    </div>
-                    <div class="page-header-profile-widget">
-                        <button type="button" class="profile-trigger" onclick="toggleProfileMenu(this)">
-                            <img th:if="${profilePhotoUrl != null}" class="profile-avatar profile-avatar-img" th:src="${profilePhotoUrl}" alt="Profile photo" />
-                            <span th:unless="${profilePhotoUrl != null}" class="profile-avatar" th:text="${profileInitial ?: 'U'}">U</span>
-                            <span class="profile-meta">
-                                <strong>My Profile</strong>
-                                <small th:text="${#authentication.name != null ? #authentication.name : 'User'}">user</small>
-                            </span>
-                            <span class="profile-caret">▾</span>
-                        </button>
-                        <div class="profile-menu">
-                            <a href="/profile" class="profile-menu-action">My Profile</a>
-                            <a sec:authorize="hasRole('SUPER_ADMIN')" href="/super-admin/logout" class="profile-menu-action profile-logout">Logout</a>
-                            <a sec:authorize="!hasRole('SUPER_ADMIN')" th:href="@{/logout}" class="profile-menu-action profile-logout">Logout</a>
-                        </div>
+            <div class="page-header">
+                <div>
+                    <h1>Create Dashboard</h1>
+                    <span>Add department, student, teacher, subject, and section in one place.</span>
+                </div>
+                <div class="page-header-profile-widget">
+                    <button type="button" class="profile-trigger" onclick="toggleProfileMenu(this)">
+                        <img th:if="${profilePhotoUrl != null}" class="profile-avatar profile-avatar-img" th:src="${profilePhotoUrl}" alt="Profile photo" />
+                        <span th:unless="${profilePhotoUrl != null}" class="profile-avatar" th:text="${profileInitial ?: 'U'}">U</span>
+                        <span class="profile-meta">
+                            <strong>My Profile</strong>
+                            <small th:text="${#authentication.name != null ? #authentication.name : 'User'}">user</small>
+                        </span>
+                        <span class="profile-caret">▾</span>
+                    </button>
+                    <div class="profile-menu">
+                        <a href="/profile" class="profile-menu-action">My Profile</a>
+                        <a sec:authorize="hasRole('SUPER_ADMIN')" href="/super-admin/logout" class="profile-menu-action profile-logout">Logout</a>
+                        <a sec:authorize="!hasRole('SUPER_ADMIN')" th:href="@{/logout}" class="profile-menu-action profile-logout">Logout</a>
                     </div>
                 </div>
             </div>
