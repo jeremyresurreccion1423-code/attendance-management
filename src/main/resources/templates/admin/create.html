@@ -245,15 +245,21 @@
 <script th:src="@{/js/lookup-filter.js}"></script>
 <script th:src="@{/js/layout.js}"></script>
 <script>
+function closeAllProfileMenus() {
+    document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));
+}
 function toggleProfileMenu(button) {
-    const widget = button.closest('.page-header-profile-widget');
+    const widget = button.closest('.page-header-profile-widget') || button.closest('.sidebar-profile-widget');
     const menu = widget ? widget.querySelector('.profile-menu') : null;
     if (!menu) return;
-    menu.classList.toggle('show');
+    const shouldOpen = !menu.classList.contains('show');
+    closeAllProfileMenus();
+    if (shouldOpen) menu.classList.add('show');
 }
 document.addEventListener('click', function (event) {
-    if (!event.target.closest('.page-header-profile-widget')) {
-        document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));
+    const target = event.target;
+    if (!target.closest('.page-header-profile-widget') && !target.closest('.sidebar-profile-widget')) {
+        closeAllProfileMenus();
     }
 });
 if (window.location.hash) {
