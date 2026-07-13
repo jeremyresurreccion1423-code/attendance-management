@@ -15,8 +15,8 @@
 .create-dash > .page-header > div:first-child span {
     display: block;
     margin-top: 0.2rem;
-    color: rgba(255, 255, 255, 0.88);
-    font-size: 0.88rem;
+    color: #6b7280;
+    font-size: 0.95rem;
 }
 
 .create-dash .page-header-profile-widget {
@@ -35,16 +35,16 @@
 
 .create-stat {
     background: #fff;
-    border: 1px solid #d9e5de;
-    border-radius: 14px;
+    border: 1px solid #e0e7e3;
+    border-radius: 16px;
     padding: 0.85rem 0.95rem;
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+    box-shadow: 0 4px 20px rgba(22, 101, 52, 0.08);
     transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .create-stat:hover {
     transform: translateY(-2px);
-    border-color: #9fd4b3;
+    border-color: #bbf7d0;
 }
 
 .create-stat .num {
@@ -69,9 +69,9 @@
     gap: 0.5rem;
     padding: 0.4rem;
     background: #fff;
-    border: 1px solid #d6e4db;
+    border: 1px solid #e0e7e3;
     border-radius: 16px;
-    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+    box-shadow: 0 4px 20px rgba(22, 101, 52, 0.08);
 }
 
 .create-tab {
@@ -98,7 +98,7 @@
 .create-tab.active {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
     color: #fff;
-    box-shadow: 0 8px 18px rgba(18, 147, 71, 0.25);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
 }
 
 .create-panel {
@@ -117,10 +117,10 @@
 
 .create-card {
     background: #fff;
-    border: 1px solid #d7e5dd;
-    border-radius: 18px;
+    border: 1px solid #e0e7e3;
+    border-radius: 16px;
     padding: 1.25rem 1.35rem 1.4rem;
-    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+    box-shadow: 0 4px 20px rgba(22, 101, 52, 0.08);
 }
 
 .create-card-head {
