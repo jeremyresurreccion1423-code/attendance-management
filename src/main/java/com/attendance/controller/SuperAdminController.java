@@ -1,5 +1,7 @@
 package com.attendance.controller;
 
+import com.attendance.service.SuperAdminDashboardService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,10 +13,18 @@ import org.springframework.web.bind.annotation.GetMapping;
  * No student, teacher, or other end-user functionality is exposed here.
  */
 @Controller
+@RequiredArgsConstructor
 public class SuperAdminController {
+
+    private final SuperAdminDashboardService superAdminDashboardService;
 
     @GetMapping("/super-admin")
     public String dashboard(Model model) {
+        var combined = superAdminDashboardService.getCombinedDashboard();
+        model.addAttribute("attendance", combined.attendance());
+        model.addAttribute("library", combined.library());
+        model.addAttribute("libraryAvailable", combined.libraryAvailable());
+        model.addAttribute("lowAttendanceAlerts", combined.lowAttendanceAlerts());
         return "super-admin/dashboard";
     }
 }

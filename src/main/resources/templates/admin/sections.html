@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Sections - AMS</title>
@@ -8,21 +8,7 @@
 <body>
 <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
 <div class="app-layout">
-    <aside class="sidebar">
-        <div class="brand"><h2>AMS</h2><small>Admin Panel</small></div>
-        <nav>
-            <a href="/admin/dashboard">Dashboard</a>
-            <a href="/admin/departments">Departments</a>
-            <a href="/admin/create">Create / Add</a>
-            <a href="/admin/students">Students</a>
-            <a href="/admin/teachers">Teachers</a>
-            <a href="/admin/subjects">Subjects</a>
-            <a href="/admin/sections" class="active">Sections</a>
-            <a href="/admin/reports">Reports</a>
-            <a href="/admin/trends">Trends</a>
-            <a href="/logout" style="margin-top:2rem; display:block;">Logout</a>
-        </nav>
-    </aside>
+    <div th:replace="~{fragments/admin-sidebar :: sidebar('ams-sections')}"></div>
     <main class="main-content">
         <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
         <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
@@ -40,7 +26,7 @@
                 </button>
                 <div class="profile-menu">
                     <button type="button" class="profile-menu-action" onclick="toggleProfilePanel('profile-panel')">My Profile</button>
-                    <a href="/logout" class="profile-menu-action profile-logout">Logout</a>
+                    <a th:href="@{/logout}" class="profile-menu-action profile-logout">Logout</a>
                 </div>
                 <div class="profile-panel" id="profile-panel">
                     <div class="profile-panel-title">My Profile</div>
@@ -82,7 +68,7 @@
             <div class="card">
                 <h3>Select Department</h3>
                 <div class="course-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
-                    <a th:each="d : ${departmentList}" th:href="@{/admin/sections(departmentId=${d.id})}" class="course-card">
+                    <a th:each="d : ${departmentList}" th:href="@{|/admin/sections?departmentId=${d.id}|}" class="course-card">
                         <h4 th:text="${d.name}"></h4>
                         <p>Click to view sections</p>
                     </a>
@@ -93,12 +79,12 @@
         <div th:if="${selectedDepartmentId != null and (selectedYearLevel == null or selectedYearLevel.isEmpty())}">
             <div class="card">
                 <h3>Select Year Level - <span th:text="${selectedDepartmentName}"></span></h3>
-                <a th:href="@{/admin/sections}" class="btn btn-secondary" style="margin-bottom: 1rem; display: inline-block;">← Back to Departments</a>
+                <a th:href="@{|/admin/sections|}" class="btn btn-secondary" style="margin-bottom: 1rem; display: inline-block;">← Back to Departments</a>
                 <div class="year-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
-                    <a th:href="@{/admin/sections(departmentId=${selectedDepartmentId},yearLevel='1st Year')}" class="year-card"><h4>1st Year</h4></a>
-                    <a th:href="@{/admin/sections(departmentId=${selectedDepartmentId},yearLevel='2nd Year')}" class="year-card"><h4>2nd Year</h4></a>
-                    <a th:href="@{/admin/sections(departmentId=${selectedDepartmentId},yearLevel='3rd Year')}" class="year-card"><h4>3rd Year</h4></a>
-                    <a th:href="@{/admin/sections(departmentId=${selectedDepartmentId},yearLevel='4th Year')}" class="year-card"><h4>4th Year</h4></a>
+                    <a th:href="@{|/admin/sections?departmentId=${selectedDepartmentId}&yearLevel=1st Year|}" class="year-card"><h4>1st Year</h4></a>
+                    <a th:href="@{|/admin/sections?departmentId=${selectedDepartmentId}&yearLevel=2nd Year|}" class="year-card"><h4>2nd Year</h4></a>
+                    <a th:href="@{|/admin/sections?departmentId=${selectedDepartmentId}&yearLevel=3rd Year|}" class="year-card"><h4>3rd Year</h4></a>
+                    <a th:href="@{|/admin/sections?departmentId=${selectedDepartmentId}&yearLevel=4th Year|}" class="year-card"><h4>4th Year</h4></a>
                 </div>
             </div>
         </div>
@@ -107,7 +93,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3>Sections - <span th:text="${selectedDepartmentName}"></span> - <span th:text="${selectedYearLevel}"></span></h3>
-                    <a th:href="@{/admin/sections(departmentId=${selectedDepartmentId})}" class="btn btn-secondary">← Back to Year Levels</a>
+                    <a th:href="@{|/admin/sections?departmentId=${selectedDepartmentId}|}" class="btn btn-secondary">← Back to Year Levels</a>
                 </div>
             </div>
 

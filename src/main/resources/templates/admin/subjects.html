@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Subjects - AMS</title>
@@ -8,21 +8,7 @@
 <body>
 <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
 <div class="app-layout">
-    <aside class="sidebar">
-        <div class="brand"><h2>AMS</h2><small>Admin Panel</small></div>
-        <nav>
-            <a href="/admin/dashboard">Dashboard</a>
-            <a href="/admin/departments">Departments</a>
-            <a href="/admin/create">Create / Add</a>
-            <a href="/admin/students">Students</a>
-            <a href="/admin/teachers">Teachers</a>
-            <a href="/admin/subjects" class="active">Subjects</a>
-            <a href="/admin/sections">Sections</a>
-            <a href="/admin/reports">Reports</a>
-            <a href="/admin/trends">Trends</a>
-            <a href="/logout" style="margin-top:2rem; display:block;">Logout</a>
-        </nav>
-    </aside>
+    <div th:replace="~{fragments/admin-sidebar :: sidebar('ams-subjects')}"></div>
     <main class="main-content">
         <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
         <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
@@ -40,7 +26,7 @@
                 </button>
                 <div class="profile-menu">
                     <button type="button" class="profile-menu-action" onclick="toggleProfilePanel('profile-panel')">My Profile</button>
-                    <a href="/logout" class="profile-menu-action profile-logout">Logout</a>
+                    <a th:href="@{/logout}" class="profile-menu-action profile-logout">Logout</a>
                 </div>
                 <div class="profile-panel" id="profile-panel">
                     <div class="profile-panel-title">My Profile</div>
@@ -82,12 +68,12 @@
             <div class="card">
                 <h3>Select Department</h3>
                 <div class="department-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
-                    <a th:each="d : ${departmentList}" th:href="@{/admin/subjects(departmentId=${d.id})}" class="course-card">
+                    <a th:each="d : ${departmentList}" th:href="@{|/admin/subjects?departmentId=${d.id}|}" class="course-card">
                         <h4 th:text="${d.name}"></h4>
                         <p>Click to view subjects</p>
                     </a>
                     <div th:if="${#lists.isEmpty(departmentList)}" style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #666;">
-                        <p>No departments found. <a href="/admin/create#department">Create a department</a> first.</p>
+                        <p>No departments found. <a th:href="@{|/admin/create#department|}">Create a department</a> first.</p>
                     </div>
                 </div>
             </div>
@@ -97,7 +83,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3>Subjects - <span th:text="${selectedDepartmentName}"></span></h3>
-                    <a th:href="@{/admin/subjects}" class="btn btn-secondary">← Back to Departments</a>
+                    <a th:href="@{|/admin/subjects|}" class="btn btn-secondary">← Back to Departments</a>
                 </div>
             </div>
 
@@ -114,7 +100,7 @@
                             <td th:text="${sub.teacher != null ? sub.teacher.fullName : '-'}"></td>
                             <td th:text="${sub.section != null ? sub.section.name : '-'}"></td>
                             <td>
-                                <form th:action="@{/admin/subjects/{id}/assign-students(id=${sub.id})}" method="post" class="assign-students-widget" data-assign-widget>
+                                <form th:action="@{|/admin/subjects/${sub.id}/assign-students|}" method="post" class="assign-students-widget" data-assign-widget>
                                     <input type="search" class="form-control assign-search" placeholder="Search student..." data-assign-search>
                                     <div class="assign-students-list" data-assign-list>
                                         <label class="assign-student-item" th:each="st : ${students}" th:attr="data-search-text=${#strings.toLowerCase(st.fullName + ' ' + st.studentNumber)}">

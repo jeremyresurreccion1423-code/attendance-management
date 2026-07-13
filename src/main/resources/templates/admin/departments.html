@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Departments - AMS</title>
@@ -8,21 +8,7 @@
 <body>
 <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
 <div class="app-layout">
-    <aside class="sidebar">
-        <div class="brand"><h2>AMS</h2><small>Admin Panel</small></div>
-        <nav>
-            <a href="/admin/dashboard">Dashboard</a>
-            <a href="/admin/departments" class="active">Departments</a>
-            <a href="/admin/create">Create / Add</a>
-            <a href="/admin/students">Students</a>
-            <a href="/admin/teachers">Teachers</a>
-            <a href="/admin/subjects">Subjects</a>
-            <a href="/admin/sections">Sections</a>
-            <a href="/admin/reports">Reports</a>
-            <a href="/admin/trends">Trends</a>
-            <a href="/logout" style="margin-top:2rem; display:block;">Logout</a>
-        </nav>
-    </aside>
+    <div th:replace="~{fragments/admin-sidebar :: sidebar('ams-departments')}"></div>
     <main class="main-content">
         <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
         <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
@@ -32,7 +18,7 @@
                 <h1>Department Management</h1>
                 <span>Create, edit, and view department details</span>
             </div>
-            <a href="/admin/create#department" class="btn btn-primary">Create Department</a>
+            <a th:href="@{|/admin/create#department|}" class="btn btn-primary">Create Department</a>
         </div>
 
         <div class="stats-grid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1rem; margin-bottom:1.5rem;">
@@ -79,7 +65,7 @@
                         <td th:text="${d.subjectCount}"></td>
                         <td>
                             <button type="button" class="btn btn-secondary btn-sm" th:onclick="'toggleEdit(' + ${d.id} + ')'">Edit</button>
-                            <form th:action="@{/admin/departments/{id}/delete(id=${d.id})}" method="post" style="display:inline;" class="confirm-delete"
+                            <form th:action="@{|/admin/departments/${d.id}/delete|}" method="post" style="display:inline;" class="confirm-delete"
                                   th:attr="data-confirm-message='Delete department ' + ${d.name} + '? This is only allowed when no records are linked.'">
                                 <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                             </form>
@@ -87,7 +73,7 @@
                     </tr>
                     <tr th:id="'edit-row-' + ${d.id}" style="display:none; background:#f8faf8;">
                         <td colspan="7">
-                            <form th:action="@{/admin/departments/{id}/update(id=${d.id})}" method="post" class="ams-validate">
+                            <form th:action="@{|/admin/departments/${d.id}/update|}" method="post" class="ams-validate">
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label>Name</label>
@@ -105,7 +91,7 @@
                     </tr>
                     </th:block>
                     <tr th:if="${#lists.isEmpty(departments)}">
-                        <td colspan="7" style="text-align:center; color:#666;">No departments yet. <a href="/admin/create#department">Create one</a>.</td>
+                        <td colspan="7" style="text-align:center; color:#666;">No departments yet. <a th:href="@{|/admin/create#department|}">Create one</a>.</td>
                     </tr>
                 </tbody>
             </table>

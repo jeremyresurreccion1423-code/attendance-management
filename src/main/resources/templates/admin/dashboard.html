@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard - AMS</title>
@@ -8,20 +8,7 @@
 <body>
 <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
 <div class="app-layout">
-    <aside class="sidebar">
-        <div class="brand"><h2>AMS</h2><small>Admin Panel</small></div>
-        <nav>
-            <a href="/admin/dashboard" class="active">Dashboard</a>
-            <a href="/admin/create">Create / Add</a>
-            <a href="/admin/students">Students</a>
-            <a href="/admin/teachers">Teachers</a>
-            <a href="/admin/subjects">Subjects</a>
-            <a href="/admin/sections">Sections</a>
-            <a href="/admin/reports">Reports</a>
-            <a href="/admin/trends">Trends</a>
-            <a href="/logout" style="margin-top:2rem; border-top:1px solid #334155; padding-top:1rem; display:block;">Logout</a>
-        </nav>
-    </aside>
+    <div th:replace="~{fragments/admin-sidebar :: sidebar('ams-dashboard')}"></div>
     <main class="main-content">
         <div class="page-header">
             <h1>Admin Dashboard</h1>
@@ -37,7 +24,7 @@
                 </button>
                 <div class="profile-menu">
                     <button type="button" class="profile-menu-action" onclick="toggleProfilePanel('profile-panel')">My Profile</button>
-                    <a href="/logout" class="profile-menu-action profile-logout">Logout</a>
+                    <a th:href="@{/logout}" class="profile-menu-action profile-logout">Logout</a>
                 </div>
                 <div class="profile-panel" id="profile-panel">
                     <div class="profile-panel-title">My Profile</div>
@@ -126,10 +113,10 @@
         </div>
         <div class="card">
             <h3>Quick Actions</h3>
-            <a href="/admin/students" class="btn btn-primary">Manage Students</a>
-            <a href="/admin/teachers" class="btn btn-primary" style="margin-left:0.5rem;">Manage Teachers</a>
-            <a href="/admin/subjects" class="btn btn-primary" style="margin-left:0.5rem;">Manage Subjects</a>
-            <a href="/admin/reports" class="btn btn-secondary" style="margin-left:0.5rem;">Generate Reports</a>
+            <a th:href="@{|/admin/students|}" class="btn btn-primary">Manage Students</a>
+            <a th:href="@{|/admin/teachers|}" class="btn btn-primary" style="margin-left:0.5rem;">Manage Teachers</a>
+            <a th:href="@{|/admin/subjects|}" class="btn btn-primary" style="margin-left:0.5rem;">Manage Subjects</a>
+            <a th:href="@{|/admin/reports|}" class="btn btn-secondary" style="margin-left:0.5rem;">Generate Reports</a>
         </div>
     </main>
 </div>

@@ -15,6 +15,15 @@
         const stored = localStorage.getItem(storageKey) === "1";
         applyState(stored);
 
+        document.querySelectorAll(".profile-menu-action").forEach((action) => {
+            if (action.textContent && action.textContent.trim().toLowerCase() === "my profile") {
+                action.addEventListener("click", (event) => {
+                    event.preventDefault();
+                    window.location.href = "/profile";
+                });
+            }
+        });
+
         toggleButton.addEventListener("click", () => {
             const collapsed = !document.body.classList.contains("sidebar-collapsed");
             applyState(collapsed);
@@ -22,18 +31,23 @@
         });
     }
 
-    const layoutScript = document.querySelector('script[src*="layout.js"]');
-    const layoutSrc = layoutScript?.getAttribute("src") || "/js/layout.js";
-    const baseSrc = layoutSrc.replace("layout.js", "");
+    window.toggleSidebarGroup = function (button) {
+        const group = button.closest(".sidebar-group");
+        if (!group) return;
+        const willOpen = !group.classList.contains("open");
+        group.classList.toggle("open");
+        button.setAttribute("aria-expanded", String(willOpen));
+    };
 
-    function appendScript(name) {
-        if (document.querySelector(`script[src*="${name}"]`)) return;
-        const script = document.createElement("script");
-        script.src = baseSrc + name;
-        script.async = false;
-        document.body.appendChild(script);
+    document.querySelectorAll(".sidebar-group.open .sidebar-group-btn").forEach((button) => {
+        button.setAttribute("aria-expanded", "true");
+    });
+
+    if (!document.querySelector('script[src*="forms.js"]')) {
+        const formsScript = document.createElement("script");
+        const layoutSrc = document.querySelector('script[src*="layout.js"]')?.getAttribute("src") || "/js/layout.js";
+        formsScript.src = layoutSrc.replace("layout.js", "forms.js");
+        formsScript.async = false;
+        document.head.appendChild(formsScript);
     }
-
-    appendScript("profile-menu.js");
-    appendScript("forms.js");
 })();

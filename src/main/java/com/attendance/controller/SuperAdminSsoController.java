@@ -40,6 +40,7 @@ public class SuperAdminSsoController {
 
     private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
 
+    /** Outbound: generate a fresh handoff token and send the Super Admin into Library's portal. */
     @GetMapping("/super-admin/bridge/library")
     public String bridgeToLibrary(@RequestParam(defaultValue = "/super-admin") String path, Authentication auth) {
         String token = ssoTokenService.generateToken(auth.getName());
@@ -48,6 +49,7 @@ public class SuperAdminSsoController {
         return "redirect:" + base + "/super-admin/sso?token=" + token + "&next=" + next;
     }
 
+    /** Inbound: consume a handoff token issued by Library and sign the Super Admin into this app. */
     @GetMapping("/super-admin/sso")
     public String receiveSso(@RequestParam String token,
                              @RequestParam(defaultValue = "/super-admin") String next,
@@ -75,6 +77,7 @@ public class SuperAdminSsoController {
         return "redirect:" + safeNext;
     }
 
+    /** Only allow same-app relative paths as SSO redirect targets (blocks open-redirect to external hosts). */
     private boolean isSafeLocalPath(String path) {
         return path != null && path.startsWith("/") && !path.startsWith("//");
     }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Reports - AMS</title>
@@ -8,20 +8,7 @@
 <body>
 <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
 <div class="app-layout">
-    <aside class="sidebar">
-        <div class="brand"><h2>AMS</h2><small>Admin Panel</small></div>
-        <nav>
-            <a href="/admin/dashboard">Dashboard</a>
-            <a href="/admin/create">Create / Add</a>
-            <a href="/admin/students">Students</a>
-            <a href="/admin/teachers">Teachers</a>
-            <a href="/admin/subjects">Subjects</a>
-            <a href="/admin/sections">Sections</a>
-            <a href="/admin/reports" class="active">Reports</a>
-            <a href="/admin/trends">Trends</a>
-            <a href="/logout" style="margin-top:2rem; display:block;">Logout</a>
-        </nav>
-    </aside>
+    <div th:replace="~{fragments/admin-sidebar :: sidebar('ams-reports')}"></div>
     <main class="main-content">
         <div class="page-header">
             <h1>Reports</h1>
@@ -37,7 +24,7 @@
                 </button>
                 <div class="profile-menu">
                     <button type="button" class="profile-menu-action" onclick="toggleProfilePanel('profile-panel')">My Profile</button>
-                    <a href="/logout" class="profile-menu-action profile-logout">Logout</a>
+                    <a th:href="@{/logout}" class="profile-menu-action profile-logout">Logout</a>
                 </div>
                 <div class="profile-panel" id="profile-panel">
                     <div class="profile-panel-title">My Profile</div>
@@ -93,16 +80,17 @@
 
         <div class="card">
             <h3>Student Report</h3>
-            <a th:href="@{/admin/reports/students/pdf}" class="btn btn-danger">Export Student List (PDF)</a>
+            <a th:href="@{|/admin/reports/students/pdf|}" class="btn btn-danger">Export Student List (PDF)</a>
         </div>
     </main>
 </div>
 <script th:src="@{/js/layout.js}"></script>
-<script>
+<script th:inline="javascript">
 function exportReport(type) {
     const start = document.getElementById('startDate').value;
     const end = document.getElementById('endDate').value;
-    window.location = '/admin/reports/attendance/' + type + '?start=' + start + '&end=' + end;
+    const base = /*[[@{|/admin/reports/attendance/|}]]*/ '/admin/reports/attendance/';
+    window.location = base + type + '?start=' + encodeURIComponent(start) + '&end=' + encodeURIComponent(end);
 }
 function closeAllProfileMenus() {
     document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Teachers - AMS</title>
@@ -8,21 +8,7 @@
 <body>
 <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
 <div class="app-layout">
-    <aside class="sidebar">
-        <div class="brand"><h2>AMS</h2><small>Admin Panel</small></div>
-        <nav>
-            <a href="/admin/dashboard">Dashboard</a>
-            <a href="/admin/departments">Departments</a>
-            <a href="/admin/create">Create / Add</a>
-            <a href="/admin/students">Students</a>
-            <a href="/admin/teachers" class="active">Teachers</a>
-            <a href="/admin/subjects">Subjects</a>
-            <a href="/admin/sections">Sections</a>
-            <a href="/admin/reports">Reports</a>
-            <a href="/admin/trends">Trends</a>
-            <a href="/logout" style="margin-top:2rem; display:block;">Logout</a>
-        </nav>
-    </aside>
+    <div th:replace="~{fragments/admin-sidebar :: sidebar('ams-teachers')}"></div>
     <main class="main-content">
         <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
         <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
@@ -40,7 +26,7 @@
                 </button>
                 <div class="profile-menu">
                     <button type="button" class="profile-menu-action" onclick="toggleProfilePanel('profile-panel')">My Profile</button>
-                    <a href="/logout" class="profile-menu-action profile-logout">Logout</a>
+                    <a th:href="@{/logout}" class="profile-menu-action profile-logout">Logout</a>
                 </div>
                 <div class="profile-panel" id="profile-panel">
                     <div class="profile-panel-title">My Profile</div>
@@ -82,12 +68,12 @@
             <div class="card">
                 <h3>Select Department</h3>
                 <div class="department-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
-                    <a th:each="d : ${departmentList}" th:href="@{/admin/teachers(departmentId=${d.id})}" class="course-card">
+                    <a th:each="d : ${departmentList}" th:href="@{|/admin/teachers?departmentId=${d.id}|}" class="course-card">
                         <h4 th:text="${d.name}"></h4>
                         <p>Click to view teachers</p>
                     </a>
                     <div th:if="${#lists.isEmpty(departmentList)}" style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #666;">
-                        <p>No departments found. <a href="/admin/create#department">Create a department</a> first.</p>
+                        <p>No departments found. <a th:href="@{|/admin/create#department|}">Create a department</a> first.</p>
                     </div>
                 </div>
             </div>
@@ -97,7 +83,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3>Teachers - <span th:text="${selectedDepartmentName}"></span></h3>
-                    <a th:href="@{/admin/teachers}" class="btn btn-secondary">← Back to Departments</a>
+                    <a th:href="@{|/admin/teachers|}" class="btn btn-secondary">← Back to Departments</a>
                 </div>
             </div>
 
@@ -117,14 +103,14 @@
                             <td th:text="${t.status}"></td>
                             <td>
                                 <button type="button" class="btn btn-secondary btn-sm" th:onclick="'toggleEdit(' + ${t.id} + ')'">Edit</button>
-                                <form th:action="@{/admin/teachers/{id}/delete(id=${t.id})}" method="post" style="display:inline;" class="confirm-delete" th:attr="data-confirm-message='Delete teacher ' + ${t.fullName} + '?'">
+                                <form th:action="@{|/admin/teachers/${t.id}/delete|}" method="post" style="display:inline;" class="confirm-delete" th:attr="data-confirm-message='Delete teacher ' + ${t.fullName} + '?'">
                                     <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                                 </form>
                             </td>
                         </tr>
                         <tr th:id="'edit-row-' + ${t.id}" style="display:none; background:#f8faf8;">
                             <td colspan="6">
-                                <form th:action="@{/admin/teachers/{id}/update(id=${t.id})}" method="post" class="ams-validate">
+                                <form th:action="@{|/admin/teachers/${t.id}/update|}" method="post" class="ams-validate">
                                     <div class="form-row">
                                         <div class="form-group"><label>Name</label><input type="text" name="fullName" class="form-control" th:value="${t.fullName}" required></div>
                                         <div class="form-group"><label>Department</label>

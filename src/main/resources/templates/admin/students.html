@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Students - AMS</title>
@@ -8,21 +8,7 @@
 <body>
 <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
 <div class="app-layout">
-    <aside class="sidebar">
-        <div class="brand"><h2>AMS</h2><small>Admin Panel</small></div>
-        <nav>
-            <a href="/admin/dashboard">Dashboard</a>
-            <a href="/admin/departments">Departments</a>
-            <a href="/admin/create">Create / Add</a>
-            <a href="/admin/students" class="active">Students</a>
-            <a href="/admin/teachers">Teachers</a>
-            <a href="/admin/subjects">Subjects</a>
-            <a href="/admin/sections">Sections</a>
-            <a href="/admin/reports">Reports</a>
-            <a href="/admin/trends">Trends</a>
-            <a href="/logout" style="margin-top:2rem; display:block;">Logout</a>
-        </nav>
-    </aside>
+    <div th:replace="~{fragments/admin-sidebar :: sidebar('ams-students')}"></div>
     <main class="main-content">
         <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
         <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
@@ -40,7 +26,7 @@
                 </button>
                 <div class="profile-menu">
                     <button type="button" class="profile-menu-action" onclick="toggleProfilePanel('profile-panel')">My Profile</button>
-                    <a href="/logout" class="profile-menu-action profile-logout">Logout</a>
+                    <a th:href="@{/logout}" class="profile-menu-action profile-logout">Logout</a>
                 </div>
                 <div class="profile-panel" id="profile-panel">
                     <div class="profile-panel-title">My Profile</div>
@@ -83,15 +69,15 @@
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
                     <h3 style="margin:0;">Select Department</h3>
-                    <a th:href="@{/admin/students(viewAll=true)}" class="btn btn-primary">View All Students</a>
+                    <a th:href="@{|/admin/students?viewAll=true|}" class="btn btn-primary">View All Students</a>
                 </div>
                 <div class="course-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
-                    <a th:each="d : ${departmentList}" th:href="@{/admin/students(departmentId=${d.id})}" class="course-card">
+                    <a th:each="d : ${departmentList}" th:href="@{|/admin/students?departmentId=${d.id}|}" class="course-card">
                         <h4 th:text="${d.name}"></h4>
                         <p>Click to view students</p>
                     </a>
                     <div th:if="${#lists.isEmpty(departmentList)}" style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #666;">
-                        <p>No departments found. <a href="/admin/create#department">Create a department</a> first.</p>
+                        <p>No departments found. <a th:href="@{|/admin/create#department|}">Create a department</a> first.</p>
                     </div>
                 </div>
             </div>
@@ -101,12 +87,12 @@
         <div th:if="${selectedDepartmentId != null and (selectedYearLevel == null or selectedYearLevel.isEmpty())}">
             <div class="card">
                 <h3>Select Year Level - <span th:text="${selectedDepartmentName}"></span></h3>
-                <a th:href="@{/admin/students}" class="btn btn-secondary" style="margin-bottom: 1rem; display: inline-block;">← Back to Departments</a>
+                <a th:href="@{|/admin/students|}" class="btn btn-secondary" style="margin-bottom: 1rem; display: inline-block;">← Back to Departments</a>
                 <div class="year-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
-                    <a th:href="@{/admin/students(departmentId=${selectedDepartmentId},yearLevel='1st Year')}" class="year-card"><h4>1st Year</h4></a>
-                    <a th:href="@{/admin/students(departmentId=${selectedDepartmentId},yearLevel='2nd Year')}" class="year-card"><h4>2nd Year</h4></a>
-                    <a th:href="@{/admin/students(departmentId=${selectedDepartmentId},yearLevel='3rd Year')}" class="year-card"><h4>3rd Year</h4></a>
-                    <a th:href="@{/admin/students(departmentId=${selectedDepartmentId},yearLevel='4th Year')}" class="year-card"><h4>4th Year</h4></a>
+                    <a th:href="@{|/admin/students?departmentId=${selectedDepartmentId}&yearLevel=1st Year|}" class="year-card"><h4>1st Year</h4></a>
+                    <a th:href="@{|/admin/students?departmentId=${selectedDepartmentId}&yearLevel=2nd Year|}" class="year-card"><h4>2nd Year</h4></a>
+                    <a th:href="@{|/admin/students?departmentId=${selectedDepartmentId}&yearLevel=3rd Year|}" class="year-card"><h4>3rd Year</h4></a>
+                    <a th:href="@{|/admin/students?departmentId=${selectedDepartmentId}&yearLevel=4th Year|}" class="year-card"><h4>4th Year</h4></a>
                 </div>
             </div>
         </div>
@@ -116,16 +102,16 @@
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
                     <h3 style="margin:0;">Select Section - <span th:text="${selectedDepartmentName}"></span> - <span th:text="${selectedYearLevel}"></span></h3>
-                    <a th:href="@{/admin/students(departmentId=${selectedDepartmentId},yearLevel=${selectedYearLevel},viewAll=true)}" class="btn btn-primary">View All Students in Year</a>
+                    <a th:href="@{|/admin/students?departmentId=${selectedDepartmentId}&yearLevel=${selectedYearLevel}&viewAll=true|}" class="btn btn-primary">View All Students in Year</a>
                 </div>
-                <a th:href="@{/admin/students(departmentId=${selectedDepartmentId})}" class="btn btn-secondary" style="margin-bottom: 1rem; display: inline-block;">← Back to Year Levels</a>
+                <a th:href="@{|/admin/students?departmentId=${selectedDepartmentId}|}" class="btn btn-secondary" style="margin-bottom: 1rem; display: inline-block;">← Back to Year Levels</a>
                 <div class="section-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
-                    <a th:each="s : ${filteredSections}" th:href="@{/admin/students(departmentId=${selectedDepartmentId},yearLevel=${selectedYearLevel},sectionId=${s.id})}" class="section-card">
+                    <a th:each="s : ${filteredSections}" th:href="@{|/admin/students?departmentId=${selectedDepartmentId}&yearLevel=${selectedYearLevel}&sectionId=${s.id}|}" class="section-card">
                         <h4 th:text="${s.name}"></h4>
                     </a>
                     <div th:if="${#lists.isEmpty(filteredSections)}" style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #666;">
                         <p>No sections found for this department and year level.</p>
-                        <a th:href="@{/admin/students(departmentId=${selectedDepartmentId},yearLevel=${selectedYearLevel},viewAll=true)}" class="btn btn-primary">View All Students in Department</a>
+                        <a th:href="@{|/admin/students?departmentId=${selectedDepartmentId}&yearLevel=${selectedYearLevel}&viewAll=true|}" class="btn btn-primary">View All Students in Department</a>
                     </div>
                 </div>
             </div>
@@ -148,20 +134,20 @@
                         </span>
                     </h3>
                     <a th:if="${selectedSectionId != null}"
-                       th:href="@{/admin/students(departmentId=${selectedDepartmentId},yearLevel=${selectedYearLevel})}"
+                       th:href="@{|/admin/students?departmentId=${selectedDepartmentId}&yearLevel=${selectedYearLevel}|}"
                        class="btn btn-secondary">← Back to Sections</a>
                     <a th:if="${viewAll and selectedDepartmentId != null and selectedYearLevel != null and !selectedYearLevel.isEmpty() and selectedSectionId == null}"
-                       th:href="@{/admin/students(departmentId=${selectedDepartmentId},yearLevel=${selectedYearLevel})}"
+                       th:href="@{|/admin/students?departmentId=${selectedDepartmentId}&yearLevel=${selectedYearLevel}|}"
                        class="btn btn-secondary">← Back to Sections</a>
                     <a th:if="${viewAll and selectedDepartmentId != null and (selectedYearLevel == null or selectedYearLevel.isEmpty())}"
-                       th:href="@{/admin/students}"
+                       th:href="@{|/admin/students|}"
                        class="btn btn-secondary">← Back to Departments</a>
                     <a th:if="${viewAll and selectedDepartmentId == null}"
-                       th:href="@{/admin/students}"
+                       th:href="@{|/admin/students|}"
                        class="btn btn-secondary">← Back to Departments</a>
                 </div>
 
-                <form method="get" th:action="@{/admin/students}" class="student-search-bar">
+                <form method="get" th:action="@{|/admin/students|}" class="student-search-bar">
                     <input type="hidden" name="departmentId" th:if="${selectedDepartmentId != null}" th:value="${selectedDepartmentId}">
                     <input type="hidden" name="yearLevel" th:if="${selectedYearLevel != null}" th:value="${selectedYearLevel}">
                     <input type="hidden" name="sectionId" th:if="${selectedSectionId != null}" th:value="${selectedSectionId}">
@@ -170,7 +156,7 @@
                            placeholder="Search by name, student no., email, or department..." id="studentSearchInput">
                     <button type="submit" class="btn btn-primary">Search</button>
                     <a th:if="${searchQuery != null and !searchQuery.isEmpty()}"
-                       th:href="@{/admin/students(departmentId=${selectedDepartmentId},yearLevel=${selectedYearLevel},sectionId=${selectedSectionId},viewAll=${viewAll})}"
+                       th:href="@{|/admin/students?departmentId=${selectedDepartmentId}&yearLevel=${selectedYearLevel}&sectionId=${selectedSectionId}&viewAll=${viewAll}|}"
                        class="btn btn-secondary">Clear</a>
                 </form>
             </div>
@@ -193,7 +179,7 @@
                             <td>
                                 <button type="button" class="btn btn-secondary btn-sm" th:onclick="'toggleEdit(' + ${s.id} + ')'">Edit</button>
                                 <form th:if="${s.status == null or s.status.name() != 'ARCHIVED'}"
-                                      th:action="@{/admin/students/{id}/archive(id=${s.id})}" method="post" style="display:inline;" class="confirm-action" th:attr="data-confirm-message='Archive student ' + ${s.fullName} + '?'">
+                                      th:action="@{|/admin/students/${s.id}/archive|}" method="post" style="display:inline;" class="confirm-action" th:attr="data-confirm-message='Archive student ' + ${s.fullName} + '?'">
                                     <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
                                     <input type="hidden" name="returnYearLevel" th:value="${selectedYearLevel}">
                                     <input type="hidden" name="returnSectionId" th:if="${selectedSectionId != null}" th:value="${selectedSectionId}">
@@ -202,7 +188,7 @@
                                     <button type="submit" class="btn btn-success btn-sm">Archive</button>
                                 </form>
                                 <form th:if="${s.status != null and s.status.name() == 'ARCHIVED'}"
-                                      th:action="@{/admin/students/{id}/unarchive(id=${s.id})}" method="post" style="display:inline;" class="confirm-action" th:attr="data-confirm-message='Unarchive student ' + ${s.fullName} + '?'">
+                                      th:action="@{|/admin/students/${s.id}/unarchive|}" method="post" style="display:inline;" class="confirm-action" th:attr="data-confirm-message='Unarchive student ' + ${s.fullName} + '?'">
                                     <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
                                     <input type="hidden" name="returnYearLevel" th:value="${selectedYearLevel}">
                                     <input type="hidden" name="returnSectionId" th:if="${selectedSectionId != null}" th:value="${selectedSectionId}">
@@ -210,7 +196,7 @@
                                     <input type="hidden" name="returnSearch" th:value="${searchQuery}">
                                     <button type="submit" class="btn btn-light btn-sm">Unarchive</button>
                                 </form>
-                                <form th:action="@{/admin/students/{id}/delete(id=${s.id})}" method="post" style="display:inline;" class="confirm-delete" th:attr="data-confirm-message='Delete student ' + ${s.fullName} + '?'">
+                                <form th:action="@{|/admin/students/${s.id}/delete|}" method="post" style="display:inline;" class="confirm-delete" th:attr="data-confirm-message='Delete student ' + ${s.fullName} + '?'">
                                     <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
                                     <input type="hidden" name="returnYearLevel" th:value="${selectedYearLevel}">
                                     <input type="hidden" name="returnSectionId" th:if="${selectedSectionId != null}" th:value="${selectedSectionId}">
@@ -222,7 +208,7 @@
                         </tr>
                         <tr th:id="'edit-row-' + ${s.id}" style="display:none; background:#f8faf8;">
                             <td colspan="7">
-                                <form th:action="@{/admin/students/{id}/update(id=${s.id})}" method="post" class="ams-validate">
+                                <form th:action="@{|/admin/students/${s.id}/update|}" method="post" class="ams-validate">
                                     <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
                                     <input type="hidden" name="returnYearLevel" th:value="${selectedYearLevel}">
                                     <input type="hidden" name="returnSectionId" th:if="${selectedSectionId != null}" th:value="${selectedSectionId}">
