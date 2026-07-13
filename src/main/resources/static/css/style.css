@@ -178,7 +178,7 @@ a:hover { text-decoration: underline; }
     padding: 0.8rem;
     box-shadow: var(--shadow);
 }
-.sidebar-profile-widget .profile-panel.show { display:block; }
+.sidebar-profile-widget .profile-panel.show { display:block !important; }
 .sidebar-profile-widget .profile-panel-title {
     font-size: 0.78rem;
     font-weight: 700;
@@ -553,7 +553,7 @@ body.sidebar-collapsed .sidebar-toggle-btn {
 .sidebar-profile-widget .profile-panel {
     display: none !important;
 }
-.page-header-profile-widget .profile-panel.show { display:block; }
+.page-header-profile-widget .profile-panel.show { display:block !important; }
 .page-header-profile-widget .profile-panel-title {
     font-size: 1rem;
     font-weight: 700;
