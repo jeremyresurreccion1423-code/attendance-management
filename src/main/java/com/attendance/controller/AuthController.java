@@ -48,6 +48,9 @@ public class AuthController {
     @Value("${spring.mail.username:}")
     private String mailUsername;
 
+    @Value("${spring.mail.password:}")
+    private String mailPassword;
+
     private final Map<String, OtpEntry> forgotPasswordOtpStore = new ConcurrentHashMap<>();
 
     @GetMapping("/")
@@ -106,20 +109,21 @@ public class AuthController {
         forgotPasswordOtpStore.put(user.getUsername(), new OtpEntry(otp, LocalDateTime.now().plusMinutes(10)));
 
         try {
-            if (mailUsername == null || mailUsername.isBlank()) {
-                redirect.addFlashAttribute("error", "Mail is not configured. Set spring.mail.username and password in application-local.properties.");
+            if (!isMailConfigured()) {
+                redirect.addFlashAttribute("error",
+                        "Attendance mail is not configured. Set spring.mail.username and spring.mail.password in src/main/resources/application-local.properties (AMS Gmail App Password — separate from Library).");
                 return "redirect:/forgot-password";
             }
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(mailUsername);
+            message.setFrom(mailUsername.trim());
             message.setTo(recipientEmail);
-            message.setSubject("AMS Password Reset OTP");
-            message.setText("Your AMS OTP is " + otp + ". It will expire in 10 minutes.");
+            message.setSubject("Attendance Management System — Password Reset OTP");
+            message.setText("Your Attendance Management System OTP is " + otp + ".\n\nIt expires in 10 minutes.\n\nIf you did not request this, ignore this email.");
             mailSender.send(message);
             redirect.addFlashAttribute("message", "OTP sent to your Gmail: " + recipientEmail);
             redirect.addFlashAttribute("otpUsername", user.getUsername());
         } catch (Exception ex) {
-            redirect.addFlashAttribute("error", "Unable to send OTP email. Check mail configuration.");
+            redirect.addFlashAttribute("error", "Unable to send OTP email. Check Attendance spring.mail.username / App Password in application-local.properties.");
         }
         return "redirect:/forgot-password";
     }
@@ -290,6 +294,19 @@ public class AuthController {
             return ".png";
         }
         return fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+    }
+
+    private boolean isMailConfigured() {
+        if (mailUsername == null || mailUsername.isBlank()
+                || mailPassword == null || mailPassword.isBlank()) {
+            return false;
+        }
+        String user = mailUsername.trim();
+        String pass = mailPassword.trim();
+        return !user.startsWith("YOUR_")
+                && !pass.startsWith("YOUR_")
+                && user.contains("@")
+                && pass.length() >= 16;
     }
 
     private String resolveEmailForUser(User user) {

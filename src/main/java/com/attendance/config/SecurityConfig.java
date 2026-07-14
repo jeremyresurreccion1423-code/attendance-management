@@ -96,7 +96,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .headers(this::applySecurityHeaders)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/login", "/forgot-password", "/error", "/css/**", "/js/**", "/images/**", "/uploads/**", "/h2-console/**").permitAll()
+                .requestMatchers("/", "/login", "/forgot-password", "/forgot-password/**", "/error", "/css/**", "/js/**", "/images/**", "/uploads/**", "/h2-console/**").permitAll()
                 .requestMatchers("/api/v1/super-admin/dashboard-stats").permitAll()
                 .requestMatchers("/api/v1/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
