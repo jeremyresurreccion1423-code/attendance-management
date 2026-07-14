@@ -24,10 +24,10 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.security.SecureRandom;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,6 +41,7 @@ import com.attendance.util.ValidationHelper;
 public class AuthController {
 
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
+    private static final SecureRandom OTP_RANDOM = new SecureRandom();
 
     private final AuthService authService;
     private final StudentRepository studentRepository;
@@ -83,11 +84,11 @@ public class AuthController {
 
     @GetMapping("/forgot-password")
     public String forgotPasswordForm(Authentication authentication, Model model) {
-        if (!model.containsAttribute("otpUsername") && authentication != null
+        if (!model.containsAttribute("emailOrUsername") && authentication != null
                 && authentication.isAuthenticated()
                 && authentication.getName() != null
                 && !"anonymousUser".equalsIgnoreCase(authentication.getName())) {
-            model.addAttribute("otpUsername", authentication.getName());
+            model.addAttribute("emailOrUsername", authentication.getName());
             model.addAttribute("otpLocked", true);
             model.addAttribute("backUrl", "/profile");
             model.addAttribute("backLabel", "Back to Profile");
@@ -103,26 +104,47 @@ public class AuthController {
         return "auth/forgot-password";
     }
 
-    @PostMapping("/forgot-password/request-otp")
-    public String requestForgotPasswordOtp(@RequestParam(required = false) String username,
-                                           Authentication authentication,
-                                           RedirectAttributes redirect) {
-        String resolvedUsername = username;
-        if ((resolvedUsername == null || resolvedUsername.isBlank())
+    /**
+     * Library-style forgot password:
+     * 1) POST without otp → generate + email OTP
+     * 2) POST with otp + newPassword → verify OTP then reset
+     */
+    @PostMapping({"/forgot-password", "/forgot-password/request-otp"})
+    public String forgotPasswordSubmit(@RequestParam(required = false) String emailOrUsername,
+                                       @RequestParam(required = false) String username,
+                                       @RequestParam(required = false) String otp,
+                                       @RequestParam(required = false) String newPassword,
+                                       @RequestParam(required = false) String confirmPassword,
+                                       Authentication authentication,
+                                       RedirectAttributes redirect) {
+        String identifier = firstNonBlank(emailOrUsername, username);
+        if ((identifier == null || identifier.isBlank())
                 && authentication != null
                 && authentication.isAuthenticated()
                 && authentication.getName() != null
                 && !"anonymousUser".equalsIgnoreCase(authentication.getName())) {
-            resolvedUsername = authentication.getName();
+            identifier = authentication.getName();
         }
-        if (resolvedUsername == null || resolvedUsername.isBlank()) {
+
+        // Step 2: verify OTP and reset password
+        if (otp != null && !otp.isBlank()) {
+            return resetPasswordWithOtp(identifier, otp, newPassword, confirmPassword, redirect);
+        }
+
+        // Step 1: send OTP
+        return requestPasswordResetOtp(identifier, redirect);
+    }
+
+    private String requestPasswordResetOtp(String identifier, RedirectAttributes redirect) {
+        if (identifier == null || identifier.isBlank()) {
             redirect.addFlashAttribute("error", "Enter your username or email.");
             return "redirect:/forgot-password";
         }
 
-        Optional<User> userOpt = authService.findByUsernameOrEmail(resolvedUsername);
+        Optional<User> userOpt = authService.findByUsernameOrEmail(identifier);
         if (userOpt.isEmpty()) {
-            redirect.addFlashAttribute("error", "Account not found.");
+            redirect.addFlashAttribute("error", "No account found with that username or email.");
+            redirect.addFlashAttribute("emailOrUsername", identifier);
             return "redirect:/forgot-password";
         }
 
@@ -130,34 +152,92 @@ public class AuthController {
         String recipientEmail = resolveEmailForUser(user);
         if (recipientEmail == null || recipientEmail.isBlank()) {
             redirect.addFlashAttribute("error", "No email found for this account. Contact admin.");
+            redirect.addFlashAttribute("emailOrUsername", user.getUsername());
             return "redirect:/forgot-password";
         }
 
-        String otp = String.format("%06d", new Random().nextInt(1_000_000));
+        if (!attendanceMailService.isConfigured()) {
+            redirect.addFlashAttribute("error",
+                    "Attendance mail is not configured. On Railway Hobby: set BREVO_API_KEY (HTTPS). Locally: set spring.mail.username / App Password.");
+            redirect.addFlashAttribute("emailOrUsername", user.getUsername());
+            return "redirect:/forgot-password";
+        }
+
+        String otp = String.format("%06d", OTP_RANDOM.nextInt(1_000_000));
         forgotPasswordOtpStore.put(user.getUsername(), new OtpEntry(otp, LocalDateTime.now().plusMinutes(10)));
 
-        String fromAddress = attendanceMailService.resolveFromAddress();
         try {
-            if (!attendanceMailService.isConfigured()) {
-                redirect.addFlashAttribute("error",
-                        "Attendance mail is not configured. On Railway Hobby: set BREVO_API_KEY (HTTPS). Locally: set spring.mail.username / App Password.");
-                return "redirect:/forgot-password";
-            }
             attendanceMailService.sendText(
                     recipientEmail,
                     "Attendance Management System - Password Reset OTP",
                     "Your Attendance Management System OTP is " + otp
                             + ".\n\nIt expires in 10 minutes.\n\nIf you did not request this, ignore this email."
             );
-            redirect.addFlashAttribute("message", "OTP sent to your Gmail: " + recipientEmail);
-            redirect.addFlashAttribute("otpUsername", user.getUsername());
+            redirect.addFlashAttribute("otpRequired", true);
+            redirect.addFlashAttribute("emailOrUsername", user.getUsername());
+            redirect.addFlashAttribute("message", "OTP sent to your Gmail: " + recipientEmail + ". Enter the code to reset your password.");
         } catch (Exception ex) {
-            log.error("Failed to send Attendance OTP email to {} via {}: {}",
-                    recipientEmail, fromAddress, ex.getMessage(), ex);
+            forgotPasswordOtpStore.remove(user.getUsername());
+            log.error("Failed to send Attendance OTP email to {}: {}", recipientEmail, ex.getMessage(), ex);
             redirect.addFlashAttribute("error", "Unable to send OTP email (" + rootMessage(ex) + ")");
-            redirect.addFlashAttribute("otpUsername", user.getUsername());
+            redirect.addFlashAttribute("emailOrUsername", user.getUsername());
         }
         return "redirect:/forgot-password";
+    }
+
+    private String resetPasswordWithOtp(String identifier,
+                                        String otp,
+                                        String newPassword,
+                                        String confirmPassword,
+                                        RedirectAttributes redirect) {
+        if (identifier == null || identifier.isBlank()) {
+            redirect.addFlashAttribute("error", "Account identifier is missing. Request a new OTP.");
+            return "redirect:/forgot-password";
+        }
+
+        Optional<User> userOpt = authService.findByUsernameOrEmail(identifier);
+        String storeKey = userOpt.map(User::getUsername).orElse(identifier.trim());
+        OtpEntry entry = forgotPasswordOtpStore.get(storeKey);
+
+        if (entry == null || entry.expiresAt().isBefore(LocalDateTime.now()) || !entry.code().equals(otp.trim())) {
+            redirect.addFlashAttribute("error", "Invalid or expired OTP.");
+            redirect.addFlashAttribute("otpRequired", true);
+            redirect.addFlashAttribute("emailOrUsername", storeKey);
+            return "redirect:/forgot-password";
+        }
+        if (newPassword == null || confirmPassword == null || !newPassword.equals(confirmPassword)) {
+            redirect.addFlashAttribute("error", "New password and confirmation do not match.");
+            redirect.addFlashAttribute("otpRequired", true);
+            redirect.addFlashAttribute("emailOrUsername", storeKey);
+            return "redirect:/forgot-password";
+        }
+        try {
+            ValidationHelper.validatePassword(newPassword);
+        } catch (IllegalArgumentException ex) {
+            redirect.addFlashAttribute("error", ex.getMessage());
+            redirect.addFlashAttribute("otpRequired", true);
+            redirect.addFlashAttribute("emailOrUsername", storeKey);
+            return "redirect:/forgot-password";
+        }
+
+        if (authService.resetPassword(storeKey, newPassword)) {
+            forgotPasswordOtpStore.remove(storeKey);
+            redirect.addFlashAttribute("message", "Password reset successful! Please log in with your new password.");
+            return "redirect:/login";
+        }
+
+        redirect.addFlashAttribute("error", "Account not found.");
+        return "redirect:/forgot-password";
+    }
+
+    private static String firstNonBlank(String a, String b) {
+        if (a != null && !a.isBlank()) {
+            return a;
+        }
+        if (b != null && !b.isBlank()) {
+            return b;
+        }
+        return null;
     }
 
     @GetMapping("/profile")
@@ -218,43 +298,6 @@ public class AuthController {
             case STUDENT -> "/student/dashboard";
         });
         return "profile/dashboard";
-    }
-
-    @PostMapping("/forgot-password")
-    public String resetPassword(@RequestParam String username,
-                                @RequestParam String otp,
-                                @RequestParam String newPassword,
-                                @RequestParam String confirmPassword,
-                                RedirectAttributes redirect) {
-        Optional<User> userOpt = authService.findByUsernameOrEmail(username);
-        String storeKey = userOpt.map(User::getUsername).orElse(username.trim());
-        OtpEntry entry = forgotPasswordOtpStore.get(storeKey);
-        if (entry == null || entry.expiresAt().isBefore(LocalDateTime.now()) || !entry.code().equals(otp)) {
-            redirect.addFlashAttribute("error", "Invalid or expired OTP.");
-            redirect.addFlashAttribute("otpUsername", storeKey);
-            return "redirect:/forgot-password";
-        }
-        if (!newPassword.equals(confirmPassword)) {
-            redirect.addFlashAttribute("error", "New password and confirmation do not match.");
-            redirect.addFlashAttribute("otpUsername", storeKey);
-            return "redirect:/forgot-password";
-        }
-        try {
-            ValidationHelper.validatePassword(newPassword);
-        } catch (IllegalArgumentException ex) {
-            redirect.addFlashAttribute("error", ex.getMessage());
-            redirect.addFlashAttribute("otpUsername", storeKey);
-            return "redirect:/forgot-password";
-        }
-
-        if (authService.resetPassword(storeKey, newPassword)) {
-            forgotPasswordOtpStore.remove(storeKey);
-            redirect.addFlashAttribute("message", "Password updated successfully. You can now login.");
-        } else {
-            redirect.addFlashAttribute("error", "Username not found");
-            return "redirect:/forgot-password";
-        }
-        return "redirect:/login";
     }
 
     @PostMapping("/profile/password")
