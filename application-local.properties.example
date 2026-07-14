@@ -6,11 +6,9 @@ spring.datasource.url=jdbc:postgresql://aws-1-ap-southeast-1.pooler.supabase.com
 spring.datasource.username=postgres.YOUR_PROJECT_REF
 spring.datasource.password=your-database-password
 
-# --- Attendance Gmail SMTP (Forgot Password OTP) ---
-# This is AMS-only. Library uses its own spring.mail.* in smart-library.
-# 1. Use a Gmail account for Attendance OTP emails
-# 2. Enable 2-Step Verification on that Google account
-# 3. Create an App Password: Google Account → Security → App passwords
-# 4. Paste the 16-character password below (no spaces)
-spring.mail.username=your-attendance@gmail.com
-spring.mail.password=your-16-char-app-password
+# --- LU Centralized System — Brevo SMTP (same as Library) ---
+# Set password via env: MAIL_PASSWORD or BREVO_SMTP_PASSWORD
+spring.mail.username=${MAIL_USERNAME:b20400001@smtp-brevo.com}
+spring.mail.password=${MAIL_PASSWORD:${BREVO_SMTP_PASSWORD:}}
+central.mail.from-name=LU Centralized System
+central.mail.from-email=noreply.lu.system@gmail.com

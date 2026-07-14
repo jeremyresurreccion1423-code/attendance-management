@@ -1,6 +1,7 @@
 package com.attendance.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -10,14 +11,14 @@ import org.springframework.util.StringUtils;
 import java.util.Properties;
 
 /**
- * Explicit Gmail SMTP sender for Attendance OTP.
- * Prefers spring.mail.* (application-local / Railway SPRING_MAIL_*),
- * then falls back to MAIL_USERNAME / MAIL_PASSWORD env vars.
+ * Brevo SMTP transport for the LU Centralized System (Attendance).
+ * Credentials come from spring.mail.* / MAIL_USERNAME / MAIL_PASSWORD (or BREVO_SMTP_*).
  */
 @Configuration
+@EnableConfigurationProperties(CentralMailProperties.class)
 public class MailConfiguration {
 
-    @Value("${spring.mail.host:smtp.gmail.com}")
+    @Value("${spring.mail.host:smtp-relay.brevo.com}")
     private String host;
 
     @Value("${spring.mail.port:587}")
@@ -42,42 +43,44 @@ public class MailConfiguration {
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.starttls.required", "true");
-        props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
-        props.put("mail.smtp.connectiontimeout", "15000");
-        props.put("mail.smtp.timeout", "15000");
-        props.put("mail.smtp.writetimeout", "15000");
+        props.put("mail.smtp.ssl.trust", host);
+        props.put("mail.smtp.connectiontimeout", "20000");
+        props.put("mail.smtp.timeout", "20000");
+        props.put("mail.smtp.writetimeout", "20000");
         return mailSender;
     }
 
     private String resolveUsername() {
-        // Env wins so Railway variables override any credentials baked into the jar
-        String fromEnv = firstNonBlank(System.getenv("SPRING_MAIL_USERNAME"), System.getenv("MAIL_USERNAME"));
+        String fromEnv = firstNonBlank(
+                System.getenv("MAIL_USERNAME"),
+                System.getenv("BREVO_SMTP_USERNAME"),
+                System.getenv("SPRING_MAIL_USERNAME"));
         if (StringUtils.hasText(fromEnv)) {
             return fromEnv.trim();
         }
-        if (StringUtils.hasText(configuredUsername) && !configuredUsername.trim().startsWith("YOUR_")) {
-            return configuredUsername.trim();
-        }
-        return "";
+        return configuredUsername == null ? "" : configuredUsername.trim();
     }
 
     private String resolvePassword() {
-        String fromEnv = firstNonBlank(System.getenv("SPRING_MAIL_PASSWORD"), System.getenv("MAIL_PASSWORD"));
-        if (StringUtils.hasText(fromEnv)) {
-            return fromEnv.replace(" ", "").trim();
+        String fromEnv = firstNonBlank(
+                System.getenv("MAIL_PASSWORD"),
+                System.getenv("BREVO_SMTP_PASSWORD"),
+                System.getenv("SPRING_MAIL_PASSWORD"));
+        String raw = StringUtils.hasText(fromEnv) ? fromEnv : configuredPassword;
+        if (raw == null) {
+            return "";
         }
-        if (StringUtils.hasText(configuredPassword) && !configuredPassword.trim().startsWith("YOUR_")) {
-            return configuredPassword.replace(" ", "").trim();
-        }
-        return "";
+        return raw.replace(" ", "").trim();
     }
 
-    private static String firstNonBlank(String a, String b) {
-        if (StringUtils.hasText(a)) {
-            return a;
+    private static String firstNonBlank(String... values) {
+        if (values == null) {
+            return null;
         }
-        if (StringUtils.hasText(b)) {
-            return b;
+        for (String value : values) {
+            if (StringUtils.hasText(value)) {
+                return value;
+            }
         }
         return null;
     }

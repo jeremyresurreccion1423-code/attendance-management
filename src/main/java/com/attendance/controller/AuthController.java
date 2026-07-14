@@ -158,7 +158,7 @@ public class AuthController {
 
         if (!attendanceMailService.isConfigured()) {
             redirect.addFlashAttribute("error",
-                    "Attendance mail is not configured. On Railway Hobby: set BREVO_API_KEY (HTTPS). Locally: set spring.mail.username / App Password.");
+                    "Attendance mail is not configured. Set MAIL_PASSWORD (or BREVO_SMTP_PASSWORD) for Brevo SMTP.");
             redirect.addFlashAttribute("emailOrUsername", user.getUsername());
             return "redirect:/forgot-password";
         }
@@ -175,7 +175,7 @@ public class AuthController {
             );
             redirect.addFlashAttribute("otpRequired", true);
             redirect.addFlashAttribute("emailOrUsername", user.getUsername());
-            redirect.addFlashAttribute("message", "OTP sent to your Gmail: " + recipientEmail + ". Enter the code to reset your password.");
+            redirect.addFlashAttribute("message", "OTP sent to your email: " + recipientEmail + ". Enter the code to reset your password.");
         } catch (Exception ex) {
             forgotPasswordOtpStore.remove(user.getUsername());
             log.error("Failed to send Attendance OTP email to {}: {}", recipientEmail, ex.getMessage(), ex);
@@ -303,7 +303,7 @@ public class AuthController {
     @PostMapping("/profile/password")
     public String changePassword(RedirectAttributes redirect) {
         // Password changes (forgot or change) always go through the same OTP flow.
-        redirect.addFlashAttribute("message", "Password changes require OTP verification via Gmail.");
+        redirect.addFlashAttribute("message", "Password changes require OTP verification via email.");
         return "redirect:/forgot-password";
     }
 
