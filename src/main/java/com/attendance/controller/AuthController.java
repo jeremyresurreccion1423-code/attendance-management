@@ -63,6 +63,8 @@ public class AuthController {
                         Model model) {
         if ("session".equals(error)) {
             model.addAttribute("error", "Your session has expired. Please log in again.");
+        } else if ("locked".equals(error)) {
+            model.addAttribute("error", "Account locked after too many failed attempts. Try again in 15 minutes or contact an administrator.");
         } else if ("inactive".equals(error)) {
             model.addAttribute("error", message != null && !message.isBlank()
                     ? message

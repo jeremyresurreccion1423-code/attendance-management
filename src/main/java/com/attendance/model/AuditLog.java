@@ -34,6 +34,9 @@ public class AuditLog {
 
     private String ipAddress;
 
+    @Column(name = "user_agent", length = 512)
+    private String userAgent;
+
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 }

@@ -17,8 +17,16 @@ public class SuperAdminAuthController {
     public String login(@RequestParam(required = false) String error,
                         @RequestParam(required = false) String logout,
                         Model model) {
-        if (error != null) model.addAttribute("error", "Invalid Super Admin credentials");
-        if (logout != null) model.addAttribute("message", "You have been logged out of the System Control Center");
+        if ("locked".equals(error)) {
+            model.addAttribute("error", "Account locked after too many failed attempts. Try again in 15 minutes.");
+        } else if ("disabled".equals(error)) {
+            model.addAttribute("error", "This Super Admin account is disabled.");
+        } else if (error != null) {
+            model.addAttribute("error", "Invalid Super Admin credentials");
+        }
+        if (logout != null) {
+            model.addAttribute("message", "You have been logged out of the System Control Center");
+        }
         return "super-admin/login";
     }
 }

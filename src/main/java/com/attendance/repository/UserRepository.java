@@ -10,4 +10,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmailIgnoreCase(String email);
     boolean existsByUsername(String username);
     boolean existsByEmailIgnoreCase(String email);
+
+    java.util.List<User> findByLockedUntilAfter(java.time.LocalDateTime time);
 }

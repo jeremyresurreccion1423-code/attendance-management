@@ -37,6 +37,13 @@ public class User {
     private LocalDateTime lastLogin;
 
     @Builder.Default
+    @Column(name = "failed_login_attempts")
+    private Integer failedLoginAttempts = 0;
+
+    @Column(name = "locked_until")
+    private LocalDateTime lockedUntil;
+
+    @Builder.Default
     private Boolean enabled = true;
 
     @Version

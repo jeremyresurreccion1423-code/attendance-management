@@ -15,7 +15,7 @@ import java.util.Optional;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final AuditLogRepository auditLogRepository;
+    private final AuditService auditService;
     private final PasswordEncoder passwordEncoder;
 
     public Optional<User> findByUsername(String username) {
@@ -96,12 +96,6 @@ public class AuthService {
     }
 
     public void logAction(User user, String action, String entityType, Long entityId, String details) {
-        auditLogRepository.save(AuditLog.builder()
-                .user(user)
-                .action(action)
-                .entityType(entityType)
-                .entityId(entityId)
-                .details(details)
-                .build());
+        auditService.log(user, action, entityType, entityId, details);
     }
 }

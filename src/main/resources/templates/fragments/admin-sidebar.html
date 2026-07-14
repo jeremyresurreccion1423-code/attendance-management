@@ -9,6 +9,7 @@
         <div class="sidebar-nav-scroll">
             <nav>
                 <a th:href="@{/super-admin}" th:classappend="${activePage == 'dashboard'} ? 'active' : ''">Dashboard</a>
+                <a th:href="@{/super-admin/security}" th:classappend="${activePage == 'security'} ? 'active' : ''">Security Center</a>
 
                 <div class="sidebar-group" th:classappend="${activePage != null and #strings.startsWith(activePage, 'ams-')} ? 'open' : ''">
                     <button type="button" class="sidebar-group-btn" onclick="window.toggleSidebarGroup && window.toggleSidebarGroup(this)" aria-expanded="false">

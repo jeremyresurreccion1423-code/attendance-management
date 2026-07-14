@@ -5,6 +5,7 @@ import com.attendance.model.User;
 import com.attendance.repository.StudentRepository;
 import com.attendance.repository.TeacherRepository;
 import com.attendance.repository.UserRepository;
+import com.attendance.service.AccountLockoutService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,9 +25,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
+    private final AccountLockoutService accountLockoutService;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
         String key = identifier == null ? "" : identifier.trim();
         if (key.isEmpty()) {
@@ -44,18 +47,22 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         User resolved = user.orElseThrow(() -> new UsernameNotFoundException("User not found: " + key));
+        accountLockoutService.clearExpiredLock(resolved);
 
         boolean accountEnabled = Boolean.TRUE.equals(resolved.getEnabled());
         if (resolved.getRole() == Role.STUDENT || resolved.getRole() == Role.TEACHER) {
-            // Validate role status after password check in StudentAwareAuthenticationProvider.
             accountEnabled = true;
         }
+
+        boolean nonLocked = !accountLockoutService.isLocked(resolved);
 
         return new org.springframework.security.core.userdetails.User(
                 resolved.getUsername(),
                 resolved.getPassword(),
                 accountEnabled,
-                true, true, true,
+                true,
+                true,
+                nonLocked,
                 List.of(new SimpleGrantedAuthority("ROLE_" + resolved.getRole().name()))
         );
     }

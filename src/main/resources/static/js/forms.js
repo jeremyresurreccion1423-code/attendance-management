@@ -200,8 +200,12 @@
         clearFieldError(newPass);
         clearFieldError(confirm);
 
-        if (newPass.value.length < 6) {
-            showFieldError(newPass, "Password must be at least 6 characters.");
+        if (newPass.value.length < 8
+            || !/[a-z]/.test(newPass.value)
+            || !/[A-Z]/.test(newPass.value)
+            || !/\d/.test(newPass.value)
+            || !/[^A-Za-z0-9]/.test(newPass.value)) {
+            showFieldError(newPass, "Password must be 8+ chars with upper, lower, number, and special character.");
             return false;
         }
         if (newPass.value !== confirm.value) {
@@ -431,7 +435,7 @@
         const isLoggedIn = document.querySelector('a[href="/logout"], a.profile-logout, .sidebar');
         if (!isLoggedIn) return;
 
-        const timeoutMs = (Number(document.body.dataset.sessionMinutes) || 30) * 60 * 1000;
+        const timeoutMs = (Number(document.body.dataset.sessionMinutes) || 20) * 60 * 1000;
         const warningMs = 2 * 60 * 1000;
         let expiry = Date.now() + timeoutMs;
         let warned = false;
