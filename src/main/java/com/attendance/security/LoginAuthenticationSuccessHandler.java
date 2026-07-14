@@ -4,7 +4,6 @@ import com.attendance.model.User;
 import com.attendance.repository.UserRepository;
 import com.attendance.service.AccountLockoutService;
 import com.attendance.service.AuditService;
-import com.attendance.service.LoginNotificationService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,7 +22,6 @@ public class LoginAuthenticationSuccessHandler implements AuthenticationSuccessH
     private final UserRepository userRepository;
     private final AccountLockoutService accountLockoutService;
     private final AuditService auditService;
-    private final LoginNotificationService loginNotificationService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -40,9 +38,6 @@ public class LoginAuthenticationSuccessHandler implements AuthenticationSuccessH
             auditService.log(user, "LOGIN", "User", user.getId(),
                     (isSuperAdminPortal ? "Super Admin portal login" : "User login")
                             + " from " + AuditService.clientIp(request));
-            if (user.getRole() != null && (user.getRole().name().contains("ADMIN"))) {
-                loginNotificationService.notifyLogin(user, request);
-            }
         }
 
         if (isSuperAdminPortal) {
