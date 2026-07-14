@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - EduPresence System</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=7)}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=8)}">
 </head>
 <body data-auth-page="true">
 <div class="auth-page">
@@ -117,7 +117,12 @@
                 <button type="submit" class="btn btn-primary auth-submit">LOGIN</button>
             </form>
 
-            <p class="auth-footer-text">Don't have an account? <a th:href="@{/forgot-password}">Contact Administrator</a></p>
+            <div class="auth-forgot-panel">
+                <p>Can't sign in?</p>
+                <a th:href="@{/forgot-password}" class="btn btn-outline auth-forgot-cta">Forgot Password — Reset via OTP</a>
+            </div>
+
+            <p class="auth-footer-text">Don't have an account? Contact Administrator</p>
 
             <a th:href="@{/super-admin/login}" class="auth-super-admin-link">
                 <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

@@ -108,21 +108,10 @@
                         </div>
                         <div>
                             <h4 style="margin-bottom:0.55rem; color:#0f172a;">Change Password</h4>
-                            <form action="/profile/password" method="post">
-                                <div class="form-group">
-                                    <input type="password" name="currentPassword" class="form-control" placeholder="Current Password" required>
-                                </div>
-                                <div class="form-group">
-                                    <input type="password" name="newPassword" class="form-control" placeholder="New Password" required>
-                                </div>
-                                <div class="form-group">
-                                    <input type="password" name="confirmPassword" class="form-control" placeholder="Confirm Password" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Save Password</button>
-                            </form>
-                            <p style="margin-top:0.65rem;">
-                                <a href="/forgot-password">Forgot password? Verify via OTP</a>
+                            <p style="margin:0 0 0.75rem; color:#64748b; font-size:0.92rem;">
+                                Password changes require OTP verification via Gmail (same as Forgot Password).
                             </p>
+                            <a th:href="@{/forgot-password}" class="btn btn-primary">Reset Password via OTP</a>
                         </div>
                     </div>
                 </div>
