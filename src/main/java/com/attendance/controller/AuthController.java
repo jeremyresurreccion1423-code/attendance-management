@@ -8,16 +8,20 @@ import com.attendance.service.SharedAttendanceStudentProfileBridgeService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -38,6 +42,8 @@ import com.attendance.util.ValidationHelper;
 @Controller
 @RequiredArgsConstructor
 public class AuthController {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     private final AuthService authService;
     private final StudentRepository studentRepository;
@@ -108,22 +114,26 @@ public class AuthController {
         String otp = String.format("%06d", new Random().nextInt(1_000_000));
         forgotPasswordOtpStore.put(user.getUsername(), new OtpEntry(otp, LocalDateTime.now().plusMinutes(10)));
 
+        String fromAddress = resolveMailUsername();
         try {
             if (!isMailConfigured()) {
                 redirect.addFlashAttribute("error",
-                        "Attendance mail is not configured. Set spring.mail.username and spring.mail.password in src/main/resources/application-local.properties (AMS Gmail App Password — separate from Library).");
+                        "Attendance mail is not configured. Set SPRING_MAIL_USERNAME and SPRING_MAIL_PASSWORD on Railway (or spring.mail.* in application-local.properties).");
                 return "redirect:/forgot-password";
             }
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(mailUsername.trim());
+            message.setFrom(fromAddress);
             message.setTo(recipientEmail);
-            message.setSubject("Attendance Management System — Password Reset OTP");
+            message.setSubject("Attendance Management System - Password Reset OTP");
             message.setText("Your Attendance Management System OTP is " + otp + ".\n\nIt expires in 10 minutes.\n\nIf you did not request this, ignore this email.");
             mailSender.send(message);
             redirect.addFlashAttribute("message", "OTP sent to your Gmail: " + recipientEmail);
             redirect.addFlashAttribute("otpUsername", user.getUsername());
         } catch (Exception ex) {
-            redirect.addFlashAttribute("error", "Unable to send OTP email. Check Attendance spring.mail.username / App Password in application-local.properties.");
+            log.error("Failed to send Attendance OTP email to {} via {}: {}",
+                    recipientEmail, fromAddress, ex.getMessage(), ex);
+            redirect.addFlashAttribute("error",
+                    "Unable to send OTP email (" + rootMessage(ex) + "). Verify SPRING_MAIL_USERNAME / SPRING_MAIL_PASSWORD (Gmail App Password).");
         }
         return "redirect:/forgot-password";
     }
@@ -296,17 +306,55 @@ public class AuthController {
         return fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
     }
 
-    private boolean isMailConfigured() {
-        if (mailUsername == null || mailUsername.isBlank()
-                || mailPassword == null || mailPassword.isBlank()) {
-            return false;
+    private String resolveMailUsername() {
+        if (StringUtils.hasText(mailUsername) && !mailUsername.trim().startsWith("YOUR_")) {
+            return mailUsername.trim();
         }
-        String user = mailUsername.trim();
-        String pass = mailPassword.trim();
-        return !user.startsWith("YOUR_")
-                && !pass.startsWith("YOUR_")
+        if (mailSender instanceof JavaMailSenderImpl impl && StringUtils.hasText(impl.getUsername())) {
+            return impl.getUsername().trim();
+        }
+        String fromEnv = System.getenv("SPRING_MAIL_USERNAME");
+        if (!StringUtils.hasText(fromEnv)) {
+            fromEnv = System.getenv("MAIL_USERNAME");
+        }
+        return fromEnv != null ? fromEnv.trim() : "";
+    }
+
+    private String resolveMailPassword() {
+        String raw = mailPassword;
+        if (!StringUtils.hasText(raw) || raw.trim().startsWith("YOUR_")) {
+            if (mailSender instanceof JavaMailSenderImpl impl && StringUtils.hasText(impl.getPassword())) {
+                raw = impl.getPassword();
+            } else {
+                raw = System.getenv("SPRING_MAIL_PASSWORD");
+                if (!StringUtils.hasText(raw)) {
+                    raw = System.getenv("MAIL_PASSWORD");
+                }
+            }
+        }
+        return raw == null ? "" : raw.replace(" ", "").trim();
+    }
+
+    private boolean isMailConfigured() {
+        String user = resolveMailUsername();
+        String pass = resolveMailPassword();
+        return StringUtils.hasText(user)
                 && user.contains("@")
-                && pass.length() >= 16;
+                && !user.startsWith("YOUR_")
+                && pass.length() >= 16
+                && !pass.startsWith("YOUR_");
+    }
+
+    private static String rootMessage(Throwable ex) {
+        Throwable current = ex;
+        while (current.getCause() != null && current.getCause() != current) {
+            current = current.getCause();
+        }
+        String msg = current.getMessage();
+        if (!StringUtils.hasText(msg)) {
+            msg = current.getClass().getSimpleName();
+        }
+        return msg.length() > 120 ? msg.substring(0, 117) + "..." : msg;
     }
 
     private String resolveEmailForUser(User user) {
