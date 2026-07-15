@@ -48,7 +48,9 @@
                 <h3>Select Year Level - <span th:text="${selectedDepartmentName}"></span></h3>
                 <a th:href="@{|/admin/sections|}" class="btn btn-secondary" style="margin-bottom: 1rem; display: inline-block;">← Back to Departments</a>
                 <div class="year-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
-                    <a th:each="yl : ${yearLevels}" th:href="@{|/admin/sections?departmentId=${selectedDepartmentId}&yearLevel=${yl}|}" class="year-card"><h4 th:text="${yl}"></h4></a>
+                    <a th:each="yl : ${yearLevels}"
+                       th:href="@{/admin/sections(departmentId=${selectedDepartmentId}, yearLevel=${yl})}"
+                       class="year-card"><h4 th:text="${yl}"></h4></a>
                 </div>
             </div>
         </div>

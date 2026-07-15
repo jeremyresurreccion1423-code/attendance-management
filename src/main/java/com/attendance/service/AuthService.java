@@ -95,6 +95,18 @@ public class AuthService {
         return userRepository.save(user);
     }
 
+    @Transactional
+    public void disableAndReleaseUsername(User user) {
+        if (user == null || user.getId() == null) {
+            return;
+        }
+        userRepository.findById(user.getId()).ifPresent(existing -> {
+            existing.setUsername(existing.getUsername() + "_deleted_" + existing.getId());
+            existing.setEnabled(false);
+            userRepository.save(existing);
+        });
+    }
+
     public void logAction(User user, String action, String entityType, Long entityId, String details) {
         auditService.log(user, action, entityType, entityId, details);
     }

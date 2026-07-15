@@ -141,21 +141,33 @@ public class AdminController {
                           @RequestParam(required = false) Boolean viewAll,
                           @RequestParam(required = false) String search,
                           @RequestParam(required = false) String status) {
+        // Browsers turn "&sectionId=" into "§ionId=" inside HTML hrefs — repair corrupt filters.
+        Long resolvedSectionId = recoverSectionIdFromCorruptYear(yearLevel, sectionId);
+        String resolvedYearLevel = sanitizeYearLevel(yearLevel);
+
         boolean isViewAll = Boolean.TRUE.equals(viewAll);
         boolean showStudentList = false;
         List<Student> students = List.of();
+        List<Section> filteredSections = List.of();
+
+        if (departmentId != null && resolvedYearLevel != null && !resolvedYearLevel.isBlank()) {
+            filteredSections = sectionService.findByDepartmentIdAndYearLevel(departmentId, resolvedYearLevel);
+        }
 
         if (isViewAll && departmentId == null) {
             students = studentService.findAll();
             showStudentList = true;
         } else if (departmentId != null) {
-            if (yearLevel != null && !yearLevel.isBlank()) {
-                if (sectionId != null) {
-                    students = studentService.findByDepartmentIdAndYearLevelAndSection(departmentId, yearLevel, sectionId);
+            if (resolvedYearLevel != null && !resolvedYearLevel.isBlank()) {
+                if (resolvedSectionId != null) {
+                    students = studentService.findByDepartmentIdAndYearLevelAndSection(
+                            departmentId, resolvedYearLevel, resolvedSectionId);
                     showStudentList = true;
-                } else if (isViewAll) {
-                    students = studentService.findByDepartmentIdAndYearLevel(departmentId, yearLevel);
+                } else if (isViewAll || filteredSections.isEmpty()) {
+                    // No sections to pick (or viewAll) — show students for this year immediately.
+                    students = studentService.findByDepartmentIdAndYearLevel(departmentId, resolvedYearLevel);
                     showStudentList = true;
+                    isViewAll = true;
                 }
             } else if (isViewAll) {
                 students = studentService.findByDepartmentId(departmentId);
@@ -169,34 +181,26 @@ public class AdminController {
         model.addAttribute("students", students);
         model.addAttribute("departmentList", departmentService.findAll());
         model.addAttribute("selectedDepartmentId", departmentId);
-        model.addAttribute("selectedYearLevel", yearLevel);
-        model.addAttribute("selectedSectionId", sectionId);
+        model.addAttribute("selectedYearLevel", resolvedYearLevel);
+        model.addAttribute("selectedSectionId", resolvedSectionId);
         model.addAttribute("viewAll", isViewAll);
         model.addAttribute("showStudentList", showStudentList);
         model.addAttribute("searchQuery", search != null ? search : "");
         model.addAttribute("statusFilter", status != null ? status : "");
         model.addAttribute("profilePhotoUrl", profilePhotoService.resolveProfilePhotoUrl(auth.getName()));
+        model.addAttribute("filteredSections", filteredSections);
 
         if (departmentId != null) {
             departmentService.findAll().stream()
                     .filter(d -> d.getId().equals(departmentId))
                     .findFirst()
                     .ifPresent(d -> model.addAttribute("selectedDepartmentName", d.getName()));
-        }
-
-        if (departmentId != null) {
             model.addAttribute("yearLevels", sectionService.findYearLevelsByDepartmentId(departmentId));
         }
 
-        if (departmentId != null && yearLevel != null && !yearLevel.isBlank()) {
-            model.addAttribute("filteredSections", sectionService.findByDepartmentIdAndYearLevel(departmentId, yearLevel));
-        } else {
-            model.addAttribute("filteredSections", List.of());
-        }
-
-        if (sectionId != null) {
+        if (resolvedSectionId != null) {
             model.addAttribute("selectedSectionName",
-                    sectionService.findById(sectionId).map(Section::getName).orElse(""));
+                    sectionService.findById(resolvedSectionId).map(Section::getName).orElse(""));
         }
 
         Student student = new Student();
@@ -208,16 +212,58 @@ public class AdminController {
             dept.setId(departmentId);
             student.setDepartment(dept);
         }
-        if (yearLevel != null && !yearLevel.isBlank()) {
-            student.setYearLevel(yearLevel);
+        if (resolvedYearLevel != null && !resolvedYearLevel.isBlank()) {
+            student.setYearLevel(resolvedYearLevel);
         }
-        if (sectionId != null) {
+        if (resolvedSectionId != null) {
             Section section = new Section();
-            section.setId(sectionId);
+            section.setId(resolvedSectionId);
             student.setSection(section);
         }
         model.addAttribute("student", student);
         return "admin/students";
+    }
+
+    /**
+     * HTML parsers treat {@code &sectionId=} as the entity {@code &sect;} ({@code §}).
+     * That corrupts yearLevel into values like {@code 2nd Year§ionId=2}.
+     */
+    private String sanitizeYearLevel(String yearLevel) {
+        if (yearLevel == null || yearLevel.isBlank()) {
+            return yearLevel;
+        }
+        String cleaned = yearLevel;
+        int mark = cleaned.indexOf('§');
+        if (mark >= 0) {
+            cleaned = cleaned.substring(0, mark);
+        }
+        int amp = cleaned.toLowerCase().indexOf("&section");
+        if (amp >= 0) {
+            cleaned = cleaned.substring(0, amp);
+        }
+        int ion = cleaned.toLowerCase().indexOf("ionid=");
+        if (ion >= 0) {
+            cleaned = cleaned.substring(0, ion);
+        }
+        return cleaned.trim();
+    }
+
+    private Long recoverSectionIdFromCorruptYear(String yearLevel, Long sectionId) {
+        if (sectionId != null || yearLevel == null || yearLevel.isBlank()) {
+            return sectionId;
+        }
+        java.util.regex.Matcher matcher = java.util.regex.Pattern
+                .compile("(?i)(?:§|&)?ionId=(\\d+)|(?i)sectionId=(\\d+)")
+                .matcher(yearLevel);
+        if (matcher.find()) {
+            String value = matcher.group(1) != null ? matcher.group(1) : matcher.group(2);
+            try {
+                return Long.parseLong(value);
+            } catch (NumberFormatException ignored) {
+                return null;
+            }
+        }
+        return null;
     }
 
     @PostMapping("/students")

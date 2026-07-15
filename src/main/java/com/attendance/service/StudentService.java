@@ -75,12 +75,26 @@ public class StudentService {
                 ? student.getStudentNumber().trim()
                 : username.trim();
         if (password != null && !password.isBlank()) {
-            if (authService.findByUsername(loginUsername).isPresent()) {
-                throw new BusinessException("Username already exists.");
+            var existingUser = authService.findByUsername(loginUsername);
+            if (existingUser.isPresent()) {
+                User orphan = existingUser.get();
+                // Reuse leftover login from a previously deleted student (no linked student row).
+                if (orphan.getRole() == Role.STUDENT && studentRepository.findByUserId(orphan.getId()).isEmpty()) {
+                    authService.changePassword(orphan, password);
+                    orphan.setEmail(student.getEmail() != null ? student.getEmail().trim().toLowerCase() : orphan.getEmail());
+                    orphan.setFullName(student.getFullName().trim());
+                    orphan.setEnabled(true);
+                    student.setUser(orphan);
+                } else {
+                    throw new BusinessException(
+                            "Login username '" + loginUsername + "' already exists. "
+                                    + "Choose a different username, or leave Login Username/Password blank.");
+                }
+            } else {
+                User user = authService.createUser(
+                        loginUsername, password, Role.STUDENT, student.getEmail(), student.getFullName());
+                student.setUser(user);
             }
-            User user = authService.createUser(
-                    loginUsername, password, Role.STUDENT, student.getEmail(), student.getFullName());
-            student.setUser(user);
         }
         if (student.getStatus() == null) {
             student.setStatus(StudentStatus.ACTIVE);
@@ -141,7 +155,16 @@ public class StudentService {
 
     @Transactional
     public void delete(Long id) {
-        studentRepository.deleteById(id);
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Student not found."));
+        User linkedUser = student.getUser();
+        student.setUser(null);
+        studentRepository.save(student);
+        studentRepository.delete(student);
+        if (linkedUser != null) {
+            // Free login username so a new student can reuse it.
+            authService.disableAndReleaseUsername(linkedUser);
+        }
     }
 
     @Transactional
