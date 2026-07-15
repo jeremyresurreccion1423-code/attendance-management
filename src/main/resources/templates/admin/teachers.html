@@ -55,14 +55,38 @@
             </div>
 
             <div class="card">
-                <h3>All Teachers</h3>
-                <table>
+                <form method="get" th:action="@{|/admin/teachers|}" class="student-search-bar">
+                    <input type="hidden" name="departmentId" th:value="${selectedDepartmentId}">
+                    <input type="search" name="search" class="form-control" th:value="${searchQuery}" placeholder="Search teachers..." id="teacherSearchInput">
+                    <select name="status" class="form-control" id="teacherStatusFilter">
+                        <option value="">All Status</option>
+                        <option value="ACTIVE" th:selected="${statusFilter == 'ACTIVE'}">ACTIVE</option>
+                        <option value="INACTIVE" th:selected="${statusFilter == 'INACTIVE'}">INACTIVE</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Apply</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+                    <h3 style="margin:0;">All Teachers <small id="teacherCountLabel" style="font-weight:normal; color:#64748b;"></small></h3>
+                    <select id="teacherPageSize" class="form-control"><option value="10">10</option><option value="25">25</option><option value="50">50</option></select>
+                </div>
+                <table id="teachersTable">
                     <thead>
-                        <tr><th>Employee ID</th><th>Name</th><th>Department</th><th>Email</th><th>Status</th><th>Action</th></tr>
+                        <tr>
+                            <th data-sort="employee-id">Employee ID</th>
+                            <th data-sort="name">Name</th>
+                            <th data-sort="department">Department</th>
+                            <th data-sort="email">Email</th>
+                            <th data-sort="status">Status</th>
+                            <th>Action</th>
+                        </tr>
                     </thead>
                     <tbody>
                         <th:block th:each="t : ${teachers}">
-                        <tr>
+                        <tr data-admin-row
+                            th:attr="data-status=${t.status}, data-search=${#strings.toLowerCase(t.fullName + ' ' + t.employeeId + ' ' + (t.email != null ? t.email : ''))}, data-employee-id=${t.employeeId}, data-name=${t.fullName}, data-department=${t.department != null ? t.department.name : ''}, data-email=${t.email}">
                             <td th:text="${t.employeeId}"></td>
                             <td th:text="${t.fullName}"></td>
                             <td th:text="${t.department != null ? t.department.name : '-'}"></td>
@@ -71,23 +95,24 @@
                             <td>
                                 <button type="button" class="btn btn-secondary btn-sm" th:onclick="'toggleEdit(' + ${t.id} + ')'">Edit</button>
                                 <form th:action="@{|/admin/teachers/${t.id}/delete|}" method="post" style="display:inline;" class="confirm-delete" th:attr="data-confirm-message='Delete teacher ' + ${t.fullName} + '?'">
+                                    <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
                                     <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                                 </form>
                             </td>
                         </tr>
                         <tr th:id="'edit-row-' + ${t.id}" style="display:none; background:#f8faf8;">
                             <td colspan="6">
-                                <form th:action="@{|/admin/teachers/${t.id}/update|}" method="post" class="ams-validate">
+                                <form th:action="@{|/admin/teachers/${t.id}/update|}" method="post" class="ams-validate" data-lookup-form>
+                                    <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
                                     <div class="form-row">
                                         <div class="form-group"><label>Name</label><input type="text" name="fullName" class="form-control" th:value="${t.fullName}" required></div>
                                         <div class="form-group"><label>Department</label>
-                                            <select name="department.id" class="form-control" required>
-                                                <option th:each="d : ${departmentList}" th:value="${d.id}" th:text="${d.name}"
-                                                        th:selected="${t.department != null and t.department.id == d.id}"></option>
+                                            <select name="department.id" class="form-control" data-lookup-role="department" required th:attr="data-selected=${t.department != null ? t.department.id : ''}">
+                                                <option value="">-- Loading --</option>
                                             </select>
                                         </div>
-                                        <div class="form-group"><label>Contact</label><input type="text" name="contactNumber" class="form-control" th:value="${t.contactNumber}"></div>
-                                        <div class="form-group"><label>Email</label><input type="email" name="email" class="form-control" th:value="${t.email}"></div>
+                                        <div class="form-group"><label>Contact</label><input type="text" name="contactNumber" class="form-control" th:value="${t.contactNumber}" inputmode="numeric" pattern="[0-9]*"></div>
+                                        <div class="form-group"><label>Email</label><input type="email" name="email" class="form-control" th:value="${t.email}" required></div>
                                         <div class="form-group"><label>Status</label>
                                             <select name="status" class="form-control">
                                                 <option value="ACTIVE" th:selected="${t.status != null and t.status.name() == 'ACTIVE'}">ACTIVE</option>
@@ -106,11 +131,14 @@
                         </tr>
                     </tbody>
                 </table>
+                <div id="teacherPagination" class="admin-pagination"></div>
             </div>
         </div>
     </main>
 </div>
 <script th:src="@{/js/forms.js}"></script>
+<script th:src="@{/js/lookup-filter.js(v=2)}"></script>
+<script th:src="@{/js/admin-list.js(v=1)}"></script>
 <script th:src="@{/js/layout.js}"></script>
 <script>
 function closeAllProfileMenus() {
@@ -132,8 +160,23 @@ document.addEventListener('click', function (event) {
 });
 function toggleEdit(id) {
     const row = document.getElementById('edit-row-' + id);
-    if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+    if (!row) return;
+    const opening = row.style.display === 'none';
+    row.style.display = opening ? 'table-row' : 'none';
+    if (opening && window.adminLookups) {
+        const form = row.querySelector('form[data-lookup-form]');
+        if (form) window.adminLookups.bindForm(form);
+    }
 }
+document.addEventListener('DOMContentLoaded', () => {
+    initAdminTable(document.getElementById('teachersTable'), {
+        searchInput: document.getElementById('teacherSearchInput'),
+        statusFilter: document.getElementById('teacherStatusFilter'),
+        pageSizeSelect: document.getElementById('teacherPageSize'),
+        paginationEl: document.getElementById('teacherPagination'),
+        countEl: document.getElementById('teacherCountLabel'),
+    });
+});
 </script>
 </body>
 </html>

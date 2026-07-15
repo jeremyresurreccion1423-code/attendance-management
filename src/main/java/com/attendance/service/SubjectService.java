@@ -44,7 +44,8 @@ public class SubjectService {
 
     @Transactional
     public Subject save(Subject subject) {
-        if (subjectRepository.existsBySubjectCode(subject.getSubjectCode())) {
+        validateSubjectFields(subject, null);
+        if (subjectRepository.existsBySubjectCode(subject.getSubjectCode().trim())) {
             throw new BusinessException("Subject code already exists.");
         }
         resolveRelations(subject);
@@ -56,7 +57,8 @@ public class SubjectService {
     public Subject update(Long id, Subject updated) {
         Subject subject = subjectRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("Subject not found."));
-        subject.setSubjectName(updated.getSubjectName());
+        validateSubjectFields(updated, id);
+        subject.setSubjectName(updated.getSubjectName().trim());
         subject.setDescription(updated.getDescription());
         if (updated.getDepartment() != null && updated.getDepartment().getId() != null) {
             subject.setDepartment(domainValidationService.requireDepartment(updated.getDepartment().getId()));
@@ -77,6 +79,12 @@ public class SubjectService {
 
     @Transactional
     public void delete(Long id) {
+        if (!subjectRepository.existsById(id)) {
+            throw new BusinessException("Subject not found.");
+        }
+        if (!enrollmentRepository.findBySubjectId(id).isEmpty()) {
+            throw new BusinessException("Cannot delete subject with enrolled students.");
+        }
         subjectRepository.deleteById(id);
     }
 
@@ -106,22 +114,63 @@ public class SubjectService {
 
     private void resolveRelations(Subject subject) {
         if (subject.getDepartment() == null || subject.getDepartment().getId() == null) {
-            throw new BusinessException("Subject must belong to a department.");
+            throw new BusinessException("Department is required.");
         }
         subject.setDepartment(domainValidationService.requireDepartment(subject.getDepartment().getId()));
 
         if (subject.getTeacher() == null || subject.getTeacher().getId() == null) {
-            throw new BusinessException("Subject must have a teacher from the selected department.");
+            throw new BusinessException("Teacher is required.");
         }
         Teacher teacher = teacherRepository.findById(subject.getTeacher().getId())
                 .orElseThrow(() -> new BusinessException("Teacher not found."));
         subject.setTeacher(teacher);
 
         if (subject.getSection() == null || subject.getSection().getId() == null) {
-            throw new BusinessException("Subject must have a section. Create a section in the selected department first.");
+            throw new BusinessException("Section is required.");
         }
         Section section = sectionRepository.findById(subject.getSection().getId())
                 .orElseThrow(() -> new BusinessException("Section not found."));
         subject.setSection(section);
+    }
+
+    private void validateSubjectFields(Subject subject, Long currentId) {
+        if (subject.getSubjectCode() == null || subject.getSubjectCode().isBlank()) {
+            throw new BusinessException("Subject code is required.");
+        }
+        if (subject.getSubjectName() == null || subject.getSubjectName().isBlank()) {
+            throw new BusinessException("Subject name is required.");
+        }
+        if (subject.getDepartment() == null || subject.getDepartment().getId() == null) {
+            throw new BusinessException("Department is required.");
+        }
+        if (subject.getTeacher() == null || subject.getTeacher().getId() == null) {
+            throw new BusinessException("Teacher is required.");
+        }
+        if (subject.getSection() == null || subject.getSection().getId() == null) {
+            throw new BusinessException("Section is required.");
+        }
+        String code = subject.getSubjectCode().trim();
+        boolean duplicateCode = currentId == null
+                ? subjectRepository.existsBySubjectCode(code)
+                : subjectRepository.existsBySubjectCodeAndIdNot(code, currentId);
+        if (duplicateCode) {
+            throw new BusinessException("Subject code already exists.");
+        }
+    }
+
+    public List<Subject> filterBySearch(List<Subject> subjects, String query) {
+        if (query == null || query.isBlank()) {
+            return subjects;
+        }
+        String q = query.trim().toLowerCase();
+        return subjects.stream()
+                .filter(s -> containsIgnoreCase(s.getSubjectCode(), q)
+                        || containsIgnoreCase(s.getSubjectName(), q)
+                        || (s.getTeacher() != null && containsIgnoreCase(s.getTeacher().getFullName(), q)))
+                .toList();
+    }
+
+    private boolean containsIgnoreCase(String value, String query) {
+        return value != null && value.toLowerCase().contains(query);
     }
 }

@@ -17,4 +17,6 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
     List<Subject> findByDepartmentIdOrderBySubjectNameAsc(Long departmentId);
     Page<Subject> findByDepartmentId(Long departmentId, Pageable pageable);
     Page<Subject> findAllByOrderBySubjectNameAsc(Pageable pageable);
+    long countByTeacherId(Long teacherId);
+    boolean existsBySubjectCodeAndIdNot(String subjectCode, Long id);
 }

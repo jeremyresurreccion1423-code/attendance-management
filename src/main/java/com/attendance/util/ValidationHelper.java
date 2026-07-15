@@ -10,7 +10,9 @@ public final class ValidationHelper {
 
     private static final Pattern EMAIL = Pattern.compile("^[\\w.+-]+@[\\w.-]+\\.[A-Za-z]{2,}$");
     private static final Pattern STRONG_PASSWORD = Pattern.compile(
-            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$");
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$");
+    private static final Pattern CONTACT_NUMBER = Pattern.compile("^[0-9]+$");
+    private static final int DEPARTMENT_NAME_MAX = 100;
     private static final long MAX_PHOTO_BYTES = 5 * 1024 * 1024;
     private static final Set<String> ALLOWED_PHOTO_TYPES = Set.of(
             "image/jpeg", "image/jpg", "image/png", "image/webp");
@@ -33,11 +35,33 @@ public final class ValidationHelper {
         }
     }
 
-    /** Strong password: min 8 chars, upper, lower, number, special character. */
+    /** Strong password: min 8 chars with uppercase, lowercase, and a number. */
     public static void validatePassword(String password) {
         if (password == null || !STRONG_PASSWORD.matcher(password).matches()) {
             throw new IllegalArgumentException(
-                    "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.");
+                    "Password must be at least 8 characters and include uppercase, lowercase, and a number.");
+        }
+    }
+
+    public static void requireEmail(String email) {
+        requireText(email, "Email");
+        validateEmail(email);
+    }
+
+    public static void validateDepartmentName(String name) {
+        requireText(name, "Department name");
+        if (name.trim().length() > DEPARTMENT_NAME_MAX) {
+            throw new IllegalArgumentException(
+                    "Department name must be at most " + DEPARTMENT_NAME_MAX + " characters.");
+        }
+    }
+
+    public static void validateContactNumber(String contact) {
+        if (contact == null || contact.isBlank()) {
+            return;
+        }
+        if (!CONTACT_NUMBER.matcher(contact.trim()).matches()) {
+            throw new IllegalArgumentException("Contact number must contain digits only.");
         }
     }
 

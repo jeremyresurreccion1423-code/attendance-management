@@ -43,24 +43,39 @@ public class TeacherService {
 
     @Transactional
     public Teacher save(Teacher teacher, String username, String password) {
+        if (teacher.getFullName() == null || teacher.getFullName().isBlank()) {
+            throw new BusinessException("Full name is required.");
+        }
+        if (teacher.getEmployeeId() == null || teacher.getEmployeeId().isBlank()) {
+            throw new BusinessException("Employee ID is required.");
+        }
         if (teacher.getDepartment() == null || teacher.getDepartment().getId() == null) {
-            throw new BusinessException("Teacher must belong to a department.");
+            throw new BusinessException("Department is required.");
+        }
+        if (teacher.getEmail() == null || teacher.getEmail().isBlank()) {
+            throw new BusinessException("Email is required.");
+        }
+        if (teacher.getContactNumber() != null && !teacher.getContactNumber().isBlank()
+                && !teacher.getContactNumber().trim().matches("^[0-9]+$")) {
+            throw new BusinessException("Contact number must contain digits only.");
         }
         Department department = domainValidationService.requireDepartment(teacher.getDepartment().getId());
         teacher.setDepartment(department);
 
-        if (teacherRepository.existsByEmployeeId(teacher.getEmployeeId())) {
+        if (teacherRepository.existsByEmployeeId(teacher.getEmployeeId().trim())) {
             throw new BusinessException("Employee ID already exists.");
         }
-        if (teacher.getEmail() != null && !teacher.getEmail().isBlank()
-                && teacherRepository.existsByEmailIgnoreCase(teacher.getEmail().trim())) {
+        if (teacherRepository.existsByEmailIgnoreCase(teacher.getEmail().trim())) {
             throw new BusinessException("Email already exists.");
         }
 
         String loginUsername = (username == null || username.isBlank())
-                ? teacher.getEmployeeId()
+                ? teacher.getEmployeeId().trim()
                 : username.trim();
         if (password != null && !password.isBlank()) {
+            if (authService.findByUsername(loginUsername).isPresent()) {
+                throw new BusinessException("Username already exists.");
+            }
             User user = authService.createUser(
                     loginUsername, password, Role.TEACHER, teacher.getEmail(), teacher.getFullName());
             teacher.setUser(user);
@@ -107,7 +122,33 @@ public class TeacherService {
 
     @Transactional
     public void delete(Long id) {
+        if (subjectRepository.countByTeacherId(id) > 0) {
+            throw new BusinessException("Cannot delete teacher assigned to one or more subjects.");
+        }
         teacherRepository.deleteById(id);
+    }
+
+    public List<Teacher> filterBySearch(List<Teacher> teachers, String query) {
+        if (query == null || query.isBlank()) {
+            return teachers;
+        }
+        String q = query.trim().toLowerCase();
+        return teachers.stream()
+                .filter(t -> containsIgnoreCase(t.getFullName(), q)
+                        || containsIgnoreCase(t.getEmployeeId(), q)
+                        || containsIgnoreCase(t.getEmail(), q))
+                .toList();
+    }
+
+    public List<Teacher> filterByStatus(List<Teacher> teachers, TeacherStatus status) {
+        if (status == null) {
+            return teachers;
+        }
+        return teachers.stream().filter(t -> t.getStatus() == status).toList();
+    }
+
+    private boolean containsIgnoreCase(String value, String query) {
+        return value != null && value.toLowerCase().contains(query);
     }
 
     @Transactional

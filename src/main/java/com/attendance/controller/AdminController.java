@@ -70,7 +70,6 @@ public class AdminController {
         model.addAttribute("subject", subject);
         model.addAttribute("section", section);
         model.addAttribute("department", new Department());
-        model.addAttribute("departments", departmentService.findAllNames());
         model.addAttribute("departmentList", departmentList);
         model.addAttribute("sections", sections);
         model.addAttribute("teachers", teachers);
@@ -100,6 +99,7 @@ public class AdminController {
                                    @ModelAttribute Department department,
                                    RedirectAttributes redirect) {
         try {
+            ValidationHelper.validateDepartmentName(department.getName());
             departmentService.update(id, department);
             redirect.addFlashAttribute("message", "Department updated successfully");
         } catch (Exception e) {
@@ -122,7 +122,7 @@ public class AdminController {
     @PostMapping("/departments")
     public String addDepartmentFromPage(@ModelAttribute Department department, RedirectAttributes redirect) {
         try {
-            ValidationHelper.requireText(department.getName(), "Department name");
+            ValidationHelper.validateDepartmentName(department.getName());
             departmentService.save(department);
             redirect.addFlashAttribute("message", "Department created successfully");
         } catch (Exception e) {
@@ -138,7 +138,8 @@ public class AdminController {
                           @RequestParam(required = false) String yearLevel,
                           @RequestParam(required = false) Long sectionId,
                           @RequestParam(required = false) Boolean viewAll,
-                          @RequestParam(required = false) String search) {
+                          @RequestParam(required = false) String search,
+                          @RequestParam(required = false) String status) {
         boolean isViewAll = Boolean.TRUE.equals(viewAll);
         boolean showStudentList = false;
         List<Student> students = List.of();
@@ -162,9 +163,9 @@ public class AdminController {
         }
 
         students = studentService.filterBySearch(students, search);
+        students = studentService.filterByStatus(students, parseStudentStatus(status));
 
         model.addAttribute("students", students);
-        model.addAttribute("sections", sectionService.findAll());
         model.addAttribute("departmentList", departmentService.findAll());
         model.addAttribute("selectedDepartmentId", departmentId);
         model.addAttribute("selectedYearLevel", yearLevel);
@@ -172,6 +173,7 @@ public class AdminController {
         model.addAttribute("viewAll", isViewAll);
         model.addAttribute("showStudentList", showStudentList);
         model.addAttribute("searchQuery", search != null ? search : "");
+        model.addAttribute("statusFilter", status != null ? status : "");
         model.addAttribute("profilePhotoUrl", profilePhotoService.resolveProfilePhotoUrl(auth.getName()));
 
         if (departmentId != null) {
@@ -179,6 +181,10 @@ public class AdminController {
                     .filter(d -> d.getId().equals(departmentId))
                     .findFirst()
                     .ifPresent(d -> model.addAttribute("selectedDepartmentName", d.getName()));
+        }
+
+        if (departmentId != null) {
+            model.addAttribute("yearLevels", sectionService.findYearLevelsByDepartmentId(departmentId));
         }
 
         if (departmentId != null && yearLevel != null && !yearLevel.isBlank()) {
@@ -222,7 +228,8 @@ public class AdminController {
         try {
             ValidationHelper.requireText(student.getFullName(), "Full name");
             ValidationHelper.requireText(student.getStudentNumber(), "Student number");
-            ValidationHelper.validateEmail(student.getEmail());
+            ValidationHelper.requireEmail(student.getEmail());
+            ValidationHelper.validateContactNumber(student.getContactNumber());
             if (password != null && !password.isBlank()) {
                 ValidationHelper.validatePassword(password);
             }
@@ -299,7 +306,8 @@ public class AdminController {
                                 RedirectAttributes redirect) {
         try {
             ValidationHelper.requireText(student.getFullName(), "Full name");
-            ValidationHelper.validateEmail(student.getEmail());
+            ValidationHelper.requireEmail(student.getEmail());
+            ValidationHelper.validateContactNumber(student.getContactNumber());
             studentService.update(id, student);
             redirect.addFlashAttribute("message", "Student updated successfully");
         } catch (Exception e) {
@@ -342,14 +350,20 @@ public class AdminController {
     @GetMapping("/teachers")
     public String teachers(Model model,
                            Authentication auth,
-                           @RequestParam(required = false) Long departmentId) {
+                           @RequestParam(required = false) Long departmentId,
+                           @RequestParam(required = false) String search,
+                           @RequestParam(required = false) String status) {
         List<Teacher> teachers = departmentId != null
                 ? teacherService.findByDepartmentId(departmentId)
-                : teacherService.findAll();
+                : List.of();
+        teachers = teacherService.filterBySearch(teachers, search);
+        teachers = teacherService.filterByStatus(teachers, parseTeacherStatus(status));
 
         model.addAttribute("teachers", teachers);
         model.addAttribute("departmentList", departmentService.findAll());
         model.addAttribute("selectedDepartmentId", departmentId);
+        model.addAttribute("searchQuery", search != null ? search : "");
+        model.addAttribute("statusFilter", status != null ? status : "");
         if (departmentId != null) {
             departmentService.findAll().stream()
                     .filter(d -> d.getId().equals(departmentId))
@@ -368,7 +382,8 @@ public class AdminController {
         try {
             ValidationHelper.requireText(teacher.getFullName(), "Full name");
             ValidationHelper.requireText(teacher.getEmployeeId(), "Employee ID");
-            ValidationHelper.validateEmail(teacher.getEmail());
+            ValidationHelper.requireEmail(teacher.getEmail());
+            ValidationHelper.validateContactNumber(teacher.getContactNumber());
             if (password != null && !password.isBlank()) {
                 ValidationHelper.validatePassword(password);
             }
@@ -381,41 +396,56 @@ public class AdminController {
     }
 
     @PostMapping("/teachers/{id}/delete")
-    public String deleteTeacher(@PathVariable Long id, RedirectAttributes redirect) {
-        teacherService.delete(id);
-        redirect.addFlashAttribute("message", "Teacher deleted");
-        return "redirect:/admin/teachers";
+    public String deleteTeacher(@PathVariable Long id,
+                                @RequestParam(required = false) Long returnDepartmentId,
+                                RedirectAttributes redirect) {
+        try {
+            teacherService.delete(id);
+            redirect.addFlashAttribute("message", "Teacher deleted");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
+        return buildTeachersRedirect(returnDepartmentId, null, null);
     }
 
     @PostMapping("/teachers/{id}/update")
     public String updateTeacher(@PathVariable Long id,
                                 @ModelAttribute Teacher teacher,
+                                @RequestParam(required = false) Long returnDepartmentId,
                                 RedirectAttributes redirect) {
         try {
             ValidationHelper.requireText(teacher.getFullName(), "Full name");
-            ValidationHelper.validateEmail(teacher.getEmail());
+            ValidationHelper.requireEmail(teacher.getEmail());
+            ValidationHelper.validateContactNumber(teacher.getContactNumber());
             teacherService.update(id, teacher);
             redirect.addFlashAttribute("message", "Teacher updated successfully");
         } catch (Exception e) {
             redirect.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/admin/teachers";
+        Long deptId = returnDepartmentId != null ? returnDepartmentId
+                : (teacher.getDepartment() != null ? teacher.getDepartment().getId() : null);
+        return buildTeachersRedirect(deptId, null, null);
     }
 
     @GetMapping("/subjects")
     public String subjects(Model model,
                            Authentication auth,
-                           @RequestParam(required = false) Long departmentId) {
+                           @RequestParam(required = false) Long departmentId,
+                           @RequestParam(required = false) String search) {
         List<Subject> subjects = departmentId != null
                 ? subjectService.findByDepartmentId(departmentId)
-                : subjectService.findAll();
+                : List.of();
+        subjects = subjectService.filterBySearch(subjects, search);
+
+        List<Student> departmentStudents = departmentId != null
+                ? studentService.findByDepartmentId(departmentId)
+                : List.of();
 
         model.addAttribute("subjects", subjects);
-        model.addAttribute("teachers", teacherService.findAll());
-        model.addAttribute("sections", sectionService.findAll());
-        model.addAttribute("students", studentService.findAll());
+        model.addAttribute("students", departmentStudents);
         model.addAttribute("departmentList", departmentService.findAll());
         model.addAttribute("selectedDepartmentId", departmentId);
+        model.addAttribute("searchQuery", search != null ? search : "");
         if (departmentId != null) {
             departmentService.findAll().stream()
                     .filter(d -> d.getId().equals(departmentId))
@@ -435,6 +465,8 @@ public class AdminController {
     @PostMapping("/subjects")
     public String addSubject(@ModelAttribute Subject subject, RedirectAttributes redirect) {
         try {
+            ValidationHelper.requireText(subject.getSubjectCode(), "Subject code");
+            ValidationHelper.requireText(subject.getSubjectName(), "Subject name");
             subjectService.save(subject);
             redirect.addFlashAttribute("message", "Subject created");
         } catch (Exception e) {
@@ -443,17 +475,52 @@ public class AdminController {
         return "redirect:/admin/create#subject";
     }
 
+    @PostMapping("/subjects/{id}/update")
+    public String updateSubject(@PathVariable Long id,
+                                @ModelAttribute Subject subject,
+                                @RequestParam(required = false) Long returnDepartmentId,
+                                RedirectAttributes redirect) {
+        try {
+            ValidationHelper.requireText(subject.getSubjectName(), "Subject name");
+            subjectService.update(id, subject);
+            redirect.addFlashAttribute("message", "Subject updated successfully");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
+        Long deptId = returnDepartmentId != null ? returnDepartmentId
+                : (subject.getDepartment() != null ? subject.getDepartment().getId() : null);
+        return buildSubjectsRedirect(deptId, null);
+    }
+
+    @PostMapping("/subjects/{id}/delete")
+    public String deleteSubject(@PathVariable Long id,
+                                @RequestParam(required = false) Long returnDepartmentId,
+                                RedirectAttributes redirect) {
+        try {
+            subjectService.delete(id);
+            redirect.addFlashAttribute("message", "Subject deleted");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
+        return buildSubjectsRedirect(returnDepartmentId, null);
+    }
+
     @PostMapping("/subjects/{id}/assign-students")
     public String assignStudents(@PathVariable Long id,
                                  @RequestParam(required = false) List<Long> studentIds,
+                                 @RequestParam(required = false) Long returnDepartmentId,
                                  RedirectAttributes redirect) {
         if (studentIds == null || studentIds.isEmpty()) {
             redirect.addFlashAttribute("error", "Please select at least one student");
-            return "redirect:/admin/subjects";
+            return buildSubjectsRedirect(returnDepartmentId, null);
         }
-        subjectService.assignStudents(id, studentIds);
-        redirect.addFlashAttribute("message", "Students assigned");
-        return "redirect:/admin/subjects";
+        try {
+            subjectService.assignStudents(id, studentIds);
+            redirect.addFlashAttribute("message", "Students assigned");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
+        return buildSubjectsRedirect(returnDepartmentId, null);
     }
 
     @GetMapping("/sections")
@@ -477,6 +544,7 @@ public class AdminController {
         model.addAttribute("selectedDepartmentId", departmentId);
         model.addAttribute("selectedYearLevel", yearLevel);
         if (departmentId != null) {
+            model.addAttribute("yearLevels", sectionService.findYearLevelsByDepartmentId(departmentId));
             departmentService.findAll().stream()
                     .filter(d -> d.getId().equals(departmentId))
                     .findFirst()
@@ -501,11 +569,111 @@ public class AdminController {
     @PostMapping("/sections")
     public String addSection(@ModelAttribute Section section, RedirectAttributes redirect) {
         try {
+            ValidationHelper.requireText(section.getName(), "Section name");
             sectionService.save(section);
             redirect.addFlashAttribute("message", "Section created");
         } catch (Exception e) {
             redirect.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/admin/create#section";
+    }
+
+    @PostMapping("/sections/{id}/update")
+    public String updateSection(@PathVariable Long id,
+                                @ModelAttribute Section section,
+                                @RequestParam(required = false) Long returnDepartmentId,
+                                @RequestParam(required = false) String returnYearLevel,
+                                RedirectAttributes redirect) {
+        try {
+            ValidationHelper.requireText(section.getName(), "Section name");
+            sectionService.update(id, section);
+            redirect.addFlashAttribute("message", "Section updated successfully");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
+        Long deptId = returnDepartmentId != null ? returnDepartmentId
+                : (section.getDepartment() != null ? section.getDepartment().getId() : null);
+        return buildSectionsRedirect(deptId, returnYearLevel != null ? returnYearLevel : section.getYearLevel());
+    }
+
+    @PostMapping("/sections/{id}/delete")
+    public String deleteSection(@PathVariable Long id,
+                                 @RequestParam(required = false) Long returnDepartmentId,
+                                 @RequestParam(required = false) String returnYearLevel,
+                                 RedirectAttributes redirect) {
+        try {
+            sectionService.delete(id);
+            redirect.addFlashAttribute("message", "Section deleted");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
+        return buildSectionsRedirect(returnDepartmentId, returnYearLevel);
+    }
+
+    private StudentStatus parseStudentStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return null;
+        }
+        try {
+            return StudentStatus.valueOf(status.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
+    }
+
+    private TeacherStatus parseTeacherStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return null;
+        }
+        try {
+            return TeacherStatus.valueOf(status.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
+    }
+
+    private String buildTeachersRedirect(Long departmentId, String search, String status) {
+        List<String> params = new ArrayList<>();
+        if (departmentId != null) {
+            params.add("departmentId=" + departmentId);
+        }
+        if (search != null && !search.isBlank()) {
+            params.add("search=" + URLEncoder.encode(search.trim(), StandardCharsets.UTF_8));
+        }
+        if (status != null && !status.isBlank()) {
+            params.add("status=" + URLEncoder.encode(status.trim(), StandardCharsets.UTF_8));
+        }
+        if (params.isEmpty()) {
+            return "redirect:/admin/teachers";
+        }
+        return "redirect:/admin/teachers?" + String.join("&", params);
+    }
+
+    private String buildSubjectsRedirect(Long departmentId, String search) {
+        List<String> params = new ArrayList<>();
+        if (departmentId != null) {
+            params.add("departmentId=" + departmentId);
+        }
+        if (search != null && !search.isBlank()) {
+            params.add("search=" + URLEncoder.encode(search.trim(), StandardCharsets.UTF_8));
+        }
+        if (params.isEmpty()) {
+            return "redirect:/admin/subjects";
+        }
+        return "redirect:/admin/subjects?" + String.join("&", params);
+    }
+
+    private String buildSectionsRedirect(Long departmentId, String yearLevel) {
+        List<String> params = new ArrayList<>();
+        if (departmentId != null) {
+            params.add("departmentId=" + departmentId);
+        }
+        if (yearLevel != null && !yearLevel.isBlank()) {
+            params.add("yearLevel=" + URLEncoder.encode(yearLevel, StandardCharsets.UTF_8));
+        }
+        if (params.isEmpty()) {
+            return "redirect:/admin/sections";
+        }
+        return "redirect:/admin/sections?" + String.join("&", params);
     }
 }
