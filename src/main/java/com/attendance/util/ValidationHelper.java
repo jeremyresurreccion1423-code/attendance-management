@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public final class ValidationHelper {
 
-    private static final Pattern EMAIL = Pattern.compile("^[\\w.+-]+@[\\w.-]+\\.[A-Za-z]{2,}$");
+    private static final Pattern EMAIL = Pattern.compile("^[\\w.+-]+@gmail\\.com$", Pattern.CASE_INSENSITIVE);
     private static final Pattern STRONG_PASSWORD = Pattern.compile(
             "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$");
     private static final Pattern CONTACT_NUMBER = Pattern.compile("^[0-9]+$");
@@ -32,7 +32,7 @@ public final class ValidationHelper {
             return;
         }
         if (!EMAIL.matcher(email.trim()).matches()) {
-            throw new IllegalArgumentException("Please enter a valid email address.");
+            throw new IllegalArgumentException("Only Gmail addresses are allowed (example@gmail.com).");
         }
     }
 

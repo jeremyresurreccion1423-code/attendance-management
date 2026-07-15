@@ -1,5 +1,5 @@
 (() => {
-    const EMAIL_RE = /^[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}$/;
+    const EMAIL_RE = /^[\w.+-]+@gmail\.com$/i;
 
     let confirmResolve = null;
     let confirmModal = null;
@@ -262,7 +262,7 @@
         form.querySelectorAll('input[type="email"]').forEach((input) => {
             clearFieldError(input);
             if (input.value && !EMAIL_RE.test(input.value.trim())) {
-                showFieldError(input, "Please enter a valid email.");
+                showFieldError(input, "Only Gmail addresses are allowed (example@gmail.com).");
                 valid = false;
             }
         });

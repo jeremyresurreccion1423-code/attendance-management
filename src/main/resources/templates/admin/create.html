@@ -161,7 +161,9 @@
                             <div class="form-group">
                                 <label>Email</label>
                                 <input type="email" th:field="*{email}" class="form-control" required maxlength="100"
-                                       placeholder="student@school.edu">
+                                       pattern="[\w.+-]+@gmail\.com"
+                                       title="Only Gmail addresses are allowed (example@gmail.com)"
+                                       placeholder="student@gmail.com">
                             </div>
                             <div class="form-group">
                                 <label>Status</label>
@@ -267,7 +269,9 @@
                             <div class="form-group">
                                 <label>Email</label>
                                 <input type="email" th:field="*{email}" class="form-control" required maxlength="100"
-                                       placeholder="teacher@school.edu">
+                                       pattern="[\w.+-]+@gmail\.com"
+                                       title="Only Gmail addresses are allowed (example@gmail.com)"
+                                       placeholder="teacher@gmail.com">
                             </div>
                             <div class="form-group">
                                 <label>Login Username <small style="color:#64748b;">(optional)</small></label>
