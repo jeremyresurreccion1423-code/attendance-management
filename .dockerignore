@@ -1,0 +1,14 @@
+.git
+.github
+.idea
+.vscode
+*.iml
+target
+uploads
+scripts
+database
+*.md
+.env
+.env.*
+**/agent-transcripts
+**/terminals
