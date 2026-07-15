@@ -55,7 +55,9 @@ function initProfileTriggers() {
     });
 
     document.querySelectorAll(".profile-menu").forEach((menu) => {
-        if (menu.querySelector("[data-forgot-password]")) return;
+        if (menu.querySelector('a[href="/forgot-password"], a[href*="forgot-password"], [data-forgot-password]')) {
+            return;
+        }
         const logout = menu.querySelector(".profile-logout");
         const link = document.createElement("a");
         link.href = "/forgot-password";
