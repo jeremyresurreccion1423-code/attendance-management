@@ -32,6 +32,7 @@
                     </button>
                     <div class="profile-menu">
                         <a href="/profile" class="profile-menu-action">My Profile</a>
+                        <a href="/forgot-password" class="profile-menu-action">Forgot Password</a>
                         <a sec:authorize="hasRole('SUPER_ADMIN')" href="/super-admin/logout" class="profile-menu-action profile-logout">Logout</a>
                         <a sec:authorize="!hasRole('SUPER_ADMIN')" th:href="@{/logout}" class="profile-menu-action profile-logout">Logout</a>
                     </div>

@@ -2,6 +2,25 @@
     const toggleButton = document.querySelector("[data-sidebar-toggle]");
     const sidebar = document.querySelector(".sidebar");
 
+    function ensureForgotPasswordInProfileMenus() {
+        document.querySelectorAll(".profile-menu").forEach((menu) => {
+            if (menu.querySelector("[data-forgot-password]")) return;
+            const logout = menu.querySelector(".profile-logout");
+            const link = document.createElement("a");
+            link.href = "/forgot-password";
+            link.className = "profile-menu-action";
+            link.setAttribute("data-forgot-password", "true");
+            link.textContent = "Forgot Password";
+            if (logout) {
+                menu.insertBefore(link, logout);
+            } else {
+                menu.appendChild(link);
+            }
+        });
+    }
+
+    ensureForgotPasswordInProfileMenus();
+
     if (toggleButton && sidebar) {
         const storageKey = "ams-sidebar-collapsed";
         const applyState = (collapsed) => {

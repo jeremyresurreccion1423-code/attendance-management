@@ -84,14 +84,24 @@ public class AuthController {
 
     @GetMapping("/forgot-password")
     public String forgotPasswordForm(Authentication authentication, Model model) {
-        if (!model.containsAttribute("emailOrUsername") && authentication != null
-                && authentication.isAuthenticated()
-                && authentication.getName() != null
-                && !"anonymousUser".equalsIgnoreCase(authentication.getName())) {
-            model.addAttribute("emailOrUsername", authentication.getName());
+        boolean loggedIn = isLoggedIn(authentication);
+        model.addAttribute("loggedInReset", loggedIn);
+
+        if (loggedIn) {
+            User user = authService.findByUsername(authentication.getName()).orElse(null);
+            if (user != null) {
+                if (!model.containsAttribute("emailOrUsername")) {
+                    model.addAttribute("emailOrUsername", user.getUsername());
+                }
+                String email = resolveEmailForUser(user);
+                model.addAttribute("profileEmail", email);
+                model.addAttribute("maskedEmail", maskEmail(email));
+            }
             model.addAttribute("otpLocked", true);
-            model.addAttribute("backUrl", "/profile");
-            model.addAttribute("backLabel", "Back to Profile");
+            if (!model.containsAttribute("backUrl")) {
+                model.addAttribute("backUrl", "/profile");
+                model.addAttribute("backLabel", "Back to Profile");
+            }
         } else {
             if (!model.containsAttribute("otpLocked")) {
                 model.addAttribute("otpLocked", false);
@@ -108,6 +118,7 @@ public class AuthController {
      * Library-style forgot password:
      * 1) POST without otp → generate + email OTP
      * 2) POST with otp + newPassword → verify OTP then reset
+     * Logged-in users do not enter email — OTP goes to their profile email automatically.
      */
     @PostMapping({"/forgot-password", "/forgot-password/request-otp"})
     public String forgotPasswordSubmit(@RequestParam(required = false) String emailOrUsername,
@@ -118,26 +129,27 @@ public class AuthController {
                                        Authentication authentication,
                                        RedirectAttributes redirect) {
         String identifier = firstNonBlank(emailOrUsername, username);
-        if ((identifier == null || identifier.isBlank())
-                && authentication != null
-                && authentication.isAuthenticated()
-                && authentication.getName() != null
-                && !"anonymousUser".equalsIgnoreCase(authentication.getName())) {
+        if ((identifier == null || identifier.isBlank()) && isLoggedIn(authentication)) {
             identifier = authentication.getName();
         }
 
         // Step 2: verify OTP and reset password
         if (otp != null && !otp.isBlank()) {
-            return resetPasswordWithOtp(identifier, otp, newPassword, confirmPassword, redirect);
+            return resetPasswordWithOtp(identifier, otp, newPassword, confirmPassword, authentication, redirect);
         }
 
         // Step 1: send OTP
-        return requestPasswordResetOtp(identifier, redirect);
+        return requestPasswordResetOtp(identifier, authentication, redirect);
     }
 
-    private String requestPasswordResetOtp(String identifier, RedirectAttributes redirect) {
+    private String requestPasswordResetOtp(String identifier,
+                                           Authentication authentication,
+                                           RedirectAttributes redirect) {
         if (identifier == null || identifier.isBlank()) {
-            redirect.addFlashAttribute("error", "Enter your username or email.");
+            redirect.addFlashAttribute("error",
+                    isLoggedIn(authentication)
+                            ? "Unable to resolve your account. Please log in again."
+                            : "Enter your username or email.");
             return "redirect:/forgot-password";
         }
 
@@ -149,9 +161,15 @@ public class AuthController {
         }
 
         User user = userOpt.get();
+        // When logged in, only allow resetting your own account.
+        if (isLoggedIn(authentication) && !authentication.getName().equalsIgnoreCase(user.getUsername())) {
+            redirect.addFlashAttribute("error", "You can only reset the password for your own account.");
+            return "redirect:/forgot-password";
+        }
+
         String recipientEmail = resolveEmailForUser(user);
         if (recipientEmail == null || recipientEmail.isBlank()) {
-            redirect.addFlashAttribute("error", "No email found for this account. Contact admin.");
+            redirect.addFlashAttribute("error", "No email found on your profile. Update your profile email or contact admin.");
             redirect.addFlashAttribute("emailOrUsername", user.getUsername());
             return "redirect:/forgot-password";
         }
@@ -175,7 +193,11 @@ public class AuthController {
             );
             redirect.addFlashAttribute("otpRequired", true);
             redirect.addFlashAttribute("emailOrUsername", user.getUsername());
-            redirect.addFlashAttribute("message", "OTP sent to your email: " + recipientEmail + ". Enter the code to reset your password.");
+            redirect.addFlashAttribute("maskedEmail", maskEmail(recipientEmail));
+            redirect.addFlashAttribute("message",
+                    isLoggedIn(authentication)
+                            ? "OTP sent to your registered email (" + maskEmail(recipientEmail) + "). Enter the code to reset your password."
+                            : "OTP sent to your email: " + recipientEmail + ". Enter the code to reset your password.");
         } catch (Exception ex) {
             forgotPasswordOtpStore.remove(user.getUsername());
             log.error("Failed to send Attendance OTP email to {}: {}", recipientEmail, ex.getMessage(), ex);
@@ -189,6 +211,7 @@ public class AuthController {
                                         String otp,
                                         String newPassword,
                                         String confirmPassword,
+                                        Authentication authentication,
                                         RedirectAttributes redirect) {
         if (identifier == null || identifier.isBlank()) {
             redirect.addFlashAttribute("error", "Account identifier is missing. Request a new OTP.");
@@ -228,6 +251,26 @@ public class AuthController {
 
         redirect.addFlashAttribute("error", "Account not found.");
         return "redirect:/forgot-password";
+    }
+
+    private static boolean isLoggedIn(Authentication authentication) {
+        return authentication != null
+                && authentication.isAuthenticated()
+                && authentication.getName() != null
+                && !"anonymousUser".equalsIgnoreCase(authentication.getName());
+    }
+
+    private static String maskEmail(String email) {
+        if (email == null || email.isBlank() || !email.contains("@")) {
+            return "your registered email";
+        }
+        String[] parts = email.trim().split("@", 2);
+        String local = parts[0];
+        String domain = parts[1];
+        String maskedLocal = local.length() <= 2
+                ? local.charAt(0) + "***"
+                : local.substring(0, 2) + "***";
+        return maskedLocal + "@" + domain;
     }
 
     private static String firstNonBlank(String a, String b) {
