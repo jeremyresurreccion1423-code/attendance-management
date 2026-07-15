@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +27,17 @@ public class StudentService {
 
     public List<Student> findAll() {
         return studentRepository.findAll();
+    }
+
+    /** Newest students first (for Create dashboard / recent lists). */
+    public List<Student> findRecent(int limit) {
+        int max = Math.max(1, limit);
+        return studentRepository.findAll().stream()
+                .sorted(Comparator
+                        .comparing(Student::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder()))
+                        .thenComparing(Student::getId, Comparator.nullsLast(Comparator.reverseOrder())))
+                .limit(max)
+                .toList();
     }
 
     public Page<Student> findPage(Long departmentId, Pageable pageable) {

@@ -15,7 +15,7 @@
 
     function fillSelect(select, items, placeholder, valueKey, labelKey) {
         if (!select) return;
-        const current = select.value;
+        const preferred = select.getAttribute('data-selected') || select.value;
         select.innerHTML = '';
         const empty = document.createElement('option');
         empty.value = '';
@@ -32,8 +32,8 @@
             }
             select.appendChild(option);
         });
-        if (current && Array.from(select.options).some((opt) => opt.value === current)) {
-            select.value = current;
+        if (preferred && Array.from(select.options).some((opt) => opt.value === String(preferred))) {
+            select.value = String(preferred);
         }
     }
 

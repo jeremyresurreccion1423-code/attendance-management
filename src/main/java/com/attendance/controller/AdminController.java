@@ -62,7 +62,7 @@ public class AdminController {
         var departmentList = departmentService.findAll();
         var teachers = teacherService.findAll();
         var sections = sectionService.findAll();
-        var students = studentService.findAll();
+        var students = studentService.findRecent(50);
         var subjects = subjectService.findAll();
 
         model.addAttribute("student", student);
@@ -73,8 +73,9 @@ public class AdminController {
         model.addAttribute("departmentList", departmentList);
         model.addAttribute("sections", sections);
         model.addAttribute("teachers", teachers);
+        model.addAttribute("studentList", students);
         model.addAttribute("deptCount", departmentList.size());
-        model.addAttribute("studentCount", students.size());
+        model.addAttribute("studentCount", studentService.count());
         model.addAttribute("teacherCount", teachers.size());
         model.addAttribute("subjectCount", subjects.size());
         model.addAttribute("sectionCount", sections.size());
@@ -210,6 +211,11 @@ public class AdminController {
         if (yearLevel != null && !yearLevel.isBlank()) {
             student.setYearLevel(yearLevel);
         }
+        if (sectionId != null) {
+            Section section = new Section();
+            section.setId(sectionId);
+            student.setSection(section);
+        }
         model.addAttribute("student", student);
         return "admin/students";
     }
@@ -233,19 +239,37 @@ public class AdminController {
             if (password != null && !password.isBlank()) {
                 ValidationHelper.validatePassword(password);
             }
-            studentService.save(student, username, password);
-            redirect.addFlashAttribute("message", "Student added successfully");
+            Student saved = studentService.save(student, username, password);
+            redirect.addFlashAttribute("message",
+                    "Student added successfully: " + saved.getStudentNumber() + " — " + saved.getFullName());
+
+            // After add from Create, open Students list filtered to the new record so it is visible.
+            if ("create".equalsIgnoreCase(returnTo)) {
+                Long deptId = saved.getDepartment() != null ? saved.getDepartment().getId() : null;
+                Long sectionId = saved.getSection() != null ? saved.getSection().getId() : null;
+                String year = saved.getYearLevel();
+                if (deptId != null && year != null && !year.isBlank() && sectionId != null) {
+                    return buildStudentsRedirect(deptId, year, sectionId, null, null);
+                }
+                return "redirect:/admin/students?viewAll=true";
+            }
         } catch (Exception e) {
             redirect.addFlashAttribute("error", e.getMessage());
-        }
-        if ("create".equalsIgnoreCase(returnTo)) {
-            return "redirect:/admin/create#student";
+            if ("create".equalsIgnoreCase(returnTo)) {
+                return "redirect:/admin/create#student";
+            }
         }
         Long deptId = returnDepartmentId != null ? returnDepartmentId
                 : (student.getDepartment() != null ? student.getDepartment().getId() : null);
-        return buildStudentsRedirect(deptId, returnYearLevel != null ? returnYearLevel : student.getYearLevel(),
-                returnSectionId != null ? returnSectionId : (student.getSection() != null ? student.getSection().getId() : null),
-                returnViewAll, returnSearch);
+        String year = returnYearLevel != null ? returnYearLevel : student.getYearLevel();
+        Long sectionId = returnSectionId != null ? returnSectionId
+                : (student.getSection() != null ? student.getSection().getId() : null);
+        // Ensure the list is shown after add (section filter or viewAll).
+        Boolean viewAll = returnViewAll;
+        if (!Boolean.TRUE.equals(viewAll) && sectionId == null) {
+            viewAll = true;
+        }
+        return buildStudentsRedirect(deptId, year, sectionId, viewAll, returnSearch);
     }
 
     @PostMapping("/students/{id}/delete")
