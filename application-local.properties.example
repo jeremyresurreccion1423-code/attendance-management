@@ -11,4 +11,4 @@ spring.datasource.password=your-database-password
 spring.mail.username=${MAIL_USERNAME:b20400001@smtp-brevo.com}
 spring.mail.password=${MAIL_PASSWORD:${BREVO_SMTP_PASSWORD:}}
 central.mail.from-name=LU Centralized System
-central.mail.from-email=noreply.lu.system@gmail.com
+central.mail.from-email=edulibrary67@gmail.com
