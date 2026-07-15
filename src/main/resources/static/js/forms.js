@@ -193,6 +193,14 @@
     }
 
     function validateAdminPassword(form) {
+        // Only for account-creation forms — never block login / auth pages.
+        const action = (form.getAttribute("action") || "").toLowerCase();
+        if (action.includes("/login")
+            || form.classList.contains("auth-fields")
+            || form.closest("[data-auth-page]")
+            || document.body?.hasAttribute("data-auth-page")) {
+            return true;
+        }
         const passwordInput = form.querySelector('input[name="password"]');
         if (!passwordInput || !passwordInput.value) return true;
         clearFieldError(passwordInput);
