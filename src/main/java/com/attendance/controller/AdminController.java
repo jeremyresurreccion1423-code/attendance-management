@@ -53,6 +53,7 @@ public class AdminController {
 
         Teacher teacher = new Teacher();
         teacher.setDepartment(new Department());
+        teacher.setEmployeeId(teacherService.generateNextEmployeeId());
         Subject subject = new Subject();
         subject.setTeacher(new Teacher());
         subject.setSection(new Section());
@@ -69,6 +70,7 @@ public class AdminController {
         model.addAttribute("student", student);
         model.addAttribute("nextStudentNumber", student.getStudentNumber());
         model.addAttribute("teacher", teacher);
+        model.addAttribute("nextEmployeeId", teacher.getEmployeeId());
         model.addAttribute("subject", subject);
         model.addAttribute("section", section);
         model.addAttribute("department", new Department());
@@ -452,15 +454,13 @@ public class AdminController {
                              @RequestParam(required = false) String password,
                              RedirectAttributes redirect) {
         try {
-            ValidationHelper.requireText(teacher.getFullName(), "Full name");
-            ValidationHelper.requireText(teacher.getEmployeeId(), "Employee ID");
+            ValidationHelper.validatePersonName(teacher.getFullName(), "Full name");
             ValidationHelper.requireEmail(teacher.getEmail());
             ValidationHelper.validateContactNumber(teacher.getContactNumber());
-            if (password != null && !password.isBlank()) {
-                ValidationHelper.validatePassword(password);
-            }
-            teacherService.save(teacher, username, password);
-            redirect.addFlashAttribute("message", "Teacher added successfully");
+            ValidationHelper.validateOptionalLoginCredentials(username, password);
+            Teacher saved = teacherService.save(teacher, username, password);
+            redirect.addFlashAttribute("message",
+                    "Teacher added successfully: " + saved.getEmployeeId() + " — " + saved.getFullName());
         } catch (Exception e) {
             redirect.addFlashAttribute("error", e.getMessage());
         }
