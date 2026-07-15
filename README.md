@@ -30,7 +30,8 @@ Or: `mvn spring-boot:run "-Djava.net.preferIPv4Stack=true"`
 | `SUPABASE_DB_USER` | `postgres.<project-ref>` |
 | `SUPABASE_DB_PASSWORD` | Database password |
 | `MAIL_USERNAME` | Brevo SMTP login (default `b20400001@smtp-brevo.com`) |
-| `MAIL_PASSWORD` / `BREVO_SMTP_PASSWORD` | Brevo SMTP key (required for sending mail) |
+| `MAIL_PASSWORD` / `BREVO_SMTP_PASSWORD` | Brevo SMTP key (local / Railway Pro) |
+| `BREVO_API_KEY` | Brevo HTTPS API key (**required on Railway Hobby** — SMTP ports blocked) |
 | `SUPER_ADMIN_SSO_SECRET` | Shared SSO secret (must match Library app) |
 | `LIBRARY_APP_URL` | Library app base URL (default `http://localhost:8080`) |
 
