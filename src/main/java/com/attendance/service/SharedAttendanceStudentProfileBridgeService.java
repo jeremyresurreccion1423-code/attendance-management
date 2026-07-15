@@ -167,8 +167,17 @@ public class SharedAttendanceStudentProfileBridgeService {
     }
 
     private String generateFallbackStudentNumber() {
-        long count = studentRepository.count();
-        return "101-" + String.format("%03d", count + 1);
+        int maxSeq = 0;
+        for (Student existing : studentRepository.findAll()) {
+            if (existing.getStudentNumber() == null) {
+                continue;
+            }
+            String number = existing.getStudentNumber().trim();
+            if (number.matches("^101-\\d+$")) {
+                maxSeq = Math.max(maxSeq, Integer.parseInt(number.substring(4)));
+            }
+        }
+        return "101-" + String.format("%03d", maxSeq + 1);
     }
 
     private Department resolveDepartment(String course) {

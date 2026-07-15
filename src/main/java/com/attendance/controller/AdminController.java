@@ -49,6 +49,7 @@ public class AdminController {
         student.setSection(new Section());
         student.setDepartment(new Department());
         student.setStatus(StudentStatus.ACTIVE);
+        student.setStudentNumber(studentService.generateNextStudentNumber());
 
         Teacher teacher = new Teacher();
         teacher.setDepartment(new Department());
@@ -66,6 +67,7 @@ public class AdminController {
         var subjects = subjectService.findAll();
 
         model.addAttribute("student", student);
+        model.addAttribute("nextStudentNumber", student.getStudentNumber());
         model.addAttribute("teacher", teacher);
         model.addAttribute("subject", subject);
         model.addAttribute("section", section);
@@ -207,6 +209,7 @@ public class AdminController {
         student.setSection(new Section());
         student.setStatus(StudentStatus.ACTIVE);
         student.setDepartment(new Department());
+        student.setStudentNumber(studentService.generateNextStudentNumber());
         if (departmentId != null) {
             Department dept = new Department();
             dept.setId(departmentId);
@@ -221,6 +224,7 @@ public class AdminController {
             student.setSection(section);
         }
         model.addAttribute("student", student);
+        model.addAttribute("nextStudentNumber", student.getStudentNumber());
         return "admin/students";
     }
 
@@ -279,12 +283,10 @@ public class AdminController {
                              RedirectAttributes redirect) {
         try {
             ValidationHelper.requireText(student.getFullName(), "Full name");
-            ValidationHelper.requireText(student.getStudentNumber(), "Student number");
+            ValidationHelper.validatePersonName(student.getFullName(), "Full name");
             ValidationHelper.requireEmail(student.getEmail());
             ValidationHelper.validateContactNumber(student.getContactNumber());
-            if (password != null && !password.isBlank()) {
-                ValidationHelper.validatePassword(password);
-            }
+            ValidationHelper.validateOptionalLoginCredentials(username, password);
             Student saved = studentService.save(student, username, password);
             redirect.addFlashAttribute("message",
                     "Student added successfully: " + saved.getStudentNumber() + " — " + saved.getFullName());

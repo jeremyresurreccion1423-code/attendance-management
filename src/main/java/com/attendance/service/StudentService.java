@@ -13,11 +13,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class StudentService {
+
+    private static final Pattern STUDENT_NUMBER_101 = Pattern.compile("^101-(\\d+)$");
+    private static final Pattern FULL_NAME_PATTERN = Pattern.compile("^[A-Za-zÀ-ÖØ-öø-ÿÑñ .'-]{2,150}$");
 
     private final StudentRepository studentRepository;
     private final SectionRepository sectionRepository;
@@ -55,17 +60,41 @@ public class StudentService {
         return studentRepository.findByUserId(userId);
     }
 
+    /**
+     * Next auto student number in the series {@code 101-001}, {@code 101-002}, ...
+     */
+    public String generateNextStudentNumber() {
+        int maxSeq = 0;
+        for (Student existing : studentRepository.findAll()) {
+            if (existing.getStudentNumber() == null) {
+                continue;
+            }
+            Matcher matcher = STUDENT_NUMBER_101.matcher(existing.getStudentNumber().trim());
+            if (matcher.matches()) {
+                maxSeq = Math.max(maxSeq, Integer.parseInt(matcher.group(1)));
+            }
+        }
+        return "101-" + String.format("%03d", maxSeq + 1);
+    }
+
     @Transactional
     public Student save(Student student, String username, String password) {
+        // Always assign the next 101-XXX number for new students.
+        student.setStudentNumber(generateNextStudentNumber());
+
         validateStudent(student, null);
 
         if (studentRepository.existsByStudentNumber(student.getStudentNumber().trim())) {
-            throw new BusinessException("Student number already exists.");
+            student.setStudentNumber(generateNextStudentNumber());
+            if (studentRepository.existsByStudentNumber(student.getStudentNumber().trim())) {
+                throw new BusinessException("Unable to generate a unique student number. Please try again.");
+            }
         }
         if (student.getEmail() == null || student.getEmail().isBlank()) {
             throw new BusinessException("Email is required.");
         }
-        if (studentRepository.existsByEmailIgnoreCase(student.getEmail().trim())) {
+        student.setEmail(student.getEmail().trim().toLowerCase());
+        if (studentRepository.existsByEmailIgnoreCase(student.getEmail())) {
             throw new BusinessException("Email already exists.");
         }
 
@@ -74,14 +103,21 @@ public class StudentService {
         String loginUsername = (username == null || username.isBlank())
                 ? student.getStudentNumber().trim()
                 : username.trim();
-        if (password != null && !password.isBlank()) {
+        boolean wantsLogin = (username != null && !username.isBlank())
+                || (password != null && !password.isBlank());
+        if (wantsLogin) {
+            if (password == null || password.isBlank()) {
+                throw new BusinessException("Login password is required when creating a login account.");
+            }
+            if (username != null && !username.isBlank() && username.trim().length() < 3) {
+                throw new BusinessException("Login username must be at least 3 characters.");
+            }
             var existingUser = authService.findByUsername(loginUsername);
             if (existingUser.isPresent()) {
                 User orphan = existingUser.get();
-                // Reuse leftover login from a previously deleted student (no linked student row).
                 if (orphan.getRole() == Role.STUDENT && studentRepository.findByUserId(orphan.getId()).isEmpty()) {
                     authService.changePassword(orphan, password);
-                    orphan.setEmail(student.getEmail() != null ? student.getEmail().trim().toLowerCase() : orphan.getEmail());
+                    orphan.setEmail(student.getEmail());
                     orphan.setFullName(student.getFullName().trim());
                     orphan.setEnabled(true);
                     student.setUser(orphan);
@@ -98,6 +134,11 @@ public class StudentService {
         }
         if (student.getStatus() == null) {
             student.setStatus(StudentStatus.ACTIVE);
+        }
+        if (student.getContactNumber() != null && !student.getContactNumber().isBlank()) {
+            student.setContactNumber(student.getContactNumber().trim());
+        } else {
+            student.setContactNumber(null);
         }
         Student saved = studentRepository.save(student);
         syncLoginAccessWithStatus(saved);
@@ -224,6 +265,15 @@ public class StudentService {
         if (student.getFullName() == null || student.getFullName().isBlank()) {
             throw new BusinessException("Full name is required.");
         }
+        String fullName = student.getFullName().trim();
+        if (fullName.length() < 2) {
+            throw new BusinessException("Full name must be at least 2 characters.");
+        }
+        if (!FULL_NAME_PATTERN.matcher(fullName).matches()) {
+            throw new BusinessException("Full name may only contain letters, spaces, and . ' - characters.");
+        }
+        student.setFullName(fullName);
+
         if (currentId == null && (student.getStudentNumber() == null || student.getStudentNumber().isBlank())) {
             throw new BusinessException("Student number is required.");
         }
@@ -239,9 +289,15 @@ public class StudentService {
         if (student.getEmail() == null || student.getEmail().isBlank()) {
             throw new BusinessException("Email is required.");
         }
-        if (student.getContactNumber() != null && !student.getContactNumber().isBlank()
-                && !student.getContactNumber().trim().matches("^[0-9]+$")) {
-            throw new BusinessException("Contact number must contain digits only.");
+        if (student.getContactNumber() != null && !student.getContactNumber().isBlank()) {
+            String contact = student.getContactNumber().trim();
+            if (!contact.matches("^[0-9]+$")) {
+                throw new BusinessException("Contact number must contain digits only.");
+            }
+            if (contact.length() < 7 || contact.length() > 15) {
+                throw new BusinessException("Contact number must be 7 to 15 digits.");
+            }
+            student.setContactNumber(contact);
         }
         if (currentId != null && studentRepository.existsByEmailIgnoreCaseAndIdNot(student.getEmail().trim(), currentId)) {
             throw new BusinessException("Email already exists.");

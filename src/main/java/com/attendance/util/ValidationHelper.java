@@ -12,6 +12,7 @@ public final class ValidationHelper {
     private static final Pattern STRONG_PASSWORD = Pattern.compile(
             "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$");
     private static final Pattern CONTACT_NUMBER = Pattern.compile("^[0-9]+$");
+    private static final Pattern PERSON_NAME = Pattern.compile("^[A-Za-zÀ-ÖØ-öø-ÿÑñ .'-]{2,150}$");
     private static final int DEPARTMENT_NAME_MAX = 100;
     private static final long MAX_PHOTO_BYTES = 5 * 1024 * 1024;
     private static final Set<String> ALLOWED_PHOTO_TYPES = Set.of(
@@ -60,9 +61,40 @@ public final class ValidationHelper {
         if (contact == null || contact.isBlank()) {
             return;
         }
-        if (!CONTACT_NUMBER.matcher(contact.trim()).matches()) {
+        String value = contact.trim();
+        if (!CONTACT_NUMBER.matcher(value).matches()) {
             throw new IllegalArgumentException("Contact number must contain digits only.");
         }
+        if (value.length() < 7 || value.length() > 15) {
+            throw new IllegalArgumentException("Contact number must be 7 to 15 digits.");
+        }
+    }
+
+    public static void validatePersonName(String name, String fieldName) {
+        requireText(name, fieldName);
+        String value = name.trim();
+        if (value.length() < 2) {
+            throw new IllegalArgumentException(fieldName + " must be at least 2 characters.");
+        }
+        if (!PERSON_NAME.matcher(value).matches()) {
+            throw new IllegalArgumentException(fieldName + " may only contain letters, spaces, and . ' - characters.");
+        }
+    }
+
+    /** If either username or password is filled, both must be valid. */
+    public static void validateOptionalLoginCredentials(String username, String password) {
+        boolean hasUsername = username != null && !username.isBlank();
+        boolean hasPassword = password != null && !password.isBlank();
+        if (!hasUsername && !hasPassword) {
+            return;
+        }
+        if (hasUsername && username.trim().length() < 3) {
+            throw new IllegalArgumentException("Login username must be at least 3 characters.");
+        }
+        if (!hasPassword) {
+            throw new IllegalArgumentException("Login password is required when creating a login account.");
+        }
+        validatePassword(password);
     }
 
     public static void validatePasswordsMatch(String password, String confirm) {

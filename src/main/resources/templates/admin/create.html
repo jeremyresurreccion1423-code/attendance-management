@@ -119,12 +119,19 @@
                         <input type="hidden" name="returnTo" value="create">
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Student Number</label>
-                                <input type="text" th:field="*{studentNumber}" class="form-control" required>
+                                <label>Student Number <small style="color:#64748b;">(auto-generated)</small></label>
+                                <input type="text" th:field="*{studentNumber}" class="form-control" readonly
+                                       aria-readonly="true">
+                                <small style="display:block; margin-top:0.35rem; color:#64748b;">
+                                    Starts at 101-001 and increments automatically.
+                                </small>
                             </div>
                             <div class="form-group">
                                 <label>Full Name</label>
-                                <input type="text" th:field="*{fullName}" class="form-control" required>
+                                <input type="text" th:field="*{fullName}" class="form-control" required minlength="2" maxlength="150"
+                                       pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .'\-]{2,150}"
+                                       title="Letters, spaces, and . ' - only"
+                                       placeholder="e.g. Juan Dela Cruz">
                             </div>
                             <div class="form-group">
                                 <label>Department</label>
@@ -145,12 +152,16 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Contact</label>
-                                <input type="text" th:field="*{contactNumber}" class="form-control" inputmode="numeric" pattern="[0-9]*">
+                                <label>Contact <small style="color:#64748b;">(optional)</small></label>
+                                <input type="text" th:field="*{contactNumber}" class="form-control" inputmode="numeric"
+                                       pattern="[0-9]{7,15}|^$"
+                                       title="Leave blank or enter 7 to 15 digits"
+                                       placeholder="e.g. 09171234567">
                             </div>
                             <div class="form-group">
                                 <label>Email</label>
-                                <input type="email" th:field="*{email}" class="form-control" required>
+                                <input type="email" th:field="*{email}" class="form-control" required maxlength="100"
+                                       placeholder="student@school.edu">
                             </div>
                             <div class="form-group">
                                 <label>Status</label>
@@ -160,12 +171,14 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Login Username</label>
-                                <input type="text" name="username" class="form-control" autocomplete="off">
+                                <label>Login Username <small style="color:#64748b;">(optional)</small></label>
+                                <input type="text" name="username" class="form-control" autocomplete="off" minlength="3" maxlength="50"
+                                       placeholder="Leave blank to use student number">
                             </div>
                             <div class="form-group">
-                                <label>Login Password</label>
-                                <input type="password" name="password" class="form-control" minlength="8" autocomplete="new-password">
+                                <label>Login Password <small style="color:#64748b;">(optional)</small></label>
+                                <input type="password" name="password" class="form-control" minlength="8" autocomplete="new-password"
+                                       placeholder="8+ chars, upper, lower, number">
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary">Add Student</button>
