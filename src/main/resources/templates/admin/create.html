@@ -83,7 +83,7 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Department Name</label>
-                                <input type="text" th:field="*{name}" class="form-control" required placeholder="e.g. Computer Science">
+                                <input type="text" th:field="*{name}" class="form-control" required maxlength="100" placeholder="e.g. Computer Science">
                             </div>
                             <div class="form-group">
                                 <label>Description (optional)</label>
@@ -92,9 +92,9 @@
                         </div>
                         <button type="submit" class="btn btn-primary">Create Department</button>
                     </form>
-                    <div class="create-existing" th:if="${!#lists.isEmpty(departmentList)}">
+                    <div class="create-existing" id="departmentTagList">
                         <h4>Existing Departments</h4>
-                        <div class="create-tag-list">
+                        <div class="create-tag-list" id="departmentTags">
                             <span th:each="d : ${departmentList}" class="create-tag" th:text="${d.name}"></span>
                         </div>
                     </div>
@@ -128,33 +128,28 @@
                             <div class="form-group">
                                 <label>Department</label>
                                 <select th:field="*{department.id}" class="form-control" data-lookup-role="department" required>
-                                    <option value="">-- Select Department --</option>
-                                    <option th:each="d : ${departmentList}" th:value="${d.id}" th:text="${d.name}"></option>
+                                    <option value="">-- Loading departments... --</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Year Level</label>
-                                <select th:field="*{yearLevel}" class="form-control" data-lookup-role="year-level">
-                                    <option value="">-- Select --</option>
-                                    <option value="1st Year">1st Year</option>
-                                    <option value="2nd Year">2nd Year</option>
-                                    <option value="3rd Year">3rd Year</option>
-                                    <option value="4th Year">4th Year</option>
+                                <select th:field="*{yearLevel}" class="form-control" data-lookup-role="year-level" required>
+                                    <option value="">-- Select department first --</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Section</label>
-                                <select th:field="*{section.id}" class="form-control" data-lookup-role="section">
+                                <select th:field="*{section.id}" class="form-control" data-lookup-role="section" required>
                                     <option value="">-- Select department &amp; year first --</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Contact</label>
-                                <input type="text" th:field="*{contactNumber}" class="form-control">
+                                <input type="text" th:field="*{contactNumber}" class="form-control" inputmode="numeric" pattern="[0-9]*">
                             </div>
                             <div class="form-group">
                                 <label>Email</label>
-                                <input type="email" th:field="*{email}" class="form-control">
+                                <input type="email" th:field="*{email}" class="form-control" required>
                             </div>
                             <div class="form-group">
                                 <label>Status</label>
@@ -169,7 +164,7 @@
                             </div>
                             <div class="form-group">
                                 <label>Login Password</label>
-                                <input type="password" name="password" class="form-control" minlength="6" autocomplete="new-password">
+                                <input type="password" name="password" class="form-control" minlength="8" autocomplete="new-password">
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary">Add Student</button>
@@ -191,7 +186,7 @@
                         </div>
                         <span class="create-badge">Step 3 of 5</span>
                     </div>
-                    <form th:action="@{|/admin/teachers|}" method="post" th:object="${teacher}" class="ams-validate">
+                    <form th:action="@{|/admin/teachers|}" method="post" th:object="${teacher}" class="ams-validate" data-lookup-form>
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Employee ID</label>
@@ -203,18 +198,17 @@
                             </div>
                             <div class="form-group">
                                 <label>Department</label>
-                                <select th:field="*{department.id}" class="form-control" required>
-                                    <option value="">-- Select Department --</option>
-                                    <option th:each="d : ${departmentList}" th:value="${d.id}" th:text="${d.name}"></option>
+                                <select th:field="*{department.id}" class="form-control" data-lookup-role="department" required>
+                                    <option value="">-- Loading departments... --</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Contact</label>
-                                <input type="text" th:field="*{contactNumber}" class="form-control">
+                                <input type="text" th:field="*{contactNumber}" class="form-control" inputmode="numeric" pattern="[0-9]*">
                             </div>
                             <div class="form-group">
                                 <label>Email</label>
-                                <input type="email" th:field="*{email}" class="form-control">
+                                <input type="email" th:field="*{email}" class="form-control" required>
                             </div>
                             <div class="form-group">
                                 <label>Login Username</label>
@@ -222,7 +216,7 @@
                             </div>
                             <div class="form-group">
                                 <label>Login Password</label>
-                                <input type="password" name="password" class="form-control" minlength="6" autocomplete="new-password">
+                                <input type="password" name="password" class="form-control" minlength="8" autocomplete="new-password">
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary">Add Teacher</button>
@@ -257,8 +251,7 @@
                             <div class="form-group">
                                 <label>Department</label>
                                 <select th:field="*{department.id}" class="form-control" data-lookup-role="department" required>
-                                    <option value="">-- Select Department --</option>
-                                    <option th:each="d : ${departmentList}" th:value="${d.id}" th:text="${d.name}"></option>
+                                    <option value="">-- Loading departments... --</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -297,7 +290,7 @@
                         </div>
                         <span class="create-badge">Step 5 of 5</span>
                     </div>
-                    <form th:action="@{|/admin/sections|}" method="post" th:object="${section}" class="ams-validate">
+                    <form th:action="@{|/admin/sections|}" method="post" th:object="${section}" class="ams-validate" data-lookup-form>
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Section Name</label>
@@ -305,19 +298,14 @@
                             </div>
                             <div class="form-group">
                                 <label>Department</label>
-                                <select th:field="*{department.id}" class="form-control" required>
-                                    <option value="">-- Select Department --</option>
-                                    <option th:each="d : ${departmentList}" th:value="${d.id}" th:text="${d.name}"></option>
+                                <select th:field="*{department.id}" class="form-control" data-lookup-role="department" required>
+                                    <option value="">-- Loading departments... --</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Year Level</label>
-                                <select th:field="*{yearLevel}" class="form-control">
-                                    <option value="">-- Select --</option>
-                                    <option value="1st Year">1st Year</option>
-                                    <option value="2nd Year">2nd Year</option>
-                                    <option value="3rd Year">3rd Year</option>
-                                    <option value="4th Year">4th Year</option>
+                                <select th:field="*{yearLevel}" class="form-control" data-lookup-role="year-level" required>
+                                    <option value="">-- Select department first --</option>
                                 </select>
                             </div>
                         </div>
@@ -333,9 +321,23 @@
     </main>
 </div>
 <script th:src="@{/js/forms.js}"></script>
-<script th:src="@{/js/lookup-filter.js}"></script>
+<script th:src="@{/js/lookup-filter.js(v=2)}"></script>
 <script th:src="@{/js/layout.js}"></script>
 <script>
+async function refreshDepartmentTags() {
+    const container = document.getElementById('departmentTags');
+    if (!container || !window.adminLookups) return;
+    try {
+        const response = await fetch('/api/v1/admin/lookups/departments', { cache: 'no-store' });
+        if (!response.ok) return;
+        const departments = await response.json();
+        container.innerHTML = departments.map((d) => `<span class="create-tag">${d.label}</span>`).join('');
+        document.getElementById('departmentTagList').style.display = departments.length ? '' : 'none';
+    } catch (e) {
+        console.error(e);
+    }
+}
+document.addEventListener('DOMContentLoaded', refreshDepartmentTags);
 function closeAllProfileMenus() {
     document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));
 }

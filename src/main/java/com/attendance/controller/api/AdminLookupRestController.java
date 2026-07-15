@@ -2,7 +2,7 @@ package com.attendance.controller.api;
 
 import com.attendance.dto.LookupDTO;
 import com.attendance.model.Section;
-import com.attendance.model.Teacher;
+import com.attendance.service.DepartmentService;
 import com.attendance.service.SectionService;
 import com.attendance.service.TeacherService;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +18,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminLookupRestController {
 
+    private final DepartmentService departmentService;
     private final TeacherService teacherService;
     private final SectionService sectionService;
+
+    @GetMapping("/departments")
+    public List<LookupDTO> departments() {
+        return departmentService.findAll().stream()
+                .map(d -> new LookupDTO(d.getId(), d.getName()))
+                .toList();
+    }
+
+    @GetMapping("/year-levels")
+    public List<String> yearLevels(@RequestParam Long departmentId) {
+        return sectionService.findYearLevelsByDepartmentId(departmentId);
+    }
 
     @GetMapping("/teachers")
     public List<LookupDTO> teachers(@RequestParam Long departmentId) {

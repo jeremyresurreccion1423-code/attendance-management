@@ -56,10 +56,7 @@
                 <h3>Select Year Level - <span th:text="${selectedDepartmentName}"></span></h3>
                 <a th:href="@{|/admin/students|}" class="btn btn-secondary" style="margin-bottom: 1rem; display: inline-block;">← Back to Departments</a>
                 <div class="year-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
-                    <a th:href="@{|/admin/students?departmentId=${selectedDepartmentId}&yearLevel=1st Year|}" class="year-card"><h4>1st Year</h4></a>
-                    <a th:href="@{|/admin/students?departmentId=${selectedDepartmentId}&yearLevel=2nd Year|}" class="year-card"><h4>2nd Year</h4></a>
-                    <a th:href="@{|/admin/students?departmentId=${selectedDepartmentId}&yearLevel=3rd Year|}" class="year-card"><h4>3rd Year</h4></a>
-                    <a th:href="@{|/admin/students?departmentId=${selectedDepartmentId}&yearLevel=4th Year|}" class="year-card"><h4>4th Year</h4></a>
+                    <a th:each="yl : ${yearLevels}" th:href="@{|/admin/students?departmentId=${selectedDepartmentId}&yearLevel=${yl}|}" class="year-card"><h4 th:text="${yl}"></h4></a>
                 </div>
             </div>
         </div>
@@ -121,22 +118,47 @@
                     <input type="hidden" name="viewAll" th:if="${viewAll}" value="true">
                     <input type="search" name="search" class="form-control" th:value="${searchQuery}"
                            placeholder="Search by name, student no., email, or department..." id="studentSearchInput">
-                    <button type="submit" class="btn btn-primary">Search</button>
-                    <a th:if="${searchQuery != null and !searchQuery.isEmpty()}"
+                    <select name="status" class="form-control" id="studentStatusFilter">
+                        <option value="">All Status</option>
+                        <option value="ACTIVE" th:selected="${statusFilter == 'ACTIVE'}">ACTIVE</option>
+                        <option value="INACTIVE" th:selected="${statusFilter == 'INACTIVE'}">INACTIVE</option>
+                        <option value="ARCHIVED" th:selected="${statusFilter == 'ARCHIVED'}">ARCHIVED</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Apply</button>
+                    <a th:if="${searchQuery != null and !searchQuery.isEmpty() or statusFilter != null and !statusFilter.isEmpty()}"
                        th:href="@{|/admin/students?departmentId=${selectedDepartmentId}&yearLevel=${selectedYearLevel}&sectionId=${selectedSectionId}&viewAll=${viewAll}|}"
                        class="btn btn-secondary">Clear</a>
                 </form>
             </div>
 
             <div class="card">
-                <h3>All Students <small th:if="${searchQuery != null and !searchQuery.isEmpty()}" th:text="'(' + ${#lists.size(students)} + ' result(s))'" style="font-weight:normal; color:#64748b;"></small></h3>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+                    <h3 style="margin:0;">All Students <small id="studentCountLabel" style="font-weight:normal; color:#64748b;"></small></h3>
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <label for="studentPageSize">Rows</label>
+                        <select id="studentPageSize" class="form-control">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                </div>
                 <table id="studentsTable">
                     <thead>
-                        <tr><th>Student No.</th><th>Name</th><th>Department</th><th>Year</th><th>Section</th><th>Status</th><th>Action</th></tr>
+                        <tr>
+                            <th data-sort="student-number">Student No.</th>
+                            <th data-sort="name">Name</th>
+                            <th data-sort="department">Department</th>
+                            <th data-sort="year">Year</th>
+                            <th data-sort="section">Section</th>
+                            <th data-sort="status">Status</th>
+                            <th>Action</th>
+                        </tr>
                     </thead>
                     <tbody>
                         <th:block th:each="s : ${students}">
-                        <tr class="student-row">
+                        <tr class="student-row" data-admin-row
+                            th:attr="data-status=${s.status}, data-search=${#strings.toLowerCase(s.fullName + ' ' + s.studentNumber + ' ' + (s.email != null ? s.email : '') + ' ' + (s.department != null ? s.department.name : ''))}, data-student-number=${s.studentNumber}, data-name=${s.fullName}, data-department=${s.department != null ? s.department.name : ''}, data-year=${s.yearLevel}, data-section=${s.section != null ? s.section.name : ''}">
                             <td th:text="${s.studentNumber}"></td>
                             <td th:text="${s.fullName}"></td>
                             <td th:text="${s.department != null ? s.department.name : '-'}"></td>
@@ -175,7 +197,7 @@
                         </tr>
                         <tr th:id="'edit-row-' + ${s.id}" style="display:none; background:#f8faf8;">
                             <td colspan="7">
-                                <form th:action="@{|/admin/students/${s.id}/update|}" method="post" class="ams-validate">
+                                <form th:action="@{|/admin/students/${s.id}/update|}" method="post" class="ams-validate" th:attr="data-lookup-form='true', id='edit-student-form-' + ${s.id}">
                                     <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
                                     <input type="hidden" name="returnYearLevel" th:value="${selectedYearLevel}">
                                     <input type="hidden" name="returnSectionId" th:if="${selectedSectionId != null}" th:value="${selectedSectionId}">
@@ -184,21 +206,22 @@
                                     <div class="form-row">
                                         <div class="form-group"><label>Name</label><input type="text" name="fullName" class="form-control" th:value="${s.fullName}" required></div>
                                         <div class="form-group"><label>Department</label>
-                                            <select name="department.id" class="form-control" required>
-                                                <option value="">-- Select --</option>
-                                                <option th:each="d : ${departmentList}" th:value="${d.id}" th:text="${d.name}"
-                                                        th:selected="${s.department != null and s.department.id == d.id}"></option>
+                                            <select name="department.id" class="form-control" data-lookup-role="department" required th:attr="data-selected=${s.department != null ? s.department.id : ''}">
+                                                <option value="">-- Loading --</option>
                                             </select>
                                         </div>
-                                        <div class="form-group"><label>Year</label><input type="text" name="yearLevel" class="form-control" th:value="${s.yearLevel}"></div>
+                                        <div class="form-group"><label>Year</label>
+                                            <select name="yearLevel" class="form-control" data-lookup-role="year-level" required th:attr="data-selected=${s.yearLevel}">
+                                                <option value="">-- Select department first --</option>
+                                            </select>
+                                        </div>
                                         <div class="form-group"><label>Section</label>
-                                            <select name="section.id" class="form-control">
-                                                <option value="">-- None --</option>
-                                                <option th:each="sec : ${sections}" th:value="${sec.id}" th:text="${sec.name}" th:selected="${s.section != null and s.section.id == sec.id}"></option>
+                                            <select name="section.id" class="form-control" data-lookup-role="section" required th:attr="data-selected=${s.section != null ? s.section.id : ''}">
+                                                <option value="">-- Select department &amp; year first --</option>
                                             </select>
                                         </div>
-                                        <div class="form-group"><label>Contact</label><input type="text" name="contactNumber" class="form-control" th:value="${s.contactNumber}"></div>
-                                        <div class="form-group"><label>Email</label><input type="email" name="email" class="form-control" th:value="${s.email}"></div>
+                                        <div class="form-group"><label>Contact</label><input type="text" name="contactNumber" class="form-control" th:value="${s.contactNumber}" inputmode="numeric" pattern="[0-9]*"></div>
+                                        <div class="form-group"><label>Email</label><input type="email" name="email" class="form-control" th:value="${s.email}" required></div>
                                         <div class="form-group"><label>Status</label>
                                             <select name="status" class="form-control" required>
                                                 <option value="">-- Select Status --</option>
@@ -219,11 +242,14 @@
                         </tr>
                     </tbody>
                 </table>
+                <div id="studentPagination" class="admin-pagination"></div>
             </div>
         </div>
     </main>
 </div>
 <script th:src="@{/js/forms.js}"></script>
+<script th:src="@{/js/lookup-filter.js(v=2)}"></script>
+<script th:src="@{/js/admin-list.js(v=1)}"></script>
 <script th:src="@{/js/layout.js}"></script>
 <script>
 function closeAllProfileMenus() {
@@ -245,19 +271,40 @@ document.addEventListener('click', function (event) {
 });
 function toggleEdit(id) {
     const row = document.getElementById('edit-row-' + id);
-    if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+    if (!row) return;
+    const opening = row.style.display === 'none';
+    row.style.display = opening ? 'table-row' : 'none';
+    if (opening && window.adminLookups) {
+        const form = document.getElementById('edit-student-form-' + id);
+        if (form) {
+            window.adminLookups.bindForm(form);
+            const deptSelect = form.querySelector('[data-lookup-role="department"]');
+            const yearSelect = form.querySelector('[data-lookup-role="year-level"]');
+            const sectionSelect = form.querySelector('[data-lookup-role="section"]');
+            const deptId = deptSelect?.getAttribute('data-selected');
+            const year = yearSelect?.getAttribute('data-selected');
+            const sectionId = sectionSelect?.getAttribute('data-selected');
+            window.adminLookups.refreshFormLookups(form).then(() => {
+                if (deptId && deptSelect) deptSelect.value = deptId;
+                if (year && yearSelect) yearSelect.value = year;
+                return window.adminLookups.refreshFormLookups(form);
+            }).then(() => {
+                if (sectionId && sectionSelect) sectionSelect.value = sectionId;
+            }).catch(console.error);
+        }
+    }
 }
 
-const studentSearchInput = document.getElementById('studentSearchInput');
-if (studentSearchInput) {
-    studentSearchInput.addEventListener('input', function () {
-        const query = this.value.trim().toLowerCase();
-        document.querySelectorAll('#studentsTable .student-row').forEach((row) => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = !query || text.includes(query) ? '' : 'none';
-        });
+document.addEventListener('DOMContentLoaded', () => {
+    initAdminTable(document.getElementById('studentsTable'), {
+        searchInput: document.getElementById('studentSearchInput'),
+        statusFilter: document.getElementById('studentStatusFilter'),
+        pageSizeSelect: document.getElementById('studentPageSize'),
+        paginationEl: document.getElementById('studentPagination'),
+        countEl: document.getElementById('studentCountLabel'),
+        defaultPageSize: 10,
     });
-}
+});
 </script>
 </body>
 </html>

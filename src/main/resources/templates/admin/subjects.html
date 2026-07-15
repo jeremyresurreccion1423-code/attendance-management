@@ -55,19 +55,40 @@
             </div>
 
             <div class="card">
-                <h3>All Subjects</h3>
-                <table>
+                <form method="get" th:action="@{|/admin/subjects|}" class="student-search-bar">
+                    <input type="hidden" name="departmentId" th:value="${selectedDepartmentId}">
+                    <input type="search" name="search" class="form-control" th:value="${searchQuery}" placeholder="Search subjects..." id="subjectSearchInput">
+                    <button type="submit" class="btn btn-primary">Apply</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+                    <h3 style="margin:0;">All Subjects <small id="subjectCountLabel" style="font-weight:normal; color:#64748b;"></small></h3>
+                    <select id="subjectPageSize" class="form-control"><option value="10">10</option><option value="25">25</option></select>
+                </div>
+                <table id="subjectsTable">
                     <thead>
-                        <tr><th>Code</th><th>Name</th><th>Teacher</th><th>Section</th><th>Assign Students</th></tr>
+                        <tr>
+                            <th data-sort="code">Code</th>
+                            <th data-sort="name">Name</th>
+                            <th data-sort="teacher">Teacher</th>
+                            <th data-sort="section">Section</th>
+                            <th>Assign Students</th>
+                            <th>Action</th>
+                        </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="sub : ${subjects}">
+                        <th:block th:each="sub : ${subjects}">
+                        <tr data-admin-row
+                            th:attr="data-search=${#strings.toLowerCase(sub.subjectCode + ' ' + sub.subjectName + ' ' + (sub.teacher != null ? sub.teacher.fullName : ''))}, data-code=${sub.subjectCode}, data-name=${sub.subjectName}, data-teacher=${sub.teacher != null ? sub.teacher.fullName : ''}, data-section=${sub.section != null ? sub.section.name : ''}">
                             <td th:text="${sub.subjectCode}"></td>
                             <td th:text="${sub.subjectName}"></td>
                             <td th:text="${sub.teacher != null ? sub.teacher.fullName : '-'}"></td>
                             <td th:text="${sub.section != null ? sub.section.name : '-'}"></td>
                             <td>
                                 <form th:action="@{|/admin/subjects/${sub.id}/assign-students|}" method="post" class="assign-students-widget" data-assign-widget>
+                                    <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
                                     <input type="search" class="form-control assign-search" placeholder="Search student..." data-assign-search>
                                     <div class="assign-students-list" data-assign-list>
                                         <label class="assign-student-item" th:each="st : ${students}" th:attr="data-search-text=${#strings.toLowerCase(st.fullName + ' ' + st.studentNumber)}">
@@ -86,19 +107,83 @@
                                     </div>
                                 </form>
                             </td>
+                            <td>
+                                <button type="button" class="btn btn-secondary btn-sm" th:onclick="'toggleEdit(' + ${sub.id} + ')'">Edit</button>
+                                <form th:action="@{|/admin/subjects/${sub.id}/delete|}" method="post" style="display:inline;" class="confirm-delete" th:attr="data-confirm-message='Delete subject ' + ${sub.subjectCode} + '?'">
+                                    <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
                         </tr>
+                        <tr th:id="'edit-row-' + ${sub.id}" style="display:none; background:#f8faf8;">
+                            <td colspan="6">
+                                <form th:action="@{|/admin/subjects/${sub.id}/update|}" method="post" class="ams-validate" data-lookup-form>
+                                    <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
+                                    <select name="department.id" data-lookup-role="department" hidden>
+                                        <option th:value="${selectedDepartmentId}" selected></option>
+                                    </select>
+                                    <div class="form-row">
+                                        <div class="form-group"><label>Subject Name</label><input type="text" name="subjectName" class="form-control" th:value="${sub.subjectName}" required></div>
+                                        <div class="form-group"><label>Teacher</label>
+                                            <select name="teacher.id" class="form-control" data-lookup-role="teacher" required th:attr="data-selected=${sub.teacher != null ? sub.teacher.id : ''}">
+                                                <option value="">-- Loading --</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group"><label>Section</label>
+                                            <select name="section.id" class="form-control" data-lookup-role="section" required th:attr="data-selected=${sub.section != null ? sub.section.id : ''}">
+                                                <option value="">-- Loading --</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" th:onclick="'toggleEdit(' + ${sub.id} + ')'">Cancel</button>
+                                </form>
+                            </td>
+                        </tr>
+                        </th:block>
                         <tr th:if="${#lists.isEmpty(subjects)}">
                             <td colspan="5" style="text-align:center; color:#666;">No subjects yet for this department.</td>
                         </tr>
                     </tbody>
                 </table>
+                <div id="subjectPagination" class="admin-pagination"></div>
             </div>
         </div>
     </main>
 </div>
 <script th:src="@{/js/forms.js}"></script>
+<script th:src="@{/js/lookup-filter.js(v=2)}"></script>
+<script th:src="@{/js/admin-list.js(v=1)}"></script>
 <script th:src="@{/js/layout.js}"></script>
 <script>
+function toggleEdit(id) {
+    const row = document.getElementById('edit-row-' + id);
+    if (!row) return;
+    const opening = row.style.display === 'none';
+    row.style.display = opening ? 'table-row' : 'none';
+    if (opening && window.adminLookups) {
+        const form = row.querySelector('form[data-lookup-form]');
+        if (form) {
+            window.adminLookups.bindForm(form);
+            const teacherSelect = form.querySelector('[data-lookup-role="teacher"]');
+            const sectionSelect = form.querySelector('[data-lookup-role="section"]');
+            const teacherId = teacherSelect?.getAttribute('data-selected');
+            const sectionId = sectionSelect?.getAttribute('data-selected');
+            window.adminLookups.refreshFormLookups(form).then(() => {
+                if (teacherId && teacherSelect) teacherSelect.value = teacherId;
+                if (sectionId && sectionSelect) sectionSelect.value = sectionId;
+            }).catch(console.error);
+        }
+    }
+}
+document.addEventListener('DOMContentLoaded', () => {
+    initAdminTable(document.getElementById('subjectsTable'), {
+        searchInput: document.getElementById('subjectSearchInput'),
+        pageSizeSelect: document.getElementById('subjectPageSize'),
+        paginationEl: document.getElementById('subjectPagination'),
+        countEl: document.getElementById('subjectCountLabel'),
+    });
+});
 function closeAllProfileMenus() {
     document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));
 }

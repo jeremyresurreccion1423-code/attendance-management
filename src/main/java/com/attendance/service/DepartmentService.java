@@ -47,6 +47,9 @@ public class DepartmentService {
             throw new BusinessException("Department name is required.");
         }
         String name = department.getName().trim();
+        if (name.length() > 100) {
+            throw new BusinessException("Department name must be at most 100 characters.");
+        }
         if (departmentRepository.existsByNameIgnoreCase(name)) {
             throw new BusinessException("Department already exists.");
         }
@@ -65,6 +68,9 @@ public class DepartmentService {
             throw new BusinessException("Department name is required.");
         }
         String name = updated.getName().trim();
+        if (name.length() > 100) {
+            throw new BusinessException("Department name must be at most 100 characters.");
+        }
         departmentRepository.findByNameIgnoreCase(name).ifPresent(existing -> {
             if (!existing.getId().equals(id)) {
                 throw new BusinessException("Department name already exists.");

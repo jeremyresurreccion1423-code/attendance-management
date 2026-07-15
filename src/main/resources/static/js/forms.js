@@ -192,6 +192,41 @@
         if (hint) hint.remove();
     }
 
+    function validateAdminPassword(form) {
+        const passwordInput = form.querySelector('input[name="password"]');
+        if (!passwordInput || !passwordInput.value) return true;
+        clearFieldError(passwordInput);
+        const value = passwordInput.value;
+        if (value.length < 8 || !/[a-z]/.test(value) || !/[A-Z]/.test(value) || !/\d/.test(value)) {
+            showFieldError(passwordInput, "Password must be 8+ chars with uppercase, lowercase, and a number.");
+            return false;
+        }
+        return true;
+    }
+
+    function validateContactInputs(form) {
+        let valid = true;
+        form.querySelectorAll('input[name="contactNumber"]').forEach((input) => {
+            clearFieldError(input);
+            if (input.value && !/^[0-9]+$/.test(input.value.trim())) {
+                showFieldError(input, "Contact must contain numbers only.");
+                valid = false;
+            }
+        });
+        return valid;
+    }
+
+    function validateDepartmentInputs(form) {
+        let valid = true;
+        form.querySelectorAll('input[name="name"]').forEach((input) => {
+            clearFieldError(input);
+            if (input.value && input.value.trim().length > 100) {
+                showFieldError(input, "Department name must be at most 100 characters.");
+                valid = false;
+            }
+        });
+        return valid;
+    }
     function validatePasswordForm(form) {
         const newPass = form.querySelector('input[name="newPassword"]');
         const confirm = form.querySelector('input[name="confirmPassword"]');
@@ -203,9 +238,8 @@
         if (newPass.value.length < 8
             || !/[a-z]/.test(newPass.value)
             || !/[A-Z]/.test(newPass.value)
-            || !/\d/.test(newPass.value)
-            || !/[^A-Za-z0-9]/.test(newPass.value)) {
-            showFieldError(newPass, "Password must be 8+ chars with upper, lower, number, and special character.");
+            || !/\d/.test(newPass.value)) {
+            showFieldError(newPass, "Password must be 8+ chars with uppercase, lowercase, and a number.");
             return false;
         }
         if (newPass.value !== confirm.value) {
@@ -331,6 +365,18 @@
                 event.preventDefault();
                 return;
             }
+            if (!validateContactInputs(form)) {
+                event.preventDefault();
+                return;
+            }
+            if (!validateDepartmentInputs(form)) {
+                event.preventDefault();
+                return;
+            }
+            if (!validateAdminPassword(form)) {
+                event.preventDefault();
+                return;
+            }
             if (form.querySelector('input[name="newPassword"]') && !validatePasswordForm(form)) {
                 event.preventDefault();
                 return;
@@ -340,12 +386,6 @@
                 return;
             }
             if (form.querySelector('input[type="file"][name="photo"]') && !validatePhotoForm(form)) {
-                event.preventDefault();
-                return;
-            }
-            const loginPassword = form.querySelector('input[name="password"]');
-            if (loginPassword && loginPassword.value && loginPassword.value.length < 6) {
-                showFieldError(loginPassword, "Password must be at least 6 characters.");
                 event.preventDefault();
                 return;
             }

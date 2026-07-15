@@ -47,20 +47,25 @@ public class StudentService {
     public Student save(Student student, String username, String password) {
         validateStudent(student, null);
 
-        if (studentRepository.existsByStudentNumber(student.getStudentNumber())) {
+        if (studentRepository.existsByStudentNumber(student.getStudentNumber().trim())) {
             throw new BusinessException("Student number already exists.");
         }
-        if (student.getEmail() != null && !student.getEmail().isBlank()
-                && studentRepository.existsByEmailIgnoreCase(student.getEmail().trim())) {
+        if (student.getEmail() == null || student.getEmail().isBlank()) {
+            throw new BusinessException("Email is required.");
+        }
+        if (studentRepository.existsByEmailIgnoreCase(student.getEmail().trim())) {
             throw new BusinessException("Email already exists.");
         }
 
         resolveRelations(student);
 
         String loginUsername = (username == null || username.isBlank())
-                ? student.getStudentNumber()
+                ? student.getStudentNumber().trim()
                 : username.trim();
         if (password != null && !password.isBlank()) {
+            if (authService.findByUsername(loginUsername).isPresent()) {
+                throw new BusinessException("Username already exists.");
+            }
             User user = authService.createUser(
                     loginUsername, password, Role.STUDENT, student.getEmail(), student.getFullName());
             student.setUser(user);
@@ -90,24 +95,25 @@ public class StudentService {
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("Student not found."));
         validateStudent(updated, id);
-        student.setFullName(updated.getFullName());
+        student.setFullName(updated.getFullName().trim());
         student.setYearLevel(updated.getYearLevel());
         student.setContactNumber(updated.getContactNumber());
-        student.setEmail(updated.getEmail());
+        student.setEmail(updated.getEmail().trim());
         student.setStatus(updated.getStatus());
         student.setDepartment(domainValidationService.requireDepartment(updated.getDepartment().getId()));
-        if (updated.getSection() != null && updated.getSection().getId() != null) {
-            Section section = sectionRepository.findById(updated.getSection().getId())
-                    .orElseThrow(() -> new BusinessException("Section not found."));
-            if (section.getDepartment() == null
-                    || !section.getDepartment().getId().equals(student.getDepartment().getId())) {
-                throw new BusinessException("Section must belong to the student's department.");
-            }
-            if (updated.getYearLevel() != null && !updated.getYearLevel().equals(section.getYearLevel())) {
-                throw new BusinessException("Section must match the selected year level.");
-            }
-            student.setSection(section);
+        if (updated.getSection() == null || updated.getSection().getId() == null) {
+            throw new BusinessException("Section is required.");
         }
+        Section section = sectionRepository.findById(updated.getSection().getId())
+                .orElseThrow(() -> new BusinessException("Section not found."));
+        if (section.getDepartment() == null
+                || !section.getDepartment().getId().equals(student.getDepartment().getId())) {
+            throw new BusinessException("Section must belong to the student's department.");
+        }
+        if (updated.getYearLevel() == null || !updated.getYearLevel().equals(section.getYearLevel())) {
+            throw new BusinessException("Section must match the selected year level.");
+        }
+        student.setSection(section);
         Student saved = studentRepository.save(student);
         syncLoginAccessWithStatus(saved);
         return saved;
@@ -170,18 +176,39 @@ public class StudentService {
                 .toList();
     }
 
+    public List<Student> filterByStatus(List<Student> students, StudentStatus status) {
+        if (status == null) {
+            return students;
+        }
+        return students.stream()
+                .filter(s -> s.getStatus() == status)
+                .toList();
+    }
+
     private void validateStudent(Student student, Long currentId) {
+        if (student.getFullName() == null || student.getFullName().isBlank()) {
+            throw new BusinessException("Full name is required.");
+        }
+        if (currentId == null && (student.getStudentNumber() == null || student.getStudentNumber().isBlank())) {
+            throw new BusinessException("Student number is required.");
+        }
         if (student.getDepartment() == null || student.getDepartment().getId() == null) {
-            throw new BusinessException("Student must belong to a department.");
+            throw new BusinessException("Department is required.");
         }
         if (student.getSection() == null || student.getSection().getId() == null) {
-            throw new BusinessException("Student must belong to a section.");
+            throw new BusinessException("Section is required.");
         }
         if (student.getYearLevel() == null || student.getYearLevel().isBlank()) {
             throw new BusinessException("Year level is required.");
         }
-        if (student.getEmail() != null && !student.getEmail().isBlank() && currentId != null
-                && studentRepository.existsByEmailIgnoreCaseAndIdNot(student.getEmail().trim(), currentId)) {
+        if (student.getEmail() == null || student.getEmail().isBlank()) {
+            throw new BusinessException("Email is required.");
+        }
+        if (student.getContactNumber() != null && !student.getContactNumber().isBlank()
+                && !student.getContactNumber().trim().matches("^[0-9]+$")) {
+            throw new BusinessException("Contact number must contain digits only.");
+        }
+        if (currentId != null && studentRepository.existsByEmailIgnoreCaseAndIdNot(student.getEmail().trim(), currentId)) {
             throw new BusinessException("Email already exists.");
         }
     }
