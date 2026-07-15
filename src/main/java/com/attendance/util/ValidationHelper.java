@@ -87,15 +87,21 @@ public final class ValidationHelper {
         if (file.getSize() > MAX_PHOTO_BYTES) {
             throw new IllegalArgumentException("Profile image must be 5MB or smaller.");
         }
-        String contentType = file.getContentType();
-        if (contentType == null || !ALLOWED_PHOTO_TYPES.contains(contentType.toLowerCase(Locale.ROOT))) {
-            throw new IllegalArgumentException("Profile image must be JPG, PNG, or WEBP only.");
-        }
         String name = file.getOriginalFilename() == null ? "" : file.getOriginalFilename().toLowerCase(Locale.ROOT);
         int dot = name.lastIndexOf('.');
         String ext = dot >= 0 ? name.substring(dot) : "";
         if (!ALLOWED_PHOTO_EXT.contains(ext)) {
-            throw new IllegalArgumentException("Profile image extension must be .jpg, .jpeg, .png, or .webp.");
+            throw new IllegalArgumentException("Profile image must be JPG, PNG, or WEBP only.");
+        }
+        String contentType = file.getContentType();
+        if (contentType != null && !contentType.isBlank()) {
+            String normalized = contentType.toLowerCase(Locale.ROOT);
+            // Some browsers send octet-stream; allow when extension is already validated.
+            if (!ALLOWED_PHOTO_TYPES.contains(normalized)
+                    && !"application/octet-stream".equals(normalized)
+                    && !"binary/octet-stream".equals(normalized)) {
+                throw new IllegalArgumentException("Profile image must be JPG, PNG, or WEBP only.");
+            }
         }
         if (name.endsWith(".exe") || name.endsWith(".php") || name.endsWith(".jsp") || name.endsWith(".bat")
                 || name.endsWith(".sh") || name.endsWith(".js")) {

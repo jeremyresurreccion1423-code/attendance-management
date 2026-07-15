@@ -100,9 +100,10 @@
                     <div class="form-row">
                         <div>
                             <h4 style="margin-bottom:0.55rem; color:#0f172a;">Upload Photo</h4>
-                            <form action="/profile/photo" method="post" enctype="multipart/form-data">
+                            <form th:action="@{/profile/photo}" method="post" enctype="multipart/form-data" class="ams-validate">
                                 <div class="form-group">
-                                    <input type="file" name="photo" class="form-control" accept="image/*" required>
+                                    <input type="file" name="photo" class="form-control" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" required>
+                                    <small style="color:#64748b;">JPG, PNG, or WEBP — max 5MB</small>
                                 </div>
                                 <button type="submit" class="btn btn-primary">Upload</button>
                             </form>

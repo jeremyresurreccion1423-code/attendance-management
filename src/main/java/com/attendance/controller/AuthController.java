@@ -5,6 +5,7 @@ import com.attendance.repository.StudentRepository;
 import com.attendance.repository.TeacherRepository;
 import com.attendance.service.AttendanceMailService;
 import com.attendance.service.AuthService;
+import com.attendance.service.ProfilePhotoService;
 import com.attendance.service.SharedAttendanceStudentProfileBridgeService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +30,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 import com.attendance.util.ValidationHelper;
 
@@ -48,6 +45,7 @@ public class AuthController {
     private final TeacherRepository teacherRepository;
     private final SharedAttendanceStudentProfileBridgeService sharedAttendanceStudentProfileBridgeService;
     private final AttendanceMailService attendanceMailService;
+    private final ProfilePhotoService profilePhotoService;
 
     private final Map<String, OtpEntry> forgotPasswordOtpStore = new ConcurrentHashMap<>();
 
@@ -369,7 +367,7 @@ public class AuthController {
                               Authentication auth,
                               RedirectAttributes redirect,
                               HttpServletRequest request) {
-        if (file.isEmpty()) {
+        if (file == null || file.isEmpty()) {
             redirect.addFlashAttribute("error", "Please choose a profile image.");
             return redirectToReferrerOrDashboard(request);
         }
@@ -378,17 +376,17 @@ public class AuthController {
             ValidationHelper.validateProfilePhoto(file);
             User user = authService.findByUsername(auth.getName())
                     .orElseThrow(() -> new IllegalStateException("User not found: " + auth.getName()));
-            String safeName = user.getUsername().replaceAll("[^a-zA-Z0-9._-]", "_");
-            String extension = getExtension(file.getOriginalFilename());
-            Path uploadDir = Paths.get("uploads");
-            Files.createDirectories(uploadDir);
-            Path target = uploadDir.resolve(safeName + extension);
-            Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+            profilePhotoService.saveProfilePhoto(user.getUsername(), file);
             redirect.addFlashAttribute("message", "Profile photo updated successfully.");
         } catch (IOException e) {
-            redirect.addFlashAttribute("error", "Unable to upload profile photo.");
+            log.error("Unable to upload profile photo for {}: {}", auth.getName(), e.getMessage(), e);
+            redirect.addFlashAttribute("error",
+                    "Unable to upload profile photo. Please try again with a JPG or PNG under 5MB.");
         } catch (IllegalArgumentException ex) {
             redirect.addFlashAttribute("error", ex.getMessage());
+        } catch (Exception ex) {
+            log.error("Unexpected profile photo upload failure for {}: {}", auth.getName(), ex.getMessage(), ex);
+            redirect.addFlashAttribute("error", "Unable to upload profile photo.");
         }
         return redirectToReferrerOrDashboard(request);
     }
@@ -399,13 +397,6 @@ public class AuthController {
             return "redirect:" + referer;
         }
         return "redirect:/dashboard";
-    }
-
-    private String getExtension(String fileName) {
-        if (fileName == null || !fileName.contains(".")) {
-            return ".png";
-        }
-        return fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
     }
 
     private static String rootMessage(Throwable ex) {

@@ -8,9 +8,12 @@ RUN mvn -B -DskipTests package \
 
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-RUN addgroup -S app && adduser -S app -G app
+RUN addgroup -S app && adduser -S app -G app \
+    && mkdir -p /app/uploads \
+    && chown -R app:app /app
 USER app
-COPY --from=build /app/app.jar /app/app.jar
+COPY --chown=app:app --from=build /app/app.jar /app/app.jar
 ENV JAVA_OPTS=""
+ENV UPLOAD_DIR=/app/uploads
 EXPOSE 8080
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
