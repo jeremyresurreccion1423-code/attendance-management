@@ -1317,22 +1317,29 @@ tr:hover { background:#f8fafc; }
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 2.5rem;
+    padding: 2.75rem 2.5rem;
 }
 .auth-brand-blob { position: absolute; border-radius: 50%; pointer-events: none; }
 .auth-brand-blob-1 {
     width: 400px; height: 400px;
     background: rgba(255, 255, 255, 0.5);
     top: 50%; left: 50%;
-    transform: translate(-50%, -60%);
+    transform: translate(-50%, -50%);
 }
 .auth-brand-blob-2 {
-    width: 540px; height: 440px;
-    left: -170px; bottom: -210px;
-    background: linear-gradient(135deg, #0d7438, #084d25);
+    width: 480px; height: 380px;
+    left: -150px; bottom: -240px;
+    background: linear-gradient(135deg, rgba(13, 116, 56, 0.92), rgba(8, 77, 37, 0.95));
     border-radius: 45% 55% 60% 40% / 50% 45% 55% 50%;
+    opacity: 0.95;
 }
-.auth-brand-content { position: relative; z-index: 2; }
+.auth-brand-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 .auth-brand-logo-ring img {
     width: 320px; max-width: 82%; height: auto; display: block;
     filter: drop-shadow(0 12px 26px rgba(13, 116, 56, 0.18));
@@ -1398,7 +1405,7 @@ tr:hover { background:#f8fafc; }
     align-items: center;
     justify-content: center;
     gap: 8px;
-    margin-top: 14px;
+    margin-top: 1.35rem;
     padding: 12px 16px;
     border-radius: 10px;
     background: var(--primary-lighter);
@@ -1417,9 +1424,9 @@ tr:hover { background:#f8fafc; }
 }
 @media (max-width: 860px) {
     .auth-card { grid-template-columns: 1fr; min-height: 0; }
-    .auth-brand { min-height: 260px; padding: 2rem; }
+    .auth-brand { min-height: 220px; padding: 2rem; }
     .auth-brand-points { position: static; margin-top: 1.4rem; align-self: flex-start; }
-    .auth-brand-blob-2 { left: -120px; bottom: -260px; }
+    .auth-brand-blob-2 { left: -120px; bottom: -280px; opacity: 0.85; }
     .auth-form { padding: 2rem 1.5rem; }
 }
 
