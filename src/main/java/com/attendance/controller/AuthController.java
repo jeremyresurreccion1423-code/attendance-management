@@ -140,11 +140,10 @@ public class AuthController {
         }
 
         // Step 1: send OTP
-        return requestPasswordResetOtp(identifier, currentPassword, authentication, redirect);
+        return requestPasswordResetOtp(identifier, authentication, redirect);
     }
 
     private String requestPasswordResetOtp(String identifier,
-                                           String currentPassword,
                                            Authentication authentication,
                                            RedirectAttributes redirect) {
         if (identifier == null || identifier.isBlank()) {
@@ -167,19 +166,6 @@ public class AuthController {
         if (isLoggedIn(authentication) && !authentication.getName().equalsIgnoreCase(user.getUsername())) {
             redirect.addFlashAttribute("error", "You can only reset the password for your own account.");
             return "redirect:/forgot-password";
-        }
-
-        if (isLoggedIn(authentication)) {
-            if (currentPassword == null || currentPassword.isBlank()) {
-                redirect.addFlashAttribute("error", "Current password is required.");
-                redirect.addFlashAttribute("emailOrUsername", user.getUsername());
-                return "redirect:/forgot-password";
-            }
-            if (!authService.verifyPassword(user, currentPassword)) {
-                redirect.addFlashAttribute("error", "Current password is incorrect.");
-                redirect.addFlashAttribute("emailOrUsername", user.getUsername());
-                return "redirect:/forgot-password";
-            }
         }
 
         String recipientEmail = resolveEmailForUser(user);
