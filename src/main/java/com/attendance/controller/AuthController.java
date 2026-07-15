@@ -123,6 +123,7 @@ public class AuthController {
     @PostMapping({"/forgot-password", "/forgot-password/request-otp"})
     public String forgotPasswordSubmit(@RequestParam(required = false) String emailOrUsername,
                                        @RequestParam(required = false) String username,
+                                       @RequestParam(required = false) String currentPassword,
                                        @RequestParam(required = false) String otp,
                                        @RequestParam(required = false) String newPassword,
                                        @RequestParam(required = false) String confirmPassword,
@@ -135,14 +136,15 @@ public class AuthController {
 
         // Step 2: verify OTP and reset password
         if (otp != null && !otp.isBlank()) {
-            return resetPasswordWithOtp(identifier, otp, newPassword, confirmPassword, authentication, redirect);
+            return resetPasswordWithOtp(identifier, currentPassword, otp, newPassword, confirmPassword, authentication, redirect);
         }
 
         // Step 1: send OTP
-        return requestPasswordResetOtp(identifier, authentication, redirect);
+        return requestPasswordResetOtp(identifier, currentPassword, authentication, redirect);
     }
 
     private String requestPasswordResetOtp(String identifier,
+                                           String currentPassword,
                                            Authentication authentication,
                                            RedirectAttributes redirect) {
         if (identifier == null || identifier.isBlank()) {
@@ -165,6 +167,19 @@ public class AuthController {
         if (isLoggedIn(authentication) && !authentication.getName().equalsIgnoreCase(user.getUsername())) {
             redirect.addFlashAttribute("error", "You can only reset the password for your own account.");
             return "redirect:/forgot-password";
+        }
+
+        if (isLoggedIn(authentication)) {
+            if (currentPassword == null || currentPassword.isBlank()) {
+                redirect.addFlashAttribute("error", "Current password is required.");
+                redirect.addFlashAttribute("emailOrUsername", user.getUsername());
+                return "redirect:/forgot-password";
+            }
+            if (!authService.verifyPassword(user, currentPassword)) {
+                redirect.addFlashAttribute("error", "Current password is incorrect.");
+                redirect.addFlashAttribute("emailOrUsername", user.getUsername());
+                return "redirect:/forgot-password";
+            }
         }
 
         String recipientEmail = resolveEmailForUser(user);
@@ -208,6 +223,7 @@ public class AuthController {
     }
 
     private String resetPasswordWithOtp(String identifier,
+                                        String currentPassword,
                                         String otp,
                                         String newPassword,
                                         String confirmPassword,
@@ -228,6 +244,18 @@ public class AuthController {
             redirect.addFlashAttribute("emailOrUsername", storeKey);
             return "redirect:/forgot-password";
         }
+
+        if (isLoggedIn(authentication)) {
+            User user = userOpt.orElse(null);
+            if (user == null || currentPassword == null || currentPassword.isBlank()
+                    || !authService.verifyPassword(user, currentPassword)) {
+                redirect.addFlashAttribute("error", "Current password is incorrect.");
+                redirect.addFlashAttribute("otpRequired", true);
+                redirect.addFlashAttribute("emailOrUsername", storeKey);
+                return "redirect:/forgot-password";
+            }
+        }
+
         if (newPassword == null || confirmPassword == null || !newPassword.equals(confirmPassword)) {
             redirect.addFlashAttribute("error", "New password and confirmation do not match.");
             redirect.addFlashAttribute("otpRequired", true);
