@@ -4,9 +4,17 @@
     const red = "#dc2626";
     const amber = "#d97706";
 
+    function ensureChartJs() {
+        if (typeof Chart === "undefined") {
+            console.error("Chart.js is not loaded. Charts cannot render.");
+            return false;
+        }
+        return true;
+    }
+
     function renderLineChart(canvasId, labels, datasets) {
         const canvas = document.getElementById(canvasId);
-        if (!canvas || typeof Chart === "undefined") return;
+        if (!canvas || !ensureChartJs()) return;
         const existing = Chart.getChart(canvas);
         if (existing) existing.destroy();
         new Chart(canvas, {
@@ -23,7 +31,7 @@
 
     function renderBarChart(canvasId, labels, datasets) {
         const canvas = document.getElementById(canvasId);
-        if (!canvas || typeof Chart === "undefined") return;
+        if (!canvas || !ensureChartJs()) return;
         const existing = Chart.getChart(canvas);
         if (existing) existing.destroy();
         new Chart(canvas, {
@@ -38,32 +46,52 @@
         });
     }
 
+    function normalizeTrend(trend) {
+        if (!trend || typeof trend !== "object") {
+            return { labels: [], present: [], absent: [], late: [], totals: [] };
+        }
+        return {
+            labels: Array.isArray(trend.labels) ? trend.labels : [],
+            present: Array.isArray(trend.present) ? trend.present : [],
+            absent: Array.isArray(trend.absent) ? trend.absent : [],
+            late: Array.isArray(trend.late) ? trend.late : [],
+            totals: Array.isArray(trend.totals) ? trend.totals : []
+        };
+    }
+
     window.DashboardCharts = {
         renderAttendanceTrend: function (canvasId, trend) {
-            if (!trend || !trend.labels) return;
+            const data = normalizeTrend(trend);
+            if (data.labels.length === 0) return;
+
             const datasets = [];
-            if (trend.present) {
-                datasets.push({ label: "Present", data: trend.present, borderColor: green, backgroundColor: greenLight, tension: 0.3, fill: false });
+            if (data.present.length) {
+                datasets.push({ label: "Present", data: data.present, borderColor: green, backgroundColor: greenLight, tension: 0.3, fill: false });
             }
-            if (trend.late) {
-                datasets.push({ label: "Late", data: trend.late, borderColor: amber, backgroundColor: "#fde68a", tension: 0.3, fill: false });
+            if (data.late.length) {
+                datasets.push({ label: "Late", data: data.late, borderColor: amber, backgroundColor: "#fde68a", tension: 0.3, fill: false });
             }
-            if (trend.absent) {
-                datasets.push({ label: "Absent", data: trend.absent, borderColor: red, backgroundColor: "#fecaca", tension: 0.3, fill: false });
+            if (data.absent.length) {
+                datasets.push({ label: "Absent", data: data.absent, borderColor: red, backgroundColor: "#fecaca", tension: 0.3, fill: false });
             }
-            if (trend.totals) {
-                datasets.push({ label: "Total Records", data: trend.totals, borderColor: green, backgroundColor: greenLight, tension: 0.3, fill: true });
+            if (data.totals.length) {
+                datasets.push({ label: "Total Records", data: data.totals, borderColor: green, backgroundColor: greenLight, tension: 0.3, fill: true });
             }
-            renderLineChart(canvasId, trend.labels, datasets);
+            if (datasets.length === 0) {
+                datasets.push({ label: "Records", data: data.labels.map(function () { return 0; }), borderColor: green, backgroundColor: greenLight, tension: 0.3, fill: false });
+            }
+            renderLineChart(canvasId, data.labels, datasets);
         },
 
         renderPerformanceBar: function (canvasId, chart) {
-            if (!chart || !chart.labels || chart.labels.length === 0) return;
+            if (!chart || typeof chart !== "object") return;
+            const labels = Array.isArray(chart.labels) ? chart.labels : [];
             const data = chart.grades || chart.rates || [];
+            if (labels.length === 0) return;
             const label = chart.grades ? "Final Grade" : "Attendance Rate %";
-            renderBarChart(canvasId, chart.labels, [{
-                label,
-                data,
+            renderBarChart(canvasId, labels, [{
+                label: label,
+                data: data,
                 backgroundColor: greenLight,
                 borderColor: green,
                 borderWidth: 1

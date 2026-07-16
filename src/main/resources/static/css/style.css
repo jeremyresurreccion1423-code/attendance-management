@@ -331,6 +331,12 @@ body.sidebar-collapsed .trends-drawer {
     height: 300px;
     padding: 0.5rem 0;
 }
+.chart-empty-note {
+    margin: 0.5rem 0 0;
+    text-align: center;
+    color: #64748b;
+    font-size: 0.9rem;
+}
 .student-search-bar {
     display: flex;
     gap: 0.65rem;

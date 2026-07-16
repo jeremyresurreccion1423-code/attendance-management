@@ -95,9 +95,10 @@
             <div class="trends-page-chart"><canvas id="monthlyTrendChart"></canvas></div>
         </div>
 
-        <div class="card" th:if="${!#lists.isEmpty(data.subjectPerformance)}">
+        <div class="card">
             <h3>Class Performance Chart</h3>
             <div class="trends-page-chart"><canvas id="performanceChart"></canvas></div>
+            <p th:if="${#lists.isEmpty(data.subjectPerformance)}" class="chart-empty-note">No class data yet. Assign subjects to this teacher to see performance.</p>
         </div>
 
         <div class="card" th:if="${!#lists.isEmpty(data.lowAttendanceAlerts)}">
@@ -115,8 +116,8 @@
         </div>
     </main>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script th:src="@{/js/dashboard-charts.js}"></script>
+<script th:src="@{/js/vendor/chart.umd.min.js}"></script>
+<script th:src="@{/js/dashboard-charts.js(v=2)}"></script>
 <script th:src="@{/js/profile-menu.js}"></script>
 <script th:src="@{/js/forms.js}"></script>
 <script th:src="@{/js/layout.js}"></script>
