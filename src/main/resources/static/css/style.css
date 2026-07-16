@@ -2088,23 +2088,59 @@ body.teacher-theme .page-header {
 body.teacher-theme .page-header h1 { color: #1F2937; }
 body.teacher-theme .page-header span { color: #6B7280; }
 body.teacher-theme .page-header-profile-widget .profile-trigger {
-    background: #FFFFFF;
-    color: #1F2937;
-    border-color: #E5E7EB;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+    color: #1E3A8A;
+    border: 1.5px solid #93C5FD;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.14);
 }
 body.teacher-theme .page-header-profile-widget .profile-trigger:hover {
-    background: #EFF6FF;
-    border-color: #60A5FA;
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.14);
+    background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+    border-color: #3B82F6;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22);
 }
 body.teacher-theme .page-header-profile-widget .profile-avatar {
-    background: #DBEAFE;
-    color: #1E3A8A;
-    border: 1px solid #60A5FA;
+    background: linear-gradient(135deg, #2563EB, #3B82F6);
+    color: #FFFFFF;
+    border: 1px solid #1D4ED8;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28);
 }
-body.teacher-theme .page-header-profile-widget .profile-meta strong { color: #1F2937; }
-body.teacher-theme .page-header-profile-widget .profile-meta small { color: #6B7280; }
+body.teacher-theme .page-header-profile-widget .profile-meta strong {
+    color: #1E3A8A;
+}
+body.teacher-theme .page-header-profile-widget .profile-meta small {
+    color: #3B82F6;
+}
+body.teacher-theme .page-header-profile-widget .profile-caret {
+    color: #2563EB;
+}
+body.teacher-theme .page-header-profile-widget .profile-menu {
+    border: 1px solid #BFDBFE;
+    box-shadow: 0 16px 36px rgba(37, 99, 235, 0.16);
+}
+body.teacher-theme .page-header-profile-widget .profile-menu a,
+body.teacher-theme .page-header-profile-widget .profile-menu button {
+    color: #1F2937;
+}
+body.teacher-theme .page-header-profile-widget .profile-menu a:hover,
+body.teacher-theme .page-header-profile-widget .profile-menu button:hover {
+    background: #EFF6FF;
+    color: #1D4ED8;
+}
+body.teacher-theme .page-header-profile-widget .profile-menu a:first-child,
+body.teacher-theme .page-header-profile-widget .profile-menu button:first-child,
+body.teacher-theme .page-header-profile-widget .profile-menu a + a,
+body.teacher-theme .page-header-profile-widget .profile-menu button + button,
+body.teacher-theme .page-header-profile-widget .profile-menu a + button,
+body.teacher-theme .page-header-profile-widget .profile-menu button + a {
+    border-top-color: #DBEAFE;
+}
+body.teacher-theme .page-header-profile-widget .profile-menu-action.profile-logout {
+    color: #DC2626;
+}
+body.teacher-theme .page-header-profile-widget .profile-menu-action.profile-logout:hover {
+    background: #FEF2F2;
+    color: #B91C1C;
+}
 body.teacher-theme .stat-card {
     background: #FFFFFF;
     border-color: #E5E7EB;
