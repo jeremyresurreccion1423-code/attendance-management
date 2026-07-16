@@ -1,5 +1,6 @@
 package com.attendance.security;
 
+import com.attendance.config.LibraryAppLinks;
 import com.attendance.model.User;
 import com.attendance.repository.UserRepository;
 import com.attendance.service.AccountLockoutService;
@@ -22,6 +23,7 @@ public class LoginAuthenticationSuccessHandler implements AuthenticationSuccessH
     private final UserRepository userRepository;
     private final AccountLockoutService accountLockoutService;
     private final AuditService auditService;
+    private final LibraryAppLinks libraryAppLinks;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -36,23 +38,13 @@ public class LoginAuthenticationSuccessHandler implements AuthenticationSuccessH
         if (user != null) {
             accountLockoutService.onSuccessfulLogin(user);
             auditService.log(user, "LOGIN", "User", user.getId(),
-                    (isSuperAdminPortal ? "Super Admin portal login" : "User login")
+                    (isSuperAdminPortal ? "Super Admin portal login (redirected)" : "User login")
                             + " from " + AuditService.clientIp(request));
         }
 
-        if (isSuperAdminPortal) {
-            if (!isSuperAdmin) {
-                new SecurityContextLogoutHandler().logout(request, response, authentication);
-                response.sendRedirect("/super-admin/login?error=true");
-                return;
-            }
-            response.sendRedirect("/super-admin");
-            return;
-        }
-
-        if (isSuperAdmin) {
+        if (isSuperAdminPortal || isSuperAdmin) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
-            response.sendRedirect("/login?superAdmin=true");
+            response.sendRedirect(libraryAppLinks.superAdminLogin());
             return;
         }
         response.sendRedirect("/dashboard");

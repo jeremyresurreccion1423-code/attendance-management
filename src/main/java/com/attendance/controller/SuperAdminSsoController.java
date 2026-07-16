@@ -1,5 +1,6 @@
 package com.attendance.controller;
 
+import com.attendance.config.LibraryAppLinks;
 import com.attendance.model.Role;
 import com.attendance.repository.UserRepository;
 import com.attendance.security.SsoTokenService;
@@ -34,6 +35,7 @@ public class SuperAdminSsoController {
     private final SsoTokenService ssoTokenService;
     private final UserRepository userRepository;
     private final UserDetailsService userDetailsService;
+    private final LibraryAppLinks libraryAppLinks;
 
     @Value("${attendance.library-app-url}")
     private String libraryAppUrl;
@@ -46,7 +48,7 @@ public class SuperAdminSsoController {
         String token = ssoTokenService.generateToken(auth.getName());
         String base = com.attendance.service.SuperAdminDashboardService.normalizeBaseUrl(libraryAppUrl);
         if (base == null) {
-            return "redirect:/super-admin?error=library-url";
+            return "redirect:" + libraryAppLinks.superAdminPortal();
         }
         String next = URLEncoder.encode(path, StandardCharsets.UTF_8);
         return "redirect:" + base + "/super-admin/sso?token=" + token + "&next=" + next;
@@ -55,17 +57,17 @@ public class SuperAdminSsoController {
     /** Inbound: consume a handoff token issued by Library and sign the Super Admin into this app. */
     @GetMapping("/super-admin/sso")
     public String receiveSso(@RequestParam String token,
-                             @RequestParam(defaultValue = "/super-admin") String next,
+                             @RequestParam(defaultValue = "/admin/dashboard") String next,
                              HttpServletRequest request,
                              HttpServletResponse response) {
         var usernameOpt = ssoTokenService.validateToken(token);
         if (usernameOpt.isEmpty()) {
-            return "redirect:/super-admin/login?error=true";
+            return "redirect:" + libraryAppLinks.superAdminLoginWithQuery("error=true");
         }
         String username = usernameOpt.get();
         var userOpt = userRepository.findByUsername(username);
         if (userOpt.isEmpty() || userOpt.get().getRole() != Role.SUPER_ADMIN || !Boolean.TRUE.equals(userOpt.get().getEnabled())) {
-            return "redirect:/super-admin/login?error=true";
+            return "redirect:" + libraryAppLinks.superAdminLoginWithQuery("error=true");
         }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -76,7 +78,7 @@ public class SuperAdminSsoController {
         SecurityContextHolder.setContext(context);
         securityContextRepository.saveContext(context, request, response);
 
-        String safeNext = isSafeLocalPath(next) ? next : "/super-admin";
+        String safeNext = isSafeLocalPath(next) ? next : "/admin/dashboard";
         return "redirect:" + safeNext;
     }
 

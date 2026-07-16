@@ -1,5 +1,6 @@
 package com.attendance.controller;
 
+import com.attendance.config.LibraryAppLinks;
 import com.attendance.model.User;
 import com.attendance.repository.StudentRepository;
 import com.attendance.repository.TeacherRepository;
@@ -46,6 +47,7 @@ public class AuthController {
     private final SharedAttendanceStudentProfileBridgeService sharedAttendanceStudentProfileBridgeService;
     private final AttendanceMailService attendanceMailService;
     private final ProfilePhotoService profilePhotoService;
+    private final LibraryAppLinks libraryAppLinks;
 
     private final Map<String, OtpEntry> forgotPasswordOtpStore = new ConcurrentHashMap<>();
 
@@ -74,9 +76,12 @@ public class AuthController {
             model.addAttribute("error", "Invalid username or password.");
         }
         if (superAdmin != null) {
-            model.addAttribute("error", "Super Admin accounts must sign in via the System Control Center.");
+            model.addAttribute("error", "Super Admin accounts must sign in via the Library System Control Center.");
         }
-        if (logout != null) model.addAttribute("message", "You have been logged out successfully.");
+        if (logout != null) {
+            model.addAttribute("message", "You have been logged out successfully.");
+        }
+        model.addAttribute("librarySuperAdminLoginUrl", libraryAppLinks.superAdminLogin());
         return "auth/login";
     }
 
@@ -347,7 +352,7 @@ public class AuthController {
         model.addAttribute("todayDay", today.format(DateTimeFormatter.ofPattern("EEEE")));
         model.addAttribute("profileDetails", profileDetails);
         model.addAttribute("dashboardPath", switch (user.getRole()) {
-            case SUPER_ADMIN -> "/super-admin";
+            case SUPER_ADMIN -> "/admin/dashboard";
             case ADMIN -> "/admin/dashboard";
             case TEACHER -> "/teacher/dashboard";
             case STUDENT -> "/student/dashboard";
@@ -437,7 +442,7 @@ public class AuthController {
         authService.updateLastLogin(auth.getName());
 
         if (user.getRole() == com.attendance.model.Role.SUPER_ADMIN) {
-            return "redirect:/super-admin";
+            return "redirect:/admin/dashboard";
         } else if (user.getRole() == com.attendance.model.Role.ADMIN) {
             return "redirect:/admin/dashboard";
         } else if (user.getRole() == com.attendance.model.Role.TEACHER) {

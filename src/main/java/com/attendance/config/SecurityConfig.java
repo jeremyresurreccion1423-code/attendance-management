@@ -69,26 +69,7 @@ public class SecurityConfig {
             .securityMatcher("/super-admin/**")
             .csrf(csrf -> csrf.disable())
             .headers(this::applySecurityHeaders)
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/super-admin/login", "/super-admin/sso", "/css/**", "/js/**", "/images/**").permitAll()
-                .anyRequest().hasRole("SUPER_ADMIN")
-            )
-            .formLogin(form -> form
-                .loginPage("/super-admin/login")
-                .loginProcessingUrl("/super-admin/login")
-                .successHandler(loginSuccessHandler)
-                .failureHandler(loginFailureHandler)
-                .permitAll()
-            )
-            .logout(logout -> logout
-                .logoutUrl("/super-admin/logout")
-                .addLogoutHandler(auditLogoutHandler)
-                .logoutSuccessUrl("/super-admin/login?logout=true")
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
-                .permitAll()
-            )
-            .authenticationProvider(authenticationProvider());
+            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 
         return http.build();
     }
@@ -104,7 +85,6 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/super-admin/dashboard-stats").permitAll()
                 .requestMatchers("/api/v1/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
-                .requestMatchers("/super-admin/security/**").hasRole("SUPER_ADMIN")
                 .requestMatchers("/teacher/**").hasAnyRole("ADMIN", "TEACHER")
                 .requestMatchers("/student/**").hasAnyRole("ADMIN", "STUDENT")
                 .anyRequest().authenticated()
