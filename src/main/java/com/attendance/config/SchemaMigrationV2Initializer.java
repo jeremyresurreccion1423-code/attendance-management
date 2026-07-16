@@ -36,8 +36,29 @@ public class SchemaMigrationV2Initializer {
         addForeignKeysIfMissing();
         normalizeAttendanceMethodConstraint();
         addAttendanceQrTimetableColumn();
+        releaseEmailsOnDeletedLoginAccounts();
 
         log.info("Schema migration v2 completed");
+    }
+
+    /**
+     * Older deletes only renamed the username and left the email on disabled users,
+     * which blocked re-adding students/teachers with the same email.
+     */
+    private void releaseEmailsOnDeletedLoginAccounts() {
+        int updated = jdbcTemplate.update("""
+                UPDATE users
+                SET email = NULL
+                WHERE enabled = FALSE
+                  AND username LIKE '%\\_deleted\\_%' ESCAPE '\\'
+                  AND email IS NOT NULL
+                  AND TRIM(email) <> ''
+                  AND NOT EXISTS (SELECT 1 FROM students s WHERE s.user_id = users.id)
+                  AND NOT EXISTS (SELECT 1 FROM teachers t WHERE t.user_id = users.id)
+                """);
+        if (updated > 0) {
+            log.info("Released email on {} previously deleted login account(s)", updated);
+        }
     }
 
     private void seedDepartmentsFromLegacyData() {

@@ -95,13 +95,56 @@ public class AuthService {
         return userRepository.save(user);
     }
 
+    public Optional<User> findByEmailIgnoreCase(String email) {
+        if (email == null || email.isBlank()) {
+            return Optional.empty();
+        }
+        return userRepository.findByEmailIgnoreCase(email.trim());
+    }
+
+    /**
+     * Reactivate a previously released login account so username/email can be reused
+     * after a student/teacher profile was deleted.
+     */
+    @Transactional
+    public User reactivateReleasedUser(User user, String username, String password, String email, String fullName) {
+        if (user == null || user.getId() == null) {
+            throw new IllegalArgumentException("User not found");
+        }
+        User existing = userRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        String desiredUsername = username.trim();
+        if (!existing.getUsername().equals(desiredUsername) && userRepository.existsByUsername(desiredUsername)) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+        String normalizedEmail = email != null && !email.isBlank() ? email.trim().toLowerCase() : null;
+        if (normalizedEmail != null) {
+            userRepository.findByEmailIgnoreCase(normalizedEmail).ifPresent(other -> {
+                if (!other.getId().equals(existing.getId())) {
+                    throw new IllegalArgumentException("Email already exists");
+                }
+            });
+        }
+        existing.setUsername(desiredUsername);
+        existing.setPassword(passwordEncoder.encode(password));
+        existing.setEmail(normalizedEmail);
+        existing.setFullName(fullName != null && !fullName.isBlank() ? fullName.trim() : null);
+        existing.setEnabled(true);
+        return userRepository.save(existing);
+    }
+
     @Transactional
     public void disableAndReleaseUsername(User user) {
         if (user == null || user.getId() == null) {
             return;
         }
         userRepository.findById(user.getId()).ifPresent(existing -> {
-            existing.setUsername(existing.getUsername() + "_deleted_" + existing.getId());
+            String currentUsername = existing.getUsername() != null ? existing.getUsername() : "user";
+            if (!currentUsername.contains("_deleted_")) {
+                existing.setUsername(currentUsername + "_deleted_" + existing.getId());
+            }
+            // Free email so a new student/teacher can reuse it after delete.
+            existing.setEmail(null);
             existing.setEnabled(false);
             userRepository.save(existing);
         });

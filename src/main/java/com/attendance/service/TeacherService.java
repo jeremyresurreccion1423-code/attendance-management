@@ -103,20 +103,37 @@ public class TeacherService {
         if (existingUser.isPresent()) {
             User orphan = existingUser.get();
             if (orphan.getRole() == Role.TEACHER && teacherRepository.findByUserId(orphan.getId()).isEmpty()) {
-                authService.changePassword(orphan, loginPassword);
-                orphan.setEmail(teacher.getEmail());
-                orphan.setFullName(teacher.getFullName().trim());
-                orphan.setEnabled(true);
-                teacher.setUser(orphan);
+                try {
+                    teacher.setUser(authService.reactivateReleasedUser(
+                            orphan, loginUsername, loginPassword, teacher.getEmail(), teacher.getFullName()));
+                } catch (IllegalArgumentException ex) {
+                    throw new BusinessException(ex.getMessage());
+                }
             } else {
                 throw new BusinessException(
                         "Login username '" + loginUsername + "' already exists. "
                                 + "Choose a different username.");
             }
         } else {
-            User user = authService.createUser(
-                    loginUsername, loginPassword, Role.TEACHER, teacher.getEmail(), teacher.getFullName());
-            teacher.setUser(user);
+            var orphanByEmail = authService.findByEmailIgnoreCase(teacher.getEmail())
+                    .filter(u -> u.getRole() == Role.TEACHER
+                            && teacherRepository.findByUserId(u.getId()).isEmpty());
+            if (orphanByEmail.isPresent()) {
+                try {
+                    teacher.setUser(authService.reactivateReleasedUser(
+                            orphanByEmail.get(), loginUsername, loginPassword, teacher.getEmail(), teacher.getFullName()));
+                } catch (IllegalArgumentException ex) {
+                    throw new BusinessException(ex.getMessage());
+                }
+            } else {
+                try {
+                    User user = authService.createUser(
+                            loginUsername, loginPassword, Role.TEACHER, teacher.getEmail(), teacher.getFullName());
+                    teacher.setUser(user);
+                } catch (IllegalArgumentException ex) {
+                    throw new BusinessException(ex.getMessage());
+                }
+            }
         }
         if (teacher.getStatus() == null) {
             teacher.setStatus(TeacherStatus.ACTIVE);

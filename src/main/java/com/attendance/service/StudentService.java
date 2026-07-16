@@ -116,20 +116,37 @@ public class StudentService {
             if (existingUser.isPresent()) {
                 User orphan = existingUser.get();
                 if (orphan.getRole() == Role.STUDENT && studentRepository.findByUserId(orphan.getId()).isEmpty()) {
-                    authService.changePassword(orphan, password);
-                    orphan.setEmail(student.getEmail());
-                    orphan.setFullName(student.getFullName().trim());
-                    orphan.setEnabled(true);
-                    student.setUser(orphan);
+                    try {
+                        student.setUser(authService.reactivateReleasedUser(
+                                orphan, loginUsername, password, student.getEmail(), student.getFullName()));
+                    } catch (IllegalArgumentException ex) {
+                        throw new BusinessException(ex.getMessage());
+                    }
                 } else {
                     throw new BusinessException(
                             "Login username '" + loginUsername + "' already exists. "
                                     + "Choose a different username, or leave Login Username/Password blank.");
                 }
             } else {
-                User user = authService.createUser(
-                        loginUsername, password, Role.STUDENT, student.getEmail(), student.getFullName());
-                student.setUser(user);
+                var orphanByEmail = authService.findByEmailIgnoreCase(student.getEmail())
+                        .filter(u -> u.getRole() == Role.STUDENT
+                                && studentRepository.findByUserId(u.getId()).isEmpty());
+                if (orphanByEmail.isPresent()) {
+                    try {
+                        student.setUser(authService.reactivateReleasedUser(
+                                orphanByEmail.get(), loginUsername, password, student.getEmail(), student.getFullName()));
+                    } catch (IllegalArgumentException ex) {
+                        throw new BusinessException(ex.getMessage());
+                    }
+                } else {
+                    try {
+                        User user = authService.createUser(
+                                loginUsername, password, Role.STUDENT, student.getEmail(), student.getFullName());
+                        student.setUser(user);
+                    } catch (IllegalArgumentException ex) {
+                        throw new BusinessException(ex.getMessage());
+                    }
+                }
             }
         }
         if (student.getStatus() == null) {
