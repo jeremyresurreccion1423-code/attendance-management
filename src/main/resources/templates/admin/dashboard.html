@@ -66,6 +66,11 @@
             </div>
         </div>
 
+        <div class="card">
+            <h3>Attendance Overview</h3>
+            <div class="trends-page-chart"><canvas id="attendanceOverviewChart"></canvas></div>
+        </div>
+
         <div class="card" th:if="${!#lists.isEmpty(data.lowAttendanceAlerts)}">
             <h3>Low Attendance Alerts (&lt; 75%)</h3>
             <table>
@@ -88,6 +93,8 @@
         </div>
     </main>
 </div>
+<script th:src="@{/js/vendor/chart.umd.min.js}"></script>
+<script th:src="@{/js/dashboard-charts.js(v=5)}"></script>
 <script th:src="@{/js/layout.js}"></script>
 <script>
 function closeAllProfileMenus() {
@@ -106,6 +113,11 @@ document.addEventListener('click', function (event) {
     if (!target.closest('.page-header-profile-widget') && !target.closest('.sidebar-profile-widget')) {
         closeAllProfileMenus();
     }
+});
+</script>
+<script th:inline="javascript">
+document.addEventListener('DOMContentLoaded', function () {
+    DashboardCharts.renderAttendanceTrend('attendanceOverviewChart', /*[[${data.monthlyTrendChart}]]*/ {});
 });
 </script>
 </body>
