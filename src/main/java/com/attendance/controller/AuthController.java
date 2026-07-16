@@ -1,6 +1,5 @@
 package com.attendance.controller;
 
-import com.attendance.config.LibraryAppLinks;
 import com.attendance.model.User;
 import com.attendance.repository.StudentRepository;
 import com.attendance.repository.TeacherRepository;
@@ -47,7 +46,6 @@ public class AuthController {
     private final SharedAttendanceStudentProfileBridgeService sharedAttendanceStudentProfileBridgeService;
     private final AttendanceMailService attendanceMailService;
     private final ProfilePhotoService profilePhotoService;
-    private final LibraryAppLinks libraryAppLinks;
 
     private final Map<String, OtpEntry> forgotPasswordOtpStore = new ConcurrentHashMap<>();
 
@@ -81,7 +79,6 @@ public class AuthController {
         if (logout != null) {
             model.addAttribute("message", "You have been logged out successfully.");
         }
-        model.addAttribute("librarySuperAdminLoginUrl", libraryAppLinks.superAdminLogin());
         return "auth/login";
     }
 
