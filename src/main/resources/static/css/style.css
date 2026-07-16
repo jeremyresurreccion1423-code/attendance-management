@@ -846,14 +846,14 @@ tr:hover { background:#f8fafc; }
 /* QR session display — modern Classroom / Teams style */
 .qr-session-page {
     --qrs-bg: #F8FAFC;
-    --qrs-primary: #800020;
-    --qrs-secondary: #A52A2A;
+    --qrs-primary: #5C0013;
+    --qrs-secondary: #800020;
     --qrs-card: #FFFFFF;
     --qrs-border: #E5E7EB;
     --qrs-text: #1F2937;
     --qrs-muted: #6B7280;
     --qrs-radius: 18px;
-    --qrs-shadow: 0 10px 30px rgba(128, 0, 32, 0.08);
+    --qrs-shadow: 0 10px 30px rgba(42, 0, 8, 0.12);
 }
 body.teacher-theme.qr-session-page,
 body.teacher-theme.qr-session-page .app-layout {
@@ -868,11 +868,11 @@ body.teacher-theme.qr-session-page .app-layout {
     padding-bottom: 2rem;
 }
 .qrs-hero {
-    background: linear-gradient(135deg, #5C0013 0%, #800020 55%, #A52A2A 100%);
+    background: linear-gradient(135deg, #1A0006 0%, #2F000B 45%, #5C0013 100%);
     color: #fff;
     border-radius: 20px;
     padding: 1.5rem 1.75rem;
-    box-shadow: 0 16px 40px rgba(128, 0, 32, 0.28);
+    box-shadow: 0 16px 40px rgba(26, 0, 6, 0.4);
     animation: qrs-fade-up 0.45s ease both;
 }
 .qrs-hero-top {
@@ -982,7 +982,7 @@ body.teacher-theme.qr-session-page .app-layout {
     animation: qrs-fade-up 0.5s ease both;
 }
 .qrs-card:hover {
-    box-shadow: 0 14px 36px rgba(128, 0, 32, 0.12);
+    box-shadow: 0 14px 36px rgba(42, 0, 8, 0.14);
 }
 .qrs-card h2 {
     margin: 0 0 0.35rem;
@@ -1003,9 +1003,9 @@ body.teacher-theme.qr-session-page .app-layout {
     width: fit-content;
     padding: 1rem;
     background: #fff;
-    border: 2px solid #E8B4BC;
+    border: 2px solid #B88A90;
     border-radius: 18px;
-    box-shadow: inset 0 0 0 6px #FDF2F4;
+    box-shadow: inset 0 0 0 6px #F3E4E6;
 }
 .qrs-code-frame img {
     display: block;
@@ -1030,8 +1030,8 @@ body.teacher-theme.qr-session-page .app-layout {
     transition: border-color 0.2s ease, background 0.2s ease;
 }
 .qrs-info-item:hover {
-    border-color: #E8B4BC;
-    background: #FDF2F4;
+    border-color: #B88A90;
+    background: #F3E4E6;
 }
 .qrs-info-icon {
     width: 2.1rem;
@@ -1039,7 +1039,7 @@ body.teacher-theme.qr-session-page .app-layout {
     border-radius: 10px;
     display: grid;
     place-items: center;
-    background: #FCE8EC;
+    background: #E8D0D3;
     flex-shrink: 0;
 }
 .qrs-info-item small {
@@ -1087,17 +1087,17 @@ body.teacher-theme.qr-session-page .app-layout {
 }
 .qrs-btn:active { transform: translateY(0); }
 .qrs-btn-primary {
-    background: linear-gradient(135deg, #800020, #A52A2A);
+    background: linear-gradient(135deg, #2F000B, #5C0013);
     color: #fff;
-    box-shadow: 0 8px 18px rgba(128, 0, 32, 0.25);
+    box-shadow: 0 8px 18px rgba(26, 0, 6, 0.35);
 }
-.qrs-btn-primary:hover { color: #fff; box-shadow: 0 10px 22px rgba(128, 0, 32, 0.35); }
+.qrs-btn-primary:hover { color: #fff; box-shadow: 0 10px 22px rgba(26, 0, 6, 0.45); }
 .qrs-btn-secondary {
     background: #fff;
-    color: #5C0013;
-    border-color: #E8B4BC;
+    color: #1A0006;
+    border-color: #B88A90;
 }
-.qrs-btn-secondary:hover { background: #FDF2F4; }
+.qrs-btn-secondary:hover { background: #F3E4E6; }
 .qrs-btn-secondary.is-success {
     background: #ECFDF5;
     border-color: #A7F3D0;
@@ -1114,7 +1114,7 @@ body.teacher-theme.qr-session-page .app-layout {
     margin-top: 0.95rem;
     font-size: 0.88rem;
     font-weight: 700;
-    color: #800020;
+    color: #5C0013;
 }
 .qrs-section-head p {
     margin: 0.2rem 0 0;
@@ -1164,7 +1164,7 @@ body.teacher-theme.qr-session-page .app-layout {
     color: var(--qrs-text);
     line-height: 1.1;
 }
-.qrs-stat-total { border-color: #E8B4BC; background: #FDF2F4; }
+.qrs-stat-total { border-color: #B88A90; background: #F3E4E6; }
 .qrs-stat-present { border-color: #A7F3D0; background: #ECFDF5; }
 .qrs-stat-late { border-color: #FDE68A; background: #FFFBEB; }
 .qrs-stat-absent { border-color: #FECACA; background: #FEF2F2; }
@@ -2003,17 +2003,17 @@ body.control-center-auth .auth-page .alert-error {
     color: #64748b;
 }
 
-/* Teacher panel — maroon theme
-   Primary #800020 | Secondary #A52A2A | Accent #C0392B
-   Sidebar #5C0013 | Hover #73001A | Active #800020
+/* Teacher panel — dark maroon theme
+   Primary #5C0013 | Secondary #800020 | Accent #8B1A24
+   Sidebar #1A0006 | Hover #2F000B | Active #5C0013
    BG #F8FAFC | Cards #FFFFFF | Borders #E5E7EB | Text #1F2937 */
 body.teacher-theme {
-    --primary: #800020;
-    --primary-dark: #73001A;
-    --primary-light: #FCE8EC;
-    --primary-lighter: #FDF2F4;
-    --secondary: #A52A2A;
-    --accent: #C0392B;
+    --primary: #5C0013;
+    --primary-dark: #2F000B;
+    --primary-light: #E8D0D3;
+    --primary-lighter: #F3E4E6;
+    --secondary: #800020;
+    --accent: #8B1A24;
     --success: #10B981;
     --warning: #F59E0B;
     --danger: #EF4444;
@@ -2022,8 +2022,8 @@ body.teacher-theme {
     --text: #1F2937;
     --text-light: #6B7280;
     --border: #E5E7EB;
-    --sidebar: #5C0013;
-    --sidebar-text: #FCE8EC;
+    --sidebar: #1A0006;
+    --sidebar-text: #E8D0D3;
     --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     background: #F8FAFC;
     color: #1F2937;
@@ -2031,58 +2031,58 @@ body.teacher-theme {
 body.teacher-theme .app-layout {
     background: #F8FAFC;
 }
-body.teacher-theme a { color: #800020; }
+body.teacher-theme a { color: #5C0013; }
 body.teacher-theme .sidebar {
-    background: #5C0013;
-    color: #FCE8EC;
-    border-right: 1px solid #73001A;
+    background: #1A0006;
+    color: #E8D0D3;
+    border-right: 1px solid #2F000B;
 }
 body.teacher-theme .sidebar .brand {
-    border-bottom-color: #73001A;
+    border-bottom-color: #2F000B;
 }
 body.teacher-theme .sidebar .brand h2 { color: #FFFFFF; }
-body.teacher-theme .sidebar .brand small { color: #E8A0A8; }
-body.teacher-theme .sidebar-nav-label { color: #E8A0A8; }
-body.teacher-theme .sidebar-footer { border-top-color: #73001A; }
+body.teacher-theme .sidebar .brand small { color: #B8848C; }
+body.teacher-theme .sidebar-nav-label { color: #B8848C; }
+body.teacher-theme .sidebar-footer { border-top-color: #2F000B; }
 body.teacher-theme .sidebar-group-btn {
-    color: #FCE8EC;
+    color: #E8D0D3;
 }
 body.teacher-theme .sidebar nav a {
-    color: #FCE8EC;
+    color: #E8D0D3;
 }
 body.teacher-theme .sidebar nav a.active,
 body.teacher-theme .sidebar-group.open > .sidebar-group-btn,
 body.teacher-theme .sidebar-trends-btn.open {
-    background: #800020;
+    background: #5C0013;
     color: #FFFFFF;
 }
 body.teacher-theme .sidebar nav a:hover,
 body.teacher-theme .sidebar-group-btn:hover,
 body.teacher-theme .sidebar-trends-btn:hover {
-    background: #73001A;
+    background: #2F000B;
     color: #FFFFFF;
 }
-body.teacher-theme .sidebar-trends-btn { color: #FCE8EC; }
-body.teacher-theme .sidebar-logout-link { color: #FCE8EC; }
+body.teacher-theme .sidebar-trends-btn { color: #E8D0D3; }
+body.teacher-theme .sidebar-logout-link { color: #E8D0D3; }
 body.teacher-theme .sidebar-logout-link:hover {
     background: rgba(239, 68, 68, 0.18);
     color: #FECACA;
 }
 body.teacher-theme .sidebar-profile-widget {
-    border-bottom-color: rgba(232, 160, 168, 0.25);
+    border-bottom-color: rgba(184, 132, 140, 0.25);
 }
 body.teacher-theme .sidebar-profile-widget .profile-trigger {
     color: #FFFFFF;
 }
-body.teacher-theme .sidebar-profile-widget .profile-meta small { color: #E8A0A8; }
+body.teacher-theme .sidebar-profile-widget .profile-meta small { color: #B8848C; }
 body.teacher-theme .sidebar-profile-widget .profile-avatar {
-    background: #800020;
+    background: #5C0013;
     color: #FFFFFF;
 }
 body.teacher-theme .sidebar-toggle-btn {
-    background: #5C0013;
+    background: #1A0006;
     color: #FFFFFF;
-    border-color: #73001A;
+    border-color: #2F000B;
 }
 body.teacher-theme .page-header {
     background: #FFFFFF;
@@ -2090,34 +2090,34 @@ body.teacher-theme .page-header {
 body.teacher-theme .page-header h1 { color: #1F2937; }
 body.teacher-theme .page-header span { color: #6B7280; }
 body.teacher-theme .page-header-profile-widget .profile-trigger {
-    background: linear-gradient(135deg, #FDF2F4 0%, #FCE8EC 100%);
-    color: #5C0013;
-    border: 1.5px solid #E8B4BC;
-    box-shadow: 0 4px 14px rgba(128, 0, 32, 0.14);
+    background: linear-gradient(135deg, #F3E4E6 0%, #E8D0D3 100%);
+    color: #1A0006;
+    border: 1.5px solid #B88A90;
+    box-shadow: 0 4px 14px rgba(26, 0, 6, 0.18);
 }
 body.teacher-theme .page-header-profile-widget .profile-trigger:hover {
-    background: linear-gradient(135deg, #FCE8EC 0%, #F5D0D6 100%);
-    border-color: #A52A2A;
-    box-shadow: 0 8px 20px rgba(128, 0, 32, 0.22);
+    background: linear-gradient(135deg, #E8D0D3 0%, #D4B0B5 100%);
+    border-color: #800020;
+    box-shadow: 0 8px 20px rgba(26, 0, 6, 0.28);
 }
 body.teacher-theme .page-header-profile-widget .profile-avatar {
-    background: linear-gradient(135deg, #800020, #C0392B);
+    background: linear-gradient(135deg, #1A0006, #5C0013);
     color: #FFFFFF;
-    border: 1px solid #73001A;
-    box-shadow: 0 2px 8px rgba(128, 0, 32, 0.28);
+    border: 1px solid #2F000B;
+    box-shadow: 0 2px 8px rgba(26, 0, 6, 0.35);
 }
 body.teacher-theme .page-header-profile-widget .profile-meta strong {
-    color: #5C0013;
+    color: #1A0006;
 }
 body.teacher-theme .page-header-profile-widget .profile-meta small {
-    color: #A52A2A;
-}
-body.teacher-theme .page-header-profile-widget .profile-caret {
     color: #800020;
 }
+body.teacher-theme .page-header-profile-widget .profile-caret {
+    color: #5C0013;
+}
 body.teacher-theme .page-header-profile-widget .profile-menu {
-    border: 1px solid #E8B4BC;
-    box-shadow: 0 16px 36px rgba(128, 0, 32, 0.16);
+    border: 1px solid #B88A90;
+    box-shadow: 0 16px 36px rgba(26, 0, 6, 0.2);
 }
 body.teacher-theme .page-header-profile-widget .profile-menu a,
 body.teacher-theme .page-header-profile-widget .profile-menu button {
@@ -2125,8 +2125,8 @@ body.teacher-theme .page-header-profile-widget .profile-menu button {
 }
 body.teacher-theme .page-header-profile-widget .profile-menu a:hover,
 body.teacher-theme .page-header-profile-widget .profile-menu button:hover {
-    background: #FDF2F4;
-    color: #73001A;
+    background: #F3E4E6;
+    color: #2F000B;
 }
 body.teacher-theme .page-header-profile-widget .profile-menu a:first-child,
 body.teacher-theme .page-header-profile-widget .profile-menu button:first-child,
@@ -2134,7 +2134,7 @@ body.teacher-theme .page-header-profile-widget .profile-menu a + a,
 body.teacher-theme .page-header-profile-widget .profile-menu button + button,
 body.teacher-theme .page-header-profile-widget .profile-menu a + button,
 body.teacher-theme .page-header-profile-widget .profile-menu button + a {
-    border-top-color: #FCE8EC;
+    border-top-color: #E8D0D3;
 }
 body.teacher-theme .page-header-profile-widget .profile-menu-action.profile-logout {
     color: #DC2626;
@@ -2150,8 +2150,8 @@ body.teacher-theme .stat-card {
 }
 body.teacher-theme .stat-card .value {
     background: none;
-    -webkit-text-fill-color: #800020;
-    color: #800020;
+    -webkit-text-fill-color: #5C0013;
+    color: #5C0013;
 }
 body.teacher-theme .stats-grid .stat-card:nth-child(6n+1) .value,
 body.teacher-theme .stats-grid .stat-card:nth-child(6n+2) .value,
@@ -2160,8 +2160,8 @@ body.teacher-theme .stats-grid .stat-card:nth-child(6n+4) .value,
 body.teacher-theme .stats-grid .stat-card:nth-child(6n+5) .value,
 body.teacher-theme .stats-grid .stat-card:nth-child(6n+6) .value {
     background: none;
-    -webkit-text-fill-color: #800020;
-    color: #800020;
+    -webkit-text-fill-color: #5C0013;
+    color: #5C0013;
 }
 body.teacher-theme .stat-card .label {
     color: #6B7280;
@@ -2174,8 +2174,8 @@ body.teacher-theme .card {
 }
 body.teacher-theme .card h3 { color: #1F2937; }
 body.teacher-theme th {
-    background: #FDF2F4;
-    color: #5C0013;
+    background: #F3E4E6;
+    color: #1A0006;
 }
 body.teacher-theme .form-control {
     border-color: #E5E7EB;
@@ -2183,24 +2183,24 @@ body.teacher-theme .form-control {
     background: #FFFFFF;
 }
 body.teacher-theme .form-control:focus {
-    border-color: rgba(128, 0, 32, 0.65);
-    box-shadow: 0 0 0 0.2rem rgba(128, 0, 32, 0.16);
+    border-color: rgba(92, 0, 19, 0.7);
+    box-shadow: 0 0 0 0.2rem rgba(42, 0, 8, 0.18);
 }
 body.teacher-theme .btn-primary {
-    background: #800020;
+    background: #5C0013;
     color: #FFFFFF;
-    box-shadow: 0 4px 12px rgba(128, 0, 32, 0.28);
+    box-shadow: 0 4px 12px rgba(26, 0, 6, 0.35);
 }
 body.teacher-theme .btn-primary:hover {
-    background: #73001A;
-    box-shadow: 0 6px 16px rgba(115, 0, 26, 0.38);
+    background: #2F000B;
+    box-shadow: 0 6px 16px rgba(26, 0, 6, 0.45);
 }
 body.teacher-theme .btn-primary:active {
-    background: #5C0013;
+    background: #1A0006;
 }
 body.teacher-theme .btn-primary:disabled,
 body.teacher-theme .btn-primary.disabled {
-    background: #D6A4AE;
+    background: #A87A82;
     box-shadow: none;
     cursor: not-allowed;
     transform: none;
@@ -2226,22 +2226,22 @@ body.teacher-theme .btn-danger {
     color: #FFFFFF;
 }
 body.teacher-theme .btn-secondary {
-    background: #FDF2F4;
-    color: #5C0013;
-    border: 1px solid #E8B4BC;
+    background: #F3E4E6;
+    color: #1A0006;
+    border: 1px solid #B88A90;
 }
 body.teacher-theme .btn-secondary:hover {
-    background: #FCE8EC;
-    color: #5C0013;
+    background: #E8D0D3;
+    color: #1A0006;
 }
 body.teacher-theme .btn-light {
     background: #FFFFFF;
-    color: #800020;
+    color: #5C0013;
     border: 1px solid #E5E7EB;
 }
 body.teacher-theme .btn-light:hover {
     background: #F8FAFC;
-    color: #73001A;
+    color: #2F000B;
 }
 body.teacher-theme .badge-present {
     background: #D1FAE5;
@@ -2256,8 +2256,8 @@ body.teacher-theme .badge-absent {
     color: #991B1B;
 }
 body.teacher-theme .badge-excused {
-    background: #FCE8EC;
-    color: #5C0013;
+    background: #E8D0D3;
+    color: #1A0006;
 }
 body.teacher-theme .alert-success {
     background: #ECFDF5;
@@ -2270,60 +2270,60 @@ body.teacher-theme .alert-error {
     border: 1px solid #FECACA;
 }
 body.teacher-theme .alert-info {
-    background: #FDF2F4;
-    color: #800020;
-    border: 1px solid #E8B4BC;
+    background: #F3E4E6;
+    color: #5C0013;
+    border: 1px solid #B88A90;
 }
 body.teacher-theme .qr-badge-present {
     background: #D1FAE5;
     color: #065F46;
 }
 
-/* Teacher profile page — maroon match */
+/* Teacher profile page — dark maroon match */
 body.teacher-theme .profile-topbar {
-    background: linear-gradient(135deg, #5C0013 0%, #800020 55%, #A52A2A 100%);
-    box-shadow: 0 10px 24px rgba(128, 0, 32, 0.22);
+    background: linear-gradient(135deg, #1A0006 0%, #2F000B 45%, #5C0013 100%);
+    box-shadow: 0 10px 24px rgba(26, 0, 6, 0.35);
 }
 body.teacher-theme .profile-main-header {
-    background: linear-gradient(135deg, #5C0013 0%, #800020 50%, #A52A2A 100%);
+    background: linear-gradient(135deg, #1A0006 0%, #2F000B 50%, #5C0013 100%);
     color: #FFFFFF;
-    border: 1px solid #73001A;
+    border: 1px solid #2F000B;
 }
 body.teacher-theme .profile-main-header h2 { color: #FFFFFF; }
-body.teacher-theme .profile-main-header small { color: rgba(252, 232, 236, 0.95); }
+body.teacher-theme .profile-main-header small { color: rgba(232, 208, 211, 0.95); }
 body.teacher-theme .profile-hero {
-    background: linear-gradient(180deg, #FCE8EC 0%, #FDF2F4 100%);
-    border: 1px solid #E8B4BC;
+    background: linear-gradient(180deg, #E8D0D3 0%, #F3E4E6 100%);
+    border: 1px solid #B88A90;
 }
 body.teacher-theme .profile-hero-avatar {
-    background: linear-gradient(135deg, #800020, #C0392B);
+    background: linear-gradient(135deg, #1A0006, #5C0013);
     color: #FFFFFF;
-    border: 2px solid #E8B4BC;
-    box-shadow: 0 8px 18px rgba(128, 0, 32, 0.25);
+    border: 2px solid #B88A90;
+    box-shadow: 0 8px 18px rgba(26, 0, 6, 0.35);
 }
-body.teacher-theme .profile-hero h3 { color: #5C0013; }
+body.teacher-theme .profile-hero h3 { color: #1A0006; }
 body.teacher-theme .profile-badge {
-    background: #FDF2F4;
-    color: #73001A;
-    border: 1px solid #E8B4BC;
+    background: #F3E4E6;
+    color: #2F000B;
+    border: 1px solid #B88A90;
 }
 body.teacher-theme .profile-main-column table th {
-    background: #FDF2F4;
-    color: #5C0013;
+    background: #F3E4E6;
+    color: #1A0006;
 }
 body.teacher-theme .profile-main-column .card h3,
 body.teacher-theme .profile-main-column .card h4 {
-    color: #5C0013;
+    color: #1A0006;
 }
 body.teacher-theme .profile-topbar .page-header-profile-widget .profile-trigger {
     background: #FFFFFF;
-    border-color: #E8B4BC;
+    border-color: #B88A90;
 }
 body.teacher-theme .profile-topbar .page-header-profile-widget .profile-meta strong {
-    color: #5C0013;
+    color: #1A0006;
 }
 body.teacher-theme .profile-topbar .page-header-profile-widget .profile-meta small {
-    color: #A52A2A;
+    color: #800020;
 }
 
 /* Admin panel color theme
