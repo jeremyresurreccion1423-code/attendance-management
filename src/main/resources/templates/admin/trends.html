@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Attendance Trends - AMS</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=7)}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=9)}">
 </head>
-<body>
+<body class="admin-theme">
 <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
 <div class="app-layout">
     <div th:replace="~{fragments/admin-sidebar :: sidebar('ams-trends')}"></div>
@@ -78,7 +78,7 @@
     </main>
 </div>
 <script th:src="@{/js/vendor/chart.umd.min.js}"></script>
-<script th:src="@{/js/dashboard-charts.js(v=2)}"></script>
+<script th:src="@{/js/dashboard-charts.js(v=3)}"></script>
 <script th:src="@{/js/profile-menu.js}"></script>
 <script th:src="@{/js/layout.js}"></script>
 <script th:inline="javascript">

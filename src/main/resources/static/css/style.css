@@ -1645,3 +1645,121 @@ body.teacher-theme .qr-badge-present {
     background: linear-gradient(135deg, #dcfce7, #dbeafe);
     color: #6d28d9;
 }
+
+/* Admin panel — dark purple theme (replaces green accents) */
+body.admin-theme {
+    --primary: #7e22ce;
+    --primary-dark: #581c87;
+    --primary-light: #f3e8ff;
+    --primary-lighter: #faf5ff;
+    --success: #6b21a8;
+    --bg: #f5f3ff;
+    --border: #ddd6fe;
+    --shadow: 0 4px 20px rgba(88, 28, 135, 0.1);
+    background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 50%, #ede9fe 100%);
+}
+body.admin-theme .app-layout {
+    background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 50%, #ede9fe 100%);
+}
+body.admin-theme a { color: #581c87; }
+body.admin-theme .sidebar { border-right-color: #ddd6fe; }
+body.admin-theme .sidebar nav a:hover,
+body.admin-theme .sidebar nav a.active,
+body.admin-theme .sidebar-group-btn:hover,
+body.admin-theme .sidebar-group.open > .sidebar-group-btn,
+body.admin-theme .sidebar-trends-btn:hover,
+body.admin-theme .sidebar-trends-btn.open {
+    background: linear-gradient(135deg, #6b21a8 0%, #581c87 55%, #4c1d95 100%);
+    color: #ffffff;
+}
+body.admin-theme .page-header-profile-widget .profile-trigger {
+    border-color: #ddd6fe;
+    box-shadow: 0 4px 14px rgba(88, 28, 135, 0.1);
+}
+body.admin-theme .page-header-profile-widget .profile-trigger:hover {
+    background: #f3e8ff;
+    border-color: #c4b5fd;
+    box-shadow: 0 6px 16px rgba(88, 28, 135, 0.14);
+}
+body.admin-theme .page-header-profile-widget .profile-avatar {
+    background: #f3e8ff;
+    color: #581c87;
+    border: 1px solid #c4b5fd;
+}
+body.admin-theme .sidebar-profile-widget .profile-avatar {
+    background: linear-gradient(135deg, #7e22ce, #581c87);
+}
+body.admin-theme .stat-card {
+    border-color: #ddd6fe;
+}
+body.admin-theme .stat-card .value {
+    color: #581c87;
+}
+body.admin-theme .card {
+    border-color: #ddd6fe;
+    box-shadow: 0 4px 20px rgba(88, 28, 135, 0.08);
+}
+body.admin-theme th {
+    background: #f3e8ff;
+    color: #581c87;
+}
+body.admin-theme .form-control {
+    border-color: #ddd6fe;
+}
+body.admin-theme .form-control:focus {
+    border-color: rgba(126, 34, 206, 0.55);
+    box-shadow: 0 0 0 0.2rem rgba(126, 34, 206, 0.15);
+}
+body.admin-theme .btn-primary {
+    background: linear-gradient(135deg, #7e22ce 0%, #581c87 100%);
+    box-shadow: 0 4px 12px rgba(88, 28, 135, 0.28);
+}
+body.admin-theme .btn-primary:hover {
+    background: linear-gradient(135deg, #6b21a8 0%, #4c1d95 100%);
+    box-shadow: 0 6px 16px rgba(88, 28, 135, 0.38);
+}
+body.admin-theme .btn-success {
+    background: #6b21a8;
+}
+body.admin-theme .btn-success:hover {
+    background: #581c87;
+}
+body.admin-theme .btn-secondary {
+    background: #ede9fe;
+    color: #581c87;
+    border: 1px solid #c4b5fd;
+}
+body.admin-theme .btn-secondary:hover {
+    background: #ddd6fe;
+    color: #4c1d95;
+}
+body.admin-theme .btn-light {
+    color: #581c87;
+}
+body.admin-theme .badge-present {
+    background: #ede9fe;
+    color: #581c87;
+}
+body.admin-theme .alert-success {
+    background: #f5f3ff;
+    color: #581c87;
+    border: 1px solid #c4b5fd;
+}
+body.admin-theme .course-card:hover,
+body.admin-theme .year-card:hover,
+body.admin-theme .section-card:hover,
+body.admin-theme .department-card:hover {
+    box-shadow: 0 18px 40px rgba(88, 28, 135, 0.14);
+    border-color: #7e22ce;
+}
+body.admin-theme .course-card h4,
+body.admin-theme .year-card h4,
+body.admin-theme .section-card h4,
+body.admin-theme .department-card h4 {
+    color: #581c87;
+}
+body.admin-theme .create-stat,
+body.admin-theme .create-card,
+body.admin-theme .create-tabs {
+    border-color: #ddd6fe;
+}

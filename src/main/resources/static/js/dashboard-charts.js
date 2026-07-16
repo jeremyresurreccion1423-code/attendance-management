@@ -4,8 +4,14 @@
     const red = "#dc2626";
     const amber = "#d97706";
     const rainbow = ["#ef4444", "#f59e0b", "#22c55e", "#3b82f6", "#a855f7", "#ec4899"];
+    const purple = "#581c87";
+    const purpleLight = "#c4b5fd";
+    const purpleShades = ["#4c1d95", "#581c87", "#6b21a8", "#7e22ce", "#9333ea", "#a855f7"];
     const isTeacherTheme = function () {
         return document.body && document.body.classList.contains("teacher-theme");
+    };
+    const isAdminTheme = function () {
+        return document.body && document.body.classList.contains("admin-theme");
     };
 
     function ensureChartJs() {
@@ -68,14 +74,15 @@
             const data = normalizeTrend(trend);
             if (data.labels.length === 0) return;
             const teacher = isTeacherTheme();
+            const admin = isAdminTheme();
 
             const datasets = [];
             if (data.present.length) {
                 datasets.push({
                     label: "Present",
                     data: data.present,
-                    borderColor: teacher ? rainbow[2] : green,
-                    backgroundColor: teacher ? "rgba(34, 197, 94, 0.25)" : greenLight,
+                    borderColor: teacher ? rainbow[2] : (admin ? purple : green),
+                    backgroundColor: teacher ? "rgba(34, 197, 94, 0.25)" : (admin ? "rgba(196, 181, 253, 0.35)" : greenLight),
                     tension: 0.3,
                     fill: false
                 });
@@ -90,8 +97,8 @@
                 datasets.push({
                     label: "Total Records",
                     data: data.totals,
-                    borderColor: teacher ? rainbow[4] : green,
-                    backgroundColor: teacher ? "rgba(168, 85, 247, 0.2)" : greenLight,
+                    borderColor: teacher ? rainbow[4] : (admin ? "#7e22ce" : green),
+                    backgroundColor: teacher ? "rgba(168, 85, 247, 0.2)" : (admin ? "rgba(126, 34, 206, 0.18)" : greenLight),
                     tension: 0.3,
                     fill: true
                 });
@@ -100,8 +107,8 @@
                 datasets.push({
                     label: "Records",
                     data: data.labels.map(function () { return 0; }),
-                    borderColor: teacher ? rainbow[5] : green,
-                    backgroundColor: teacher ? "rgba(236, 72, 153, 0.2)" : greenLight,
+                    borderColor: teacher ? rainbow[5] : (admin ? purple : green),
+                    backgroundColor: teacher ? "rgba(236, 72, 153, 0.2)" : (admin ? purpleLight : greenLight),
                     tension: 0.3,
                     fill: false
                 });
@@ -116,12 +123,13 @@
             if (labels.length === 0) return;
             const label = chart.grades ? "Final Grade" : "Attendance Rate %";
             const teacher = isTeacherTheme();
+            const admin = isAdminTheme();
             const backgroundColor = teacher
                 ? data.map(function (_, i) { return rainbow[i % rainbow.length]; })
-                : greenLight;
+                : (admin ? data.map(function (_, i) { return purpleShades[i % purpleShades.length]; }) : greenLight);
             const borderColor = teacher
                 ? data.map(function (_, i) { return rainbow[i % rainbow.length]; })
-                : green;
+                : (admin ? data.map(function (_, i) { return purpleShades[i % purpleShades.length]; }) : green);
             renderBarChart(canvasId, labels, [{
                 label: label,
                 data: data,
