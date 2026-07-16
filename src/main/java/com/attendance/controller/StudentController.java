@@ -87,11 +87,18 @@ public class StudentController {
 
     @GetMapping("/subjects")
     public String subjects(Authentication auth, Model model) {
-        Student student = getCurrentStudent(auth);
-        model.addAttribute("student", student);
-        model.addAttribute("enrollments", subjectService.getEnrollmentsByStudent(student.getId()));
-        model.addAttribute("profilePhotoUrl", profilePhotoService.resolveProfilePhotoUrl(auth.getName()));
-        return "student/subjects";
+        try {
+            Student student = getCurrentStudent(auth);
+            model.addAttribute("student", student);
+            model.addAttribute("subjectRows", subjectService.listSubjectsForStudent(student.getId()));
+            model.addAttribute("profilePhotoUrl", profilePhotoService.resolveProfilePhotoUrl(auth.getName()));
+            return "student/subjects";
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage() != null ? ex.getMessage() : "Unable to load subjects.");
+            model.addAttribute("subjectRows", java.util.List.of());
+            model.addAttribute("profilePhotoUrl", profilePhotoService.resolveProfilePhotoUrl(auth.getName()));
+            return "student/subjects";
+        }
     }
 
     @GetMapping("/grades")

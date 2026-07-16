@@ -11,17 +11,6 @@ import java.util.Optional;
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     List<Enrollment> findBySubjectId(Long subjectId);
     List<Enrollment> findByStudentId(Long studentId);
-
-    @Query("""
-            SELECT DISTINCT e FROM Enrollment e
-            LEFT JOIN FETCH e.subject s
-            LEFT JOIN FETCH s.teacher
-            LEFT JOIN FETCH s.section
-            LEFT JOIN FETCH s.department
-            WHERE e.student.id = :studentId
-            """)
-    List<Enrollment> findDetailedByStudentId(@Param("studentId") Long studentId);
-
     Optional<Enrollment> findByStudentIdAndSubjectId(Long studentId, Long subjectId);
     boolean existsByStudentIdAndSubjectId(Long studentId, Long subjectId);
     

@@ -1,5 +1,6 @@
 package com.attendance.service;
 
+import com.attendance.dto.StudentSubjectRow;
 import com.attendance.exception.BusinessException;
 import com.attendance.model.*;
 import com.attendance.repository.*;
@@ -109,15 +110,30 @@ public class SubjectService {
         return enrollmentRepository.findBySubjectId(subjectId);
     }
 
-    public List<Enrollment> getEnrollmentsByStudent(Long studentId) {
+    @Transactional(readOnly = true)
+    public List<StudentSubjectRow> listSubjectsForStudent(Long studentId) {
         if (studentId == null) {
             return List.of();
         }
-        return enrollmentRepository.findDetailedByStudentId(studentId).stream()
+        return enrollmentRepository.findByStudentId(studentId).stream()
                 .filter(e -> e.getSubject() != null)
-                .sorted(Comparator.comparing(
-                        e -> e.getSubject().getSubjectName() != null ? e.getSubject().getSubjectName().toLowerCase() : "",
-                        Comparator.naturalOrder()))
+                .map(e -> {
+                    Subject subject = e.getSubject();
+                    String teacher = subject.getTeacher() != null && subject.getTeacher().getFullName() != null
+                            ? subject.getTeacher().getFullName() : "-";
+                    String section = subject.getSection() != null && subject.getSection().getName() != null
+                            ? subject.getSection().getName() : "-";
+                    String department = subject.getDepartment() != null && subject.getDepartment().getName() != null
+                            ? subject.getDepartment().getName() : "-";
+                    return new StudentSubjectRow(
+                            subject.getSubjectCode() != null ? subject.getSubjectCode() : "-",
+                            subject.getSubjectName() != null ? subject.getSubjectName() : "-",
+                            teacher,
+                            section,
+                            department
+                    );
+                })
+                .sorted(Comparator.comparing(StudentSubjectRow::name, String.CASE_INSENSITIVE_ORDER))
                 .toList();
     }
 
