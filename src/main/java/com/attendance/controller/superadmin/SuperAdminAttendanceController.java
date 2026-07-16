@@ -15,6 +15,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/superadmin/attendance")
@@ -432,7 +434,16 @@ public class SuperAdminAttendanceController {
         teachers = teacherService.filterBySearch(teachers, search);
         teachers = teacherService.filterByStatus(teachers, parseTeacherStatus(status));
 
+        List<Subject> departmentSubjects = departmentId != null
+                ? subjectService.findByDepartmentId(departmentId)
+                : List.of();
+        Map<Long, List<Subject>> subjectsByTeacher = departmentSubjects.stream()
+                .filter(s -> s.getTeacher() != null && s.getTeacher().getId() != null)
+                .collect(Collectors.groupingBy(s -> s.getTeacher().getId()));
+
         model.addAttribute("teachers", teachers);
+        model.addAttribute("departmentSubjects", departmentSubjects);
+        model.addAttribute("subjectsByTeacher", subjectsByTeacher);
         model.addAttribute("departmentList", departmentService.findAll());
         model.addAttribute("selectedDepartmentId", departmentId);
         model.addAttribute("searchQuery", search != null ? search : "");
@@ -496,6 +507,20 @@ public class SuperAdminAttendanceController {
         Long deptId = returnDepartmentId != null ? returnDepartmentId
                 : (teacher.getDepartment() != null ? teacher.getDepartment().getId() : null);
         return buildTeachersRedirect(deptId, null, null);
+    }
+
+    @PostMapping("/teachers/{id}/assign-subjects")
+    public String assignSubjects(@PathVariable Long id,
+                                 @RequestParam(required = false) List<Long> subjectIds,
+                                 @RequestParam(required = false) Long returnDepartmentId,
+                                 RedirectAttributes redirect) {
+        try {
+            teacherService.assignSubjects(id, subjectIds);
+            redirect.addFlashAttribute("message", "Subjects assigned to teacher");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
+        return buildTeachersRedirect(returnDepartmentId, null, null);
     }
 
     @GetMapping("/subjects")

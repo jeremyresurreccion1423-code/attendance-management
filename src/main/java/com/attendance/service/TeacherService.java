@@ -242,9 +242,21 @@ public class TeacherService {
     public void assignSubjects(Long teacherId, List<Long> subjectIds) {
         Teacher teacher = teacherRepository.findById(teacherId)
                 .orElseThrow(() -> new BusinessException("Teacher not found."));
+        if (subjectIds == null || subjectIds.isEmpty()) {
+            throw new BusinessException("Please select at least one subject to assign.");
+        }
+        Long teacherDeptId = teacher.getDepartment() != null ? teacher.getDepartment().getId() : null;
+        if (teacherDeptId == null) {
+            throw new BusinessException("Teacher must belong to a department before assigning subjects.");
+        }
         for (Long subjectId : subjectIds) {
             Subject subject = subjectRepository.findById(subjectId)
                     .orElseThrow(() -> new BusinessException("Subject not found: " + subjectId));
+            Long subjectDeptId = subject.getDepartment() != null ? subject.getDepartment().getId() : null;
+            if (subjectDeptId == null || !teacherDeptId.equals(subjectDeptId)) {
+                throw new BusinessException(
+                        "Subject " + subject.getSubjectCode() + " must belong to the teacher's department.");
+            }
             subject.setTeacher(teacher);
             subjectRepository.save(subject);
         }

@@ -63,6 +63,8 @@
                             <th data-sort="department">Department</th>
                             <th data-sort="email">Email</th>
                             <th data-sort="status">Status</th>
+                            <th>Assigned Subjects</th>
+                            <th>Assign Subjects</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -76,6 +78,38 @@
                             <td th:text="${t.email}"></td>
                             <td th:text="${t.status}"></td>
                             <td>
+                                <ul th:if="${subjectsByTeacher != null and subjectsByTeacher.containsKey(t.id)}" style="margin:0; padding-left:1.1rem;">
+                                    <li th:each="sub : ${subjectsByTeacher.get(t.id)}"
+                                        th:text="${sub.subjectCode + ' — ' + sub.subjectName + (sub.section != null ? ' (' + sub.section.name + ')' : '')}"></li>
+                                </ul>
+                                <span th:unless="${subjectsByTeacher != null and subjectsByTeacher.containsKey(t.id)}" style="color:#666;">None assigned</span>
+                            </td>
+                            <td>
+                                <form th:action="@{|/admin/teachers/${t.id}/assign-subjects|}" method="post" class="assign-students-widget" data-assign-widget>
+                                    <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
+                                    <input type="search" class="form-control assign-search" placeholder="Search subject..." data-assign-search>
+                                    <div class="assign-students-list" data-assign-list>
+                                        <label class="assign-student-item" th:each="sub : ${departmentSubjects}"
+                                               th:attr="data-search-text=${#strings.toLowerCase(sub.subjectCode + ' ' + sub.subjectName + ' ' + (sub.section != null ? sub.section.name : ''))}">
+                                            <input type="checkbox" name="subjectIds" th:value="${sub.id}" data-assign-checkbox
+                                                   th:checked="${sub.teacher != null and sub.teacher.id == t.id}">
+                                            <span th:text="${sub.subjectCode + ' — ' + sub.subjectName + (sub.section != null ? ' (' + sub.section.name + ')' : '')
+                                                + (sub.teacher != null and sub.teacher.id != t.id ? ' [assigned to ' + sub.teacher.fullName + ']' : '')}"></span>
+                                        </label>
+                                        <div th:if="${#lists.isEmpty(departmentSubjects)}" class="assign-empty">No subjects in this department yet.</div>
+                                        <div class="assign-empty" data-assign-empty hidden>No subjects match your search.</div>
+                                    </div>
+                                    <div class="assign-students-actions">
+                                        <small class="assign-selected-count" data-assign-count>0 selected</small>
+                                        <div class="assign-students-tools">
+                                            <button type="button" class="btn btn-sm btn-secondary" data-assign-select-all>Select All</button>
+                                            <button type="button" class="btn btn-sm btn-secondary" data-assign-clear>Clear</button>
+                                            <button type="submit" class="btn btn-sm btn-primary">Assign</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </td>
+                            <td>
                                 <button type="button" class="btn btn-secondary btn-sm" th:onclick="'toggleEdit(' + ${t.id} + ')'">Edit</button>
                                 <form th:action="@{|/admin/teachers/${t.id}/delete|}" method="post" style="display:inline;" class="confirm-delete" th:attr="data-confirm-message='Delete teacher ' + ${t.fullName} + '?'">
                                     <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
@@ -84,7 +118,7 @@
                             </td>
                         </tr>
                         <tr th:id="'edit-row-' + ${t.id}" style="display:none; background:#f8faf8;">
-                            <td colspan="6">
+                            <td colspan="8">
                                 <form th:action="@{|/admin/teachers/${t.id}/update|}" method="post" class="ams-validate" data-lookup-form>
                                     <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
                                     <div class="form-row">
@@ -110,7 +144,7 @@
                         </tr>
                         </th:block>
                         <tr th:if="${#lists.isEmpty(teachers)}">
-                            <td colspan="6" style="text-align:center; color:#666;">No teachers yet for this department.</td>
+                            <td colspan="8" style="text-align:center; color:#666;">No teachers yet for this department.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -160,6 +194,72 @@ document.addEventListener('DOMContentLoaded', () => {
         countEl: document.getElementById('teacherCountLabel'),
     });
 });
+
+function bindAssignWidget(widget) {
+    const searchInput = widget.querySelector('[data-assign-search]');
+    const items = Array.from(widget.querySelectorAll('.assign-student-item'));
+    const checkboxes = Array.from(widget.querySelectorAll('[data-assign-checkbox]'));
+    const countEl = widget.querySelector('[data-assign-count]');
+    const emptyEl = widget.querySelector('[data-assign-empty]');
+    const selectAllBtn = widget.querySelector('[data-assign-select-all]');
+    const clearBtn = widget.querySelector('[data-assign-clear]');
+
+    function updateCount() {
+        const selected = checkboxes.filter(cb => cb.checked).length;
+        if (countEl) countEl.textContent = `${selected} selected`;
+    }
+
+    function applySearch() {
+        const query = (searchInput?.value || '').trim().toLowerCase();
+        let visibleCount = 0;
+        items.forEach((item) => {
+            const text = item.getAttribute('data-search-text') || '';
+            const visible = !query || text.includes(query);
+            item.hidden = !visible;
+            if (visible) visibleCount += 1;
+        });
+        if (emptyEl) emptyEl.hidden = visibleCount > 0 || items.length === 0;
+    }
+
+    if (searchInput) searchInput.addEventListener('input', applySearch);
+    checkboxes.forEach((cb) => cb.addEventListener('change', updateCount));
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', () => {
+            items.forEach((item) => {
+                if (item.hidden) return;
+                const checkbox = item.querySelector('[data-assign-checkbox]');
+                if (checkbox) checkbox.checked = true;
+            });
+            updateCount();
+        });
+    }
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            checkboxes.forEach((cb) => { cb.checked = false; });
+            updateCount();
+        });
+    }
+    widget.addEventListener('submit', (event) => {
+        const selected = checkboxes.filter(cb => cb.checked).length;
+        if (selected === 0) {
+            event.preventDefault();
+            if (window.amsConfirm) {
+                window.amsConfirm('Select at least one subject before assigning.', {
+                    title: 'No Subject Selected',
+                    okText: 'OK',
+                    cancelText: 'Close'
+                });
+            } else {
+                alert('Select at least one subject before assigning.');
+            }
+        }
+    });
+
+    applySearch();
+    updateCount();
+}
+
+document.querySelectorAll('[data-assign-widget]').forEach(bindAssignWidget);
 </script>
 </body>
 </html>

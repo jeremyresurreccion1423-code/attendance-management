@@ -1,5 +1,6 @@
 package com.attendance.controller;
 
+import com.attendance.exception.BusinessException;
 import com.attendance.model.*;
 import com.attendance.service.*;
 import com.attendance.util.ValidationHelper;
@@ -41,6 +42,21 @@ public class TeacherController {
                 .orElseThrow(() -> new IllegalStateException("Teacher record not found for user: " + auth.getName()));
     }
 
+    private Subject requireOwnedSubject(Teacher teacher, Long subjectId) {
+        Subject subject = subjectService.findById(subjectId)
+                .orElseThrow(() -> new BusinessException("Subject not found."));
+        if (subject.getTeacher() == null || !subject.getTeacher().getId().equals(teacher.getId())) {
+            throw new BusinessException("You can only access subjects assigned to you.");
+        }
+        return subject;
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public String handleTeacherBusinessException(BusinessException ex, RedirectAttributes redirect) {
+        redirect.addFlashAttribute("error", ex.getMessage());
+        return "redirect:/teacher/dashboard";
+    }
+
     @GetMapping("/dashboard")
     public String dashboard(Authentication auth, Model model) {
         Teacher teacher = getCurrentTeacher(auth);
@@ -70,6 +86,7 @@ public class TeacherController {
         LocalDate selectedDate = date != null ? date : LocalDate.now();
         model.addAttribute("selectedDate", selectedDate);
         if (subjectId != null) {
+            requireOwnedSubject(teacher, subjectId);
             List<Timetable> availableSchedules = timetableService.findPublishedBySubjectAndDate(subjectId, selectedDate);
             model.addAttribute("availableSchedules", availableSchedules);
             Long selectedTimetableId = timetableId;
@@ -99,6 +116,7 @@ public class TeacherController {
                                    Authentication auth,
                                    RedirectAttributes redirect) {
         try {
+            requireOwnedSubject(getCurrentTeacher(auth), subjectId);
             attendanceService.recordManual(studentId, subjectId, status, auth.getName(), remarks);
             redirect.addFlashAttribute("message", "Attendance recorded");
         } catch (Exception e) {
@@ -113,9 +131,11 @@ public class TeacherController {
                                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                                @RequestParam(required = false) Double latitude,
                                @RequestParam(required = false) Double longitude,
+                               Authentication auth,
                                Model model,
                                RedirectAttributes redirect) {
         try {
+            requireOwnedSubject(getCurrentTeacher(auth), subjectId);
             AttendanceQR qr = qrService.generateQR(subjectId, date, timetableId, latitude, longitude);
             LocalDate sessionDate = qr.getSessionDate() != null ? qr.getSessionDate() : LocalDate.now();
             List<Attendance> records = attendanceService.findBySubjectAndDate(subjectId, sessionDate);
@@ -163,6 +183,7 @@ public class TeacherController {
         Teacher teacher = getCurrentTeacher(auth);
         model.addAttribute("subjects", subjectService.findByTeacherId(teacher.getId()));
         if (subjectId != null) {
+            requireOwnedSubject(teacher, subjectId);
             model.addAttribute("selectedSubject", subjectId);
             model.addAttribute("marks", markService.findBySubject(subjectId));
             model.addAttribute("enrollments", subjectService.getEnrollments(subjectId));
@@ -176,8 +197,10 @@ public class TeacherController {
                             @RequestParam(required = false) Double quizScore,
                             @RequestParam(required = false) Double examScore,
                             @RequestParam(required = false) Double assignmentScore,
+                            Authentication auth,
                             RedirectAttributes redirect) {
         try {
+            requireOwnedSubject(getCurrentTeacher(auth), subjectId);
             ValidationHelper.validateMarkScore(quizScore, "Quiz score");
             ValidationHelper.validateMarkScore(examScore, "Exam score");
             ValidationHelper.validateMarkScore(assignmentScore, "Assignment score");
@@ -190,7 +213,10 @@ public class TeacherController {
     }
 
     @PostMapping("/marks/compute")
-    public String computeGrades(@RequestParam Long subjectId, RedirectAttributes redirect) {
+    public String computeGrades(@RequestParam Long subjectId,
+                                Authentication auth,
+                                RedirectAttributes redirect) {
+        requireOwnedSubject(getCurrentTeacher(auth), subjectId);
         markService.computeAllGradesForSubject(subjectId);
         redirect.addFlashAttribute("message", "Final grades computed");
         return "redirect:/teacher/marks?subjectId=" + subjectId;
@@ -213,6 +239,11 @@ public class TeacherController {
                                  @ModelAttribute Timetable timetable,
                                  RedirectAttributes redirect) {
         Teacher teacher = getCurrentTeacher(auth);
+        if (timetable.getSubject() == null || timetable.getSubject().getId() == null) {
+            redirect.addFlashAttribute("error", "Subject is required.");
+            return "redirect:/teacher/timetable";
+        }
+        requireOwnedSubject(teacher, timetable.getSubject().getId());
         timetable.setTeacher(teacher);
         timetableService.save(timetable);
         redirect.addFlashAttribute("message", "Schedule created");
@@ -302,7 +333,9 @@ public class TeacherController {
     }
 
     @GetMapping("/reports/grades/excel")
-    public ResponseEntity<byte[]> exportGradesExcel(@RequestParam Long subjectId) throws Exception {
+    public ResponseEntity<byte[]> exportGradesExcel(@RequestParam Long subjectId,
+                                                    Authentication auth) throws Exception {
+        requireOwnedSubject(getCurrentTeacher(auth), subjectId);
         byte[] data = reportService.exportGradesExcel(subjectId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=grade_report.xlsx")

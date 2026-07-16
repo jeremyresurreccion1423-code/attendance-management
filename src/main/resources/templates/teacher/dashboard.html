@@ -50,8 +50,28 @@
             </div>
             <div class="stat-card">
                 <div class="value" th:text="${data.totalClasses}">0</div>
-                <div class="label">Total Classes</div>
+                <div class="label">Assigned Subjects</div>
             </div>
+        </div>
+
+        <div class="card" th:if="${data.assignedSubjects == null or #lists.isEmpty(data.assignedSubjects)}">
+            <h3>No Subjects Assigned</h3>
+            <p style="color:#64748b; margin:0;">Ask an admin to assign subjects to you under Teacher Management. Only assigned subjects appear on your dashboard, attendance, marks, and reports.</p>
+        </div>
+
+        <div class="card" th:if="${data.assignedSubjects != null and !#lists.isEmpty(data.assignedSubjects)}">
+            <h3>My Assigned Subjects</h3>
+            <table>
+                <thead><tr><th>Code</th><th>Subject</th><th>Section</th><th>Department</th></tr></thead>
+                <tbody>
+                    <tr th:each="sub : ${data.assignedSubjects}">
+                        <td th:text="${sub.subjectCode}">CODE</td>
+                        <td th:text="${sub.subjectName}">Subject</td>
+                        <td th:text="${sub.section != null ? sub.section.name : '-'}">Section</td>
+                        <td th:text="${sub.department != null ? sub.department.name : '-'}">Department</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <div class="card" th:if="${data.attendanceToday}">

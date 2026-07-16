@@ -69,6 +69,7 @@ public class DashboardService {
         List<Subject> subjects = subjectRepository.findByTeacherId(teacherId);
 
         data.put("totalClasses", subjects.size());
+        data.put("assignedSubjects", subjects);
 
 
 
