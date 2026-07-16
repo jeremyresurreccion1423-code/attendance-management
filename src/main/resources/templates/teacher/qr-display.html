@@ -2,66 +2,399 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>QR Attendance - AMS</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=10)}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>QR Attendance Session - AMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css(v=11)}">
 </head>
-<body class="teacher-theme">
+<body class="teacher-theme qr-session-page">
 <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
 <div class="app-layout">
     <aside class="sidebar">
         <div class="brand"><h2>AMS</h2><small>Teacher Panel</small></div>
         <nav>
-            <a href="/teacher/attendance" class="active">Back to Attendance</a>
+            <a href="/teacher/dashboard">Dashboard</a>
+            <a th:href="@{/teacher/attendance(subjectId=${qr.subject.id})}" class="active">Attendance</a>
+            <a href="/teacher/marks">Marks</a>
+            <a href="/teacher/timetable">Timetable</a>
+            <a href="/teacher/reports">Reports</a>
+            <a href="/teacher/trends">Trends</a>
             <a href="/logout" style="margin-top:2rem; display:block;">Logout</a>
         </nav>
     </aside>
     <main class="main-content">
-        <div class="page-header"><h1>QR Attendance Session</h1></div>
-
-        <div class="qr-session">
-            <div class="qr-session-head">
-                <h3 th:text="${qr.subject.subjectName}">Subject</h3>
-                <p>Students scan this code to mark their attendance.</p>
-            </div>
-
-            <div class="qr-code-frame">
-                <img th:src="'data:image/png;base64,' + ${qrImage}" alt="QR Code">
-            </div>
-
-            <dl class="qr-meta">
-                <div class="qr-meta-row">
-                    <dt>Session Code</dt>
-                    <dd><code th:text="${qr.qrCode}">code</code></dd>
+        <div class="qrs-wrap">
+            <!-- Header -->
+            <header class="qrs-hero"
+                    th:classappend="${sessionActive} ? 'is-live' : 'is-expired'">
+                <div class="qrs-hero-top">
+                    <div class="qrs-hero-titles">
+                        <p class="qrs-eyebrow" th:text="${qr.subject.subjectCode}">CS301</p>
+                        <h1 th:text="${qr.subject.subjectName}">Subject</h1>
+                    </div>
+                    <span class="qrs-live-badge" th:if="${sessionActive}">
+                        <span class="qrs-live-dot" aria-hidden="true"></span>
+                        LIVE SESSION
+                    </span>
+                    <span class="qrs-expired-badge" th:unless="${sessionActive}">EXPIRED</span>
                 </div>
-                <div class="qr-meta-row">
-                    <dt>Expires</dt>
-                    <dd th:text="${#temporals.format(qr.expiresAt, 'MMM d, yyyy · h:mm a')}">expiry</dd>
+                <div class="qrs-hero-meta">
+                    <div class="qrs-hero-chip" th:if="${qr.subject.teacher != null}">
+                        <span class="qrs-chip-icon" aria-hidden="true">👤</span>
+                        <div>
+                            <small>Teacher</small>
+                            <strong th:text="${qr.subject.teacher.fullName}">Teacher</strong>
+                        </div>
+                    </div>
+                    <div class="qrs-hero-chip" th:if="${qr.subject.section != null}">
+                        <span class="qrs-chip-icon" aria-hidden="true">🎓</span>
+                        <div>
+                            <small>Course / Section</small>
+                            <strong th:text="${qr.subject.section.yearLevel + ' · ' + qr.subject.section.sectionName}">Section</strong>
+                        </div>
+                    </div>
+                    <div class="qrs-hero-chip" th:if="${qr.timetable != null and qr.timetable.room != null and !qr.timetable.room.isEmpty()}">
+                        <span class="qrs-chip-icon" aria-hidden="true">📍</span>
+                        <div>
+                            <small>Room</small>
+                            <strong th:text="${qr.timetable.room}">Room</strong>
+                        </div>
+                    </div>
+                    <div class="qrs-hero-chip">
+                        <span class="qrs-chip-icon" aria-hidden="true">📅</span>
+                        <div>
+                            <small>Session Date</small>
+                            <strong th:text="${#temporals.format(qr.sessionDate, 'MMM d, yyyy')}">Date</strong>
+                        </div>
+                    </div>
                 </div>
-                <div class="qr-meta-row">
-                    <dt>Location</dt>
-                    <dd th:if="${latitude != null and longitude != null}"
-                        th:text="${#numbers.formatDecimal(latitude,1,5)} + ', ' + ${#numbers.formatDecimal(longitude,1,5)}">coords</dd>
-                    <dd th:unless="${latitude != null and longitude != null}" class="qr-meta-muted">Not provided</dd>
+            </header>
+
+            <div class="qrs-grid">
+                <!-- QR Card -->
+                <section class="qrs-card qrs-card-qr">
+                    <h2>Attendance QR</h2>
+                    <p class="qrs-card-sub">Scan this QR Code to Mark Attendance.</p>
+
+                    <div class="qrs-code-frame">
+                        <img id="qrImage"
+                             th:src="'data:image/png;base64,' + ${qrImage}"
+                             alt="Attendance QR Code"
+                             width="320"
+                             height="320">
+                    </div>
+
+                    <div class="qrs-countdown"
+                         id="qrCountdown"
+                         th:attr="data-expires-at=${qr.expiresAt}">
+                        <span class="qrs-countdown-label">Time remaining</span>
+                        <strong class="qrs-countdown-value" id="qrCountdownValue">--:--:--</strong>
+                    </div>
+                </section>
+
+                <!-- Session info + actions -->
+                <div class="qrs-side">
+                    <section class="qrs-card">
+                        <h2>Session Information</h2>
+                        <div class="qrs-info-grid">
+                            <article class="qrs-info-item">
+                                <span class="qrs-info-icon" aria-hidden="true">🔑</span>
+                                <div>
+                                    <small>Session Code</small>
+                                    <code id="sessionCode" th:text="${qr.qrCode}">code</code>
+                                </div>
+                            </article>
+                            <article class="qrs-info-item">
+                                <span class="qrs-info-icon" aria-hidden="true">▶️</span>
+                                <div>
+                                    <small>Start Time</small>
+                                    <strong th:if="${qr.timetable != null}"
+                                            th:text="${qr.timetable.startTime}">--:--</strong>
+                                    <strong th:unless="${qr.timetable != null}"
+                                            th:text="${#temporals.format(qr.createdAt, 'h:mm a')}">--:--</strong>
+                                </div>
+                            </article>
+                            <article class="qrs-info-item">
+                                <span class="qrs-info-icon" aria-hidden="true">⏹️</span>
+                                <div>
+                                    <small>End Time</small>
+                                    <strong th:if="${qr.timetable != null}"
+                                            th:text="${qr.timetable.endTime}">--:--</strong>
+                                    <strong th:unless="${qr.timetable != null}" class="qrs-muted">Not scheduled</strong>
+                                </div>
+                            </article>
+                            <article class="qrs-info-item">
+                                <span class="qrs-info-icon" aria-hidden="true">⏳</span>
+                                <div>
+                                    <small>Expiration Time</small>
+                                    <strong th:text="${#temporals.format(qr.expiresAt, 'MMM d · h:mm a')}">expiry</strong>
+                                </div>
+                            </article>
+                            <article class="qrs-info-item">
+                                <span class="qrs-info-icon" aria-hidden="true">📍</span>
+                                <div>
+                                    <small>Room / Location</small>
+                                    <strong th:if="${qr.timetable != null and qr.timetable.room != null and !qr.timetable.room.isEmpty()}"
+                                            th:text="${qr.timetable.room}">Room</strong>
+                                    <strong th:if="${(qr.timetable == null or qr.timetable.room == null or qr.timetable.room.isEmpty()) and latitude != null and longitude != null}"
+                                            th:text="${#numbers.formatDecimal(latitude,1,5)} + ', ' + ${#numbers.formatDecimal(longitude,1,5)}">coords</strong>
+                                    <strong th:if="${(qr.timetable == null or qr.timetable.room == null or qr.timetable.room.isEmpty()) and (latitude == null or longitude == null)}"
+                                            class="qrs-muted">Not provided</strong>
+                                </div>
+                            </article>
+                            <article class="qrs-info-item">
+                                <span class="qrs-info-icon" aria-hidden="true">⏱️</span>
+                                <div>
+                                    <small>Attendance Window</small>
+                                    <strong>Present within 15 min of start · then Late</strong>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
+
+                    <section class="qrs-card">
+                        <h2>Teacher Actions</h2>
+                        <div class="qrs-actions">
+                            <a class="qrs-btn qrs-btn-primary"
+                               id="refreshQrBtn"
+                               href="#"
+                               th:attr="data-subject-id=${qr.subject.id},
+                                        data-date=${qr.sessionDate},
+                                        data-timetable-id=${qr.timetable != null ? qr.timetable.id : ''},
+                                        data-latitude=${latitude},
+                                        data-longitude=${longitude}">
+                                Refresh QR
+                            </a>
+                            <button type="button" class="qrs-btn qrs-btn-danger" id="endSessionBtn">End Session</button>
+                            <button type="button" class="qrs-btn qrs-btn-secondary" id="downloadQrBtn">Download QR</button>
+                            <button type="button" class="qrs-btn qrs-btn-secondary" id="copyCodeBtn">Copy Session Code</button>
+                        </div>
+                        <a class="qrs-back-link"
+                           th:href="@{/teacher/attendance(subjectId=${qr.subject.id}, date=${qr.sessionDate})}">
+                            ← Back to Attendance
+                        </a>
+                    </section>
                 </div>
-            </dl>
-
-            <div class="qr-legend">
-                <span class="qr-badge qr-badge-present">Present</span>
-                <span class="qr-legend-text">within 15 min of schedule start</span>
-            </div>
-            <div class="qr-legend">
-                <span class="qr-badge qr-badge-late">Late</span>
-                <span class="qr-legend-text">scanned after 15 min</span>
-            </div>
-            <div class="qr-legend">
-                <span class="qr-badge qr-badge-absent">Absent</span>
-                <span class="qr-legend-text">no scan before session expires</span>
             </div>
 
-            <a th:href="@{/teacher/attendance(subjectId=${qr.subject.id})}" class="btn btn-primary qr-back-btn">Back to Attendance</a>
+            <!-- Stats -->
+            <section class="qrs-card qrs-stats-card">
+                <div class="qrs-section-head">
+                    <h2>Live Statistics</h2>
+                    <p>Based on attendance recorded for this session date.</p>
+                </div>
+                <div class="qrs-stats-grid">
+                    <article class="qrs-stat qrs-stat-total">
+                        <span class="qrs-stat-icon" aria-hidden="true">👥</span>
+                        <div>
+                            <small>Total Students</small>
+                            <strong th:text="${totalStudents}">0</strong>
+                        </div>
+                    </article>
+                    <article class="qrs-stat qrs-stat-present">
+                        <span class="qrs-stat-icon" aria-hidden="true">✅</span>
+                        <div>
+                            <small>Present</small>
+                            <strong th:text="${presentCount}">0</strong>
+                        </div>
+                    </article>
+                    <article class="qrs-stat qrs-stat-late">
+                        <span class="qrs-stat-icon" aria-hidden="true">⏰</span>
+                        <div>
+                            <small>Late</small>
+                            <strong th:text="${lateCount}">0</strong>
+                        </div>
+                    </article>
+                    <article class="qrs-stat qrs-stat-absent">
+                        <span class="qrs-stat-icon" aria-hidden="true">❌</span>
+                        <div>
+                            <small>Absent</small>
+                            <strong th:text="${absentCount}">0</strong>
+                        </div>
+                    </article>
+                    <article class="qrs-stat qrs-stat-scanned">
+                        <span class="qrs-stat-icon" aria-hidden="true">📲</span>
+                        <div>
+                            <small>Already Scanned</small>
+                            <strong th:text="${scannedCount}">0</strong>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Legend -->
+            <section class="qrs-card">
+                <h2>Attendance Status Legend</h2>
+                <div class="qrs-legend-grid">
+                    <article class="qrs-legend-card qrs-legend-present">
+                        <span class="qrs-legend-dot" aria-hidden="true"></span>
+                        <div>
+                            <strong>Present</strong>
+                            <p>Scanned within the allowed time (15 min of schedule start).</p>
+                        </div>
+                    </article>
+                    <article class="qrs-legend-card qrs-legend-late">
+                        <span class="qrs-legend-dot" aria-hidden="true"></span>
+                        <div>
+                            <strong>Late</strong>
+                            <p>Scanned after the grace period.</p>
+                        </div>
+                    </article>
+                    <article class="qrs-legend-card qrs-legend-absent">
+                        <span class="qrs-legend-dot" aria-hidden="true"></span>
+                        <div>
+                            <strong>Absent</strong>
+                            <p>Did not scan before the session expired.</p>
+                        </div>
+                    </article>
+                </div>
+            </section>
         </div>
     </main>
 </div>
+
+<div class="qrs-toast" id="qrsToast" role="status" aria-live="polite" hidden></div>
+
 <script th:src="@{/js/layout.js}"></script>
+<script th:inline="javascript">
+(function () {
+    const expiresAtRaw = /*[[${qr.expiresAt}]]*/ null;
+    const backUrl = /*[[@{/teacher/attendance(subjectId=${qr.subject.id}, date=${qr.sessionDate})}]]*/ '/teacher/attendance';
+    const countdownEl = document.getElementById('qrCountdown');
+    const countdownValue = document.getElementById('qrCountdownValue');
+    const toastEl = document.getElementById('qrsToast');
+
+    function showToast(message, type) {
+        if (!toastEl) return;
+        toastEl.hidden = false;
+        toastEl.textContent = message;
+        toastEl.className = 'qrs-toast show' + (type ? ' qrs-toast-' + type : '');
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(function () {
+            toastEl.classList.remove('show');
+            toastEl.hidden = true;
+        }, 2400);
+    }
+
+    function parseExpiresAt(raw) {
+        if (!raw) return null;
+        if (typeof raw === 'string') {
+            // LocalDateTime from Thymeleaf often as "2026-07-16T14:30:00"
+            const normalized = raw.length === 16 ? raw + ':00' : raw;
+            const d = new Date(normalized);
+            return isNaN(d.getTime()) ? null : d;
+        }
+        return null;
+    }
+
+    function formatRemaining(ms) {
+        if (ms <= 0) return '00:00:00';
+        const totalSec = Math.floor(ms / 1000);
+        const h = String(Math.floor(totalSec / 3600)).padStart(2, '0');
+        const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+        const s = String(totalSec % 60).padStart(2, '0');
+        return h + ':' + m + ':' + s;
+    }
+
+    const expiresAt = parseExpiresAt(expiresAtRaw) || parseExpiresAt(countdownEl && countdownEl.getAttribute('data-expires-at'));
+
+    function tick() {
+        if (!countdownValue || !expiresAt) {
+            if (countdownValue) countdownValue.textContent = '--:--:--';
+            return;
+        }
+        const remaining = expiresAt.getTime() - Date.now();
+        countdownValue.textContent = formatRemaining(remaining);
+        if (countdownEl) {
+            countdownEl.classList.toggle('is-urgent', remaining > 0 && remaining < 5 * 60 * 1000);
+            countdownEl.classList.toggle('is-expired', remaining <= 0);
+        }
+        if (remaining <= 0) {
+            const live = document.querySelector('.qrs-live-badge');
+            const hero = document.querySelector('.qrs-hero');
+            if (live) {
+                live.className = 'qrs-expired-badge';
+                live.textContent = 'EXPIRED';
+            }
+            if (hero) {
+                hero.classList.remove('is-live');
+                hero.classList.add('is-expired');
+            }
+        }
+    }
+
+    tick();
+    setInterval(tick, 1000);
+
+    const copyBtn = document.getElementById('copyCodeBtn');
+    const sessionCodeEl = document.getElementById('sessionCode');
+    if (copyBtn && sessionCodeEl) {
+        copyBtn.addEventListener('click', async function () {
+            const code = sessionCodeEl.textContent.trim();
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(code);
+                } else {
+                    const ta = document.createElement('textarea');
+                    ta.value = code;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                }
+                showToast('Session code copied', 'success');
+                copyBtn.classList.add('is-success');
+                setTimeout(function () { copyBtn.classList.remove('is-success'); }, 800);
+            } catch (e) {
+                showToast('Unable to copy code', 'error');
+            }
+        });
+    }
+
+    const downloadBtn = document.getElementById('downloadQrBtn');
+    const qrImage = document.getElementById('qrImage');
+    if (downloadBtn && qrImage) {
+        downloadBtn.addEventListener('click', function () {
+            const link = document.createElement('a');
+            link.href = qrImage.src;
+            link.download = 'attendance-qr.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('QR downloaded', 'success');
+        });
+    }
+
+    const endBtn = document.getElementById('endSessionBtn');
+    if (endBtn) {
+        endBtn.addEventListener('click', function () {
+            const confirmed = window.confirm('End this QR session and return to Attendance?');
+            if (confirmed) {
+                showToast('Ending session…', 'success');
+                setTimeout(function () { window.location.href = backUrl; }, 400);
+            }
+        });
+    }
+
+    const refreshBtn = document.getElementById('refreshQrBtn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const subjectId = refreshBtn.getAttribute('data-subject-id');
+            if (!subjectId) return;
+            let url = '/teacher/attendance/qr?subjectId=' + encodeURIComponent(subjectId);
+            const date = refreshBtn.getAttribute('data-date');
+            const timetableId = refreshBtn.getAttribute('data-timetable-id');
+            const latitude = refreshBtn.getAttribute('data-latitude');
+            const longitude = refreshBtn.getAttribute('data-longitude');
+            if (date) url += '&date=' + encodeURIComponent(date);
+            if (timetableId) url += '&timetableId=' + encodeURIComponent(timetableId);
+            if (latitude && latitude !== 'null') url += '&latitude=' + encodeURIComponent(latitude);
+            if (longitude && longitude !== 'null') url += '&longitude=' + encodeURIComponent(longitude);
+            showToast('Refreshing QR…', 'success');
+            window.location.href = url;
+        });
+    }
+})();
+</script>
 </body>
 </html>

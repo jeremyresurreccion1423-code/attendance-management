@@ -117,10 +117,26 @@ public class TeacherController {
                                RedirectAttributes redirect) {
         try {
             AttendanceQR qr = qrService.generateQR(subjectId, date, timetableId, latitude, longitude);
+            LocalDate sessionDate = qr.getSessionDate() != null ? qr.getSessionDate() : LocalDate.now();
+            List<Attendance> records = attendanceService.findBySubjectAndDate(subjectId, sessionDate);
+            long presentCount = records.stream().filter(r -> r.getStatus() == AttendanceStatus.PRESENT).count();
+            long lateCount = records.stream().filter(r -> r.getStatus() == AttendanceStatus.LATE).count();
+            long absentCount = records.stream().filter(r -> r.getStatus() == AttendanceStatus.ABSENT).count();
+            long scannedCount = presentCount + lateCount;
+            int totalStudents = subjectService.getEnrollments(subjectId).size();
+
             model.addAttribute("qr", qr);
             model.addAttribute("qrImage", qrService.generateQRImageBase64(qr.getQrCode()));
             model.addAttribute("latitude", latitude);
             model.addAttribute("longitude", longitude);
+            model.addAttribute("totalStudents", totalStudents);
+            model.addAttribute("presentCount", presentCount);
+            model.addAttribute("lateCount", lateCount);
+            model.addAttribute("absentCount", absentCount);
+            model.addAttribute("scannedCount", scannedCount);
+            model.addAttribute("sessionActive", Boolean.TRUE.equals(qr.getActive())
+                    && qr.getExpiresAt() != null
+                    && qr.getExpiresAt().isAfter(java.time.LocalDateTime.now()));
             return "teacher/qr-display";
         } catch (IllegalArgumentException ex) {
             redirect.addFlashAttribute("error", ex.getMessage());

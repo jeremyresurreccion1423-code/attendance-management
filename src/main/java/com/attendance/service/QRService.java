@@ -88,7 +88,7 @@ public class QRService {
     public String generateQRImageBase64(String data) {
         try {
             QRCodeWriter writer = new QRCodeWriter();
-            BitMatrix matrix = writer.encode(data, BarcodeFormat.QR_CODE, 250, 250);
+            BitMatrix matrix = writer.encode(data, BarcodeFormat.QR_CODE, 320, 320);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             MatrixToImageWriter.writeToStream(matrix, "PNG", out);
             return Base64.getEncoder().encodeToString(out.toByteArray());
