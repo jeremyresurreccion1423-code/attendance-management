@@ -79,12 +79,12 @@
                             <td>
                                 <form th:action="@{|/admin/subjects/${sub.id}/assign-students|}" method="post" class="assign-students-widget" data-assign-widget>
                                     <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
-                                    <input type="search" class="form-control assign-search" placeholder="Search student..." data-assign-search>
+                                    <input type="search" class="form-control assign-search" placeholder="Search student ID..." data-assign-search>
                                     <div class="assign-students-list" data-assign-list
                                          th:with="enrolledIds=${enrolledStudentIdsBySubject != null ? enrolledStudentIdsBySubject[sub.id] : null}">
                                         <label class="assign-student-item" th:each="st : ${students}"
                                                th:classappend="${enrolledIds != null and enrolledIds.contains(st.id)} ? ' is-enrolled' : ''"
-                                               th:attr="data-search-text=${#strings.toLowerCase(st.fullName + ' ' + st.studentNumber + ' ' + (st.section != null ? st.section.name : ''))}">
+                                               th:attr="data-student-id=${st.studentNumber != null ? #strings.toLowerCase(st.studentNumber) : ''}">
                                             <input type="checkbox" name="studentIds" th:value="${st.id}" data-assign-checkbox
                                                    th:checked="${enrolledIds != null and enrolledIds.contains(st.id)}"
                                                    th:disabled="${enrolledIds != null and enrolledIds.contains(st.id)}">
@@ -220,12 +220,16 @@ function bindAssignWidget(widget) {
         }
     }
 
+    function normalizeStudentId(value) {
+        return (value || '').toLowerCase().replace(/[\s\-_/]/g, '');
+    }
+
     function applySearch() {
-        const query = (searchInput?.value || '').trim().toLowerCase();
+        const query = normalizeStudentId(searchInput?.value || '');
         let visibleCount = 0;
         items.forEach((item) => {
-            const text = item.getAttribute('data-search-text') || '';
-            const visible = !query || text.includes(query);
+            const studentId = normalizeStudentId(item.getAttribute('data-student-id') || '');
+            const visible = !query || studentId.includes(query);
             item.hidden = !visible;
             if (visible) visibleCount += 1;
         });
@@ -233,7 +237,7 @@ function bindAssignWidget(widget) {
             emptyEl.hidden = visibleCount > 0;
             emptyEl.textContent = items.length === 0
                 ? 'No students in this department.'
-                : 'No students match your search.';
+                : 'No students match that student ID.';
         }
     }
 
