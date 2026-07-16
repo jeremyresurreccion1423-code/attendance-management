@@ -1,9 +1,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-</head>
 <body th:replace="~{fragments/superadmin-page-shell :: shell('Teachers ó Attendance Control', 'Teacher Management', 'Browse and manage teacher records by department', ~{::content})}">
 <th:block th:fragment="content">
-<div th:if="${selectedDepartmentId == null}">
+        <div th:if="${selectedDepartmentId == null}">
             <div class="sa-panel">
                 <h3>Select Department</h3>
                 <div class="department-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
@@ -22,12 +20,12 @@
             <div class="sa-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3>Teachers - <span th:text="${selectedDepartmentName}"></span></h3>
-                    <a th:href="@{|/superadmin/attendance/teachers|}" class="sa-btn sa-btn--ghost">? Back to Departments</a>
+                    <a th:href="@{|/superadmin/attendance/teachers|}" class="sa-btn sa-btn--ghost">?ê Back to Departments</a>
                 </div>
             </div>
 
             <div class="sa-panel">
-                <form method="get" th:action="@{|/superadmin/attendance/teachers|}" class="sa-filter-bar student-search-bar">
+                <form method="get" th:action="@{|/superadmin/attendance/teachers|}" class="student-search-bar">
                     <input type="hidden" name="departmentId" th:value="${selectedDepartmentId}">
                     <input type="search" name="search" class="form-control" th:value="${searchQuery}" placeholder="Search teachers..." id="teacherSearchInput">
                     <select name="status" class="form-control" id="teacherStatusFilter">
@@ -108,6 +106,21 @@
         </div>
 
 <script th:src="@{/js/forms.js}"></script>
+<script th:src="@{/js/lookup-filter.js(v=3)}"></script>
+<script th:src="@{/js/admin-list.js(v=1)}"></script>
+<script th:src="@{/js/superadmin-attendance-pages.js(v=1)}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    initAdminTable(document.getElementById('teachersTable'), {
+        searchInput: document.getElementById('teacherSearchInput'),
+        statusFilter: document.getElementById('teacherStatusFilter'),
+        pageSizeSelect: document.getElementById('teacherPageSize'),
+        paginationEl: document.getElementById('teacherPagination'),
+        countEl: document.getElementById('teacherCountLabel'),
+    });
+});
+
+</script>
 </th:block>
 </body>
 </html>

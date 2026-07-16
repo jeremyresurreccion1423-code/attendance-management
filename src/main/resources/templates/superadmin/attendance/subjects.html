@@ -1,9 +1,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-</head>
-<body th:replace="~{fragments/superadmin-page-shell :: shell('Subjects — Attendance Control', 'Subject and Class Management', 'Manage subjects and student assignments', ~{::content})}">
+<body th:replace="~{fragments/superadmin-page-shell :: shell('Subjects ? Attendance Control', 'Subject Management', 'Manage subjects, teachers, and student assignments', ~{::content})}">
 <th:block th:fragment="content">
-<div th:if="${selectedDepartmentId == null}">
+        <div th:if="${selectedDepartmentId == null}">
             <div class="sa-panel">
                 <h3>Select Department</h3>
                 <div class="department-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
@@ -27,7 +25,7 @@
             </div>
 
             <div class="sa-panel">
-                <form method="get" th:action="@{|/superadmin/attendance/subjects|}" class="sa-filter-bar student-search-bar">
+                <form method="get" th:action="@{|/superadmin/attendance/subjects|}" class="student-search-bar">
                     <input type="hidden" name="departmentId" th:value="${selectedDepartmentId}">
                     <input type="search" name="search" class="form-control" th:value="${searchQuery}" placeholder="Search subjects..." id="subjectSearchInput">
                     <button type="submit" class="sa-btn sa-btn--primary">Apply</button>
@@ -123,6 +121,20 @@
         </div>
 
 <script th:src="@{/js/forms.js}"></script>
+<script th:src="@{/js/lookup-filter.js(v=3)}"></script>
+<script th:src="@{/js/admin-list.js(v=1)}"></script>
+<script th:src="@{/js/superadmin-attendance-pages.js(v=1)}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    initAdminTable(document.getElementById('subjectsTable'), {
+        searchInput: document.getElementById('subjectSearchInput'),
+        pageSizeSelect: document.getElementById('subjectPageSize'),
+        paginationEl: document.getElementById('subjectPagination'),
+        countEl: document.getElementById('subjectCountLabel'),
+    });
+});
+</script>
+
 </th:block>
 </body>
 </html>
