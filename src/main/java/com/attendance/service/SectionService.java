@@ -11,8 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -36,17 +38,23 @@ public class SectionService {
 
     public List<String> findYearLevelsByDepartmentId(Long departmentId) {
         domainValidationService.requireDepartment(departmentId);
-        List<String> fromDb = sectionRepository.findDistinctYearLevelsByDepartmentId(departmentId);
-        if (fromDb.isEmpty()) {
+        Set<String> available = new LinkedHashSet<>(
+                sectionRepository.findDistinctYearLevelsByDepartmentId(departmentId));
+        available.addAll(DEFAULT_YEAR_LEVELS);
+        if (available.isEmpty()) {
             return DEFAULT_YEAR_LEVELS;
         }
-        List<String> merged = new ArrayList<>(fromDb);
+
+        List<String> ordered = new ArrayList<>();
         for (String level : DEFAULT_YEAR_LEVELS) {
-            if (!merged.contains(level)) {
-                merged.add(level);
+            if (available.remove(level)) {
+                ordered.add(level);
             }
         }
-        return merged;
+        available.stream()
+                .sorted(String.CASE_INSENSITIVE_ORDER)
+                .forEach(ordered::add);
+        return ordered;
     }
 
     @Transactional
