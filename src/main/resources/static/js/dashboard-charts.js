@@ -3,6 +3,10 @@
     const greenLight = "#86efac";
     const red = "#dc2626";
     const amber = "#d97706";
+    const rainbow = ["#ef4444", "#f59e0b", "#22c55e", "#3b82f6", "#a855f7", "#ec4899"];
+    const isTeacherTheme = function () {
+        return document.body && document.body.classList.contains("teacher-theme");
+    };
 
     function ensureChartJs() {
         if (typeof Chart === "undefined") {
@@ -63,10 +67,18 @@
         renderAttendanceTrend: function (canvasId, trend) {
             const data = normalizeTrend(trend);
             if (data.labels.length === 0) return;
+            const teacher = isTeacherTheme();
 
             const datasets = [];
             if (data.present.length) {
-                datasets.push({ label: "Present", data: data.present, borderColor: green, backgroundColor: greenLight, tension: 0.3, fill: false });
+                datasets.push({
+                    label: "Present",
+                    data: data.present,
+                    borderColor: teacher ? rainbow[2] : green,
+                    backgroundColor: teacher ? "rgba(34, 197, 94, 0.25)" : greenLight,
+                    tension: 0.3,
+                    fill: false
+                });
             }
             if (data.late.length) {
                 datasets.push({ label: "Late", data: data.late, borderColor: amber, backgroundColor: "#fde68a", tension: 0.3, fill: false });
@@ -75,10 +87,24 @@
                 datasets.push({ label: "Absent", data: data.absent, borderColor: red, backgroundColor: "#fecaca", tension: 0.3, fill: false });
             }
             if (data.totals.length) {
-                datasets.push({ label: "Total Records", data: data.totals, borderColor: green, backgroundColor: greenLight, tension: 0.3, fill: true });
+                datasets.push({
+                    label: "Total Records",
+                    data: data.totals,
+                    borderColor: teacher ? rainbow[4] : green,
+                    backgroundColor: teacher ? "rgba(168, 85, 247, 0.2)" : greenLight,
+                    tension: 0.3,
+                    fill: true
+                });
             }
             if (datasets.length === 0) {
-                datasets.push({ label: "Records", data: data.labels.map(function () { return 0; }), borderColor: green, backgroundColor: greenLight, tension: 0.3, fill: false });
+                datasets.push({
+                    label: "Records",
+                    data: data.labels.map(function () { return 0; }),
+                    borderColor: teacher ? rainbow[5] : green,
+                    backgroundColor: teacher ? "rgba(236, 72, 153, 0.2)" : greenLight,
+                    tension: 0.3,
+                    fill: false
+                });
             }
             renderLineChart(canvasId, data.labels, datasets);
         },
@@ -89,11 +115,18 @@
             const data = chart.grades || chart.rates || [];
             if (labels.length === 0) return;
             const label = chart.grades ? "Final Grade" : "Attendance Rate %";
+            const teacher = isTeacherTheme();
+            const backgroundColor = teacher
+                ? data.map(function (_, i) { return rainbow[i % rainbow.length]; })
+                : greenLight;
+            const borderColor = teacher
+                ? data.map(function (_, i) { return rainbow[i % rainbow.length]; })
+                : green;
             renderBarChart(canvasId, labels, [{
                 label: label,
                 data: data,
-                backgroundColor: greenLight,
-                borderColor: green,
+                backgroundColor: backgroundColor,
+                borderColor: borderColor,
                 borderWidth: 1
             }]);
         }
