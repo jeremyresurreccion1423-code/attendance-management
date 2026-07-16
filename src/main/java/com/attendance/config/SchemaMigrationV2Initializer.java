@@ -122,6 +122,16 @@ public class SchemaMigrationV2Initializer {
                   AND s.department_id IS NOT NULL
                 """);
 
+        // Teachers with null department but assigned subjects inherit that subject department.
+        jdbcTemplate.update("""
+                UPDATE teachers t
+                SET department_id = sub.department_id
+                FROM subjects sub
+                WHERE t.department_id IS NULL
+                  AND sub.teacher_id = t.id
+                  AND sub.department_id IS NOT NULL
+                """);
+
         jdbcTemplate.update("""
                 UPDATE teachers
                 SET status = 'ACTIVE'

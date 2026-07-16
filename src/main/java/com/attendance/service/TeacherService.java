@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -283,7 +284,44 @@ public class TeacherService {
         return teacherRepository.count();
     }
 
+    @Transactional
     public List<Teacher> findByDepartmentId(Long departmentId) {
-        return teacherRepository.findByDepartmentIdOrderByFullNameAsc(departmentId);
+        if (departmentId == null) {
+            return List.of();
+        }
+        List<Teacher> teachers = teacherRepository.findAllForDepartment(departmentId);
+        for (Teacher teacher : teachers) {
+            repairDepartmentIfMissing(teacher, departmentId);
+        }
+        return teachers.stream()
+                .filter(this::isDisplayableTeacher)
+                .sorted(Comparator.comparing(
+                        t -> t.getFullName() != null ? t.getFullName().toLowerCase() : "",
+                        Comparator.naturalOrder()))
+                .toList();
+    }
+
+    private void repairDepartmentIfMissing(Teacher teacher, Long departmentId) {
+        if (teacher.getDepartment() != null
+                && teacher.getDepartment().getId() != null
+                && departmentId.equals(teacher.getDepartment().getId())) {
+            return;
+        }
+        Department target = domainValidationService.requireDepartment(departmentId);
+        boolean teachesInDepartment = subjectRepository.findByTeacherId(teacher.getId()).stream()
+                .anyMatch(s -> s.getDepartment() != null
+                        && departmentId.equals(s.getDepartment().getId()));
+        if (teachesInDepartment
+                || teacher.getDepartment() == null
+                || teacher.getDepartment().getId() == null) {
+            teacher.setDepartment(target);
+            teacherRepository.save(teacher);
+        }
+    }
+
+    private boolean isDisplayableTeacher(Teacher teacher) {
+        return teacher != null
+                && teacher.getEmployeeId() != null && !teacher.getEmployeeId().isBlank()
+                && teacher.getFullName() != null && !teacher.getFullName().isBlank();
     }
 }
