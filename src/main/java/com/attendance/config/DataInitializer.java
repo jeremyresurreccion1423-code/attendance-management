@@ -5,6 +5,7 @@ import com.attendance.repository.*;
 import com.attendance.service.AuthService;
 import com.attendance.service.SharedLibrarySchemaRepairService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import java.time.LocalTime;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -38,7 +40,9 @@ public class DataInitializer implements CommandLineRunner {
                     .orElseGet(() -> authService.createUser(
                             "superadmin", "SuperAdmin@123", Role.SUPER_ADMIN,
                             "edulibrary67+superadmin@gmail.com", "System Super Admin"));
-            System.out.println("=== Attendance seed-on-startup disabled (superadmin ensured) ===");
+            ensureDemoTeacherAccount();
+            ensureTeacherLoginAccounts();
+            System.out.println("=== Attendance seed-on-startup disabled (superadmin + teacher login ensured) ===");
             return;
         }
 
@@ -168,5 +172,82 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println("Admin:    admin / admin123");
         System.out.println("Teacher:  teacher1 / teacher123");
         System.out.println("Student:  student1 / student123");
+    }
+
+    private void ensureDemoTeacherAccount() {
+        User teacherUser = userRepository.findByUsername("teacher1")
+                .orElseGet(() -> authService.createUser(
+                        "teacher1", "teacher123", Role.TEACHER,
+                        "edulibrary67+teacher@gmail.com", "Dr. Maria Santos"));
+
+        if (teacherRepository.findByUserId(teacherUser.getId()).isPresent()) {
+            return;
+        }
+
+        Department department = departmentRepository.findAll().stream().findFirst()
+                .orElseGet(() -> departmentRepository.save(Department.builder()
+                        .name("BSIT")
+                        .description("BS Information Technology")
+                        .build()));
+
+        String employeeId = resolveAvailableEmployeeId("EMP-001");
+        teacherRepository.save(Teacher.builder()
+                .user(teacherUser)
+                .employeeId(employeeId)
+                .fullName("Dr. Maria Santos")
+                .department(department)
+                .contactNumber("09171234567")
+                .email("edulibrary67+teacher@gmail.com")
+                .status(TeacherStatus.ACTIVE)
+                .build());
+        log.info("Ensured demo teacher account: teacher1 / teacher123");
+    }
+
+    private void ensureTeacherLoginAccounts() {
+        for (Teacher teacher : teacherRepository.findAll()) {
+            if (teacher.getUser() != null || teacher.getStatus() != TeacherStatus.ACTIVE) {
+                continue;
+            }
+            if (teacher.getEmployeeId() == null || teacher.getEmployeeId().isBlank()) {
+                continue;
+            }
+            if (teacher.getEmail() == null || teacher.getEmail().isBlank()) {
+                continue;
+            }
+
+            String loginUsername = teacher.getEmployeeId().trim();
+            if (authService.findByUsername(loginUsername).isPresent()) {
+                continue;
+            }
+
+            User user = authService.createUser(
+                    loginUsername,
+                    "Teacher123",
+                    Role.TEACHER,
+                    teacher.getEmail(),
+                    teacher.getFullName());
+            teacher.setUser(user);
+            teacherRepository.save(teacher);
+            log.info("Created missing login for teacher {} ({})", teacher.getFullName(), loginUsername);
+        }
+    }
+
+    private String resolveAvailableEmployeeId(String preferredId) {
+        if (!teacherRepository.existsByEmployeeId(preferredId)) {
+            return preferredId;
+        }
+        int maxSeq = teacherRepository.findAll().stream()
+                .map(Teacher::getEmployeeId)
+                .filter(id -> id != null && id.regionMatches(true, 0, "EMP-", 0, 4))
+                .mapToInt(id -> {
+                    try {
+                        return Integer.parseInt(id.substring(4));
+                    } catch (NumberFormatException ex) {
+                        return 0;
+                    }
+                })
+                .max()
+                .orElse(0);
+        return "EMP-" + String.format("%03d", maxSeq + 1);
     }
 }

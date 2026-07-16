@@ -93,34 +93,30 @@ public class TeacherService {
         String loginUsername = (username == null || username.isBlank())
                 ? teacher.getEmployeeId().trim()
                 : username.trim();
-        boolean wantsLogin = (username != null && !username.isBlank())
-                || (password != null && !password.isBlank());
-        if (wantsLogin) {
-            if (password == null || password.isBlank()) {
-                throw new BusinessException("Login password is required when creating a login account.");
-            }
-            if (username != null && !username.isBlank() && username.trim().length() < 3) {
-                throw new BusinessException("Login username must be at least 3 characters.");
-            }
-            var existingUser = authService.findByUsername(loginUsername);
-            if (existingUser.isPresent()) {
-                User orphan = existingUser.get();
-                if (orphan.getRole() == Role.TEACHER && teacherRepository.findByUserId(orphan.getId()).isEmpty()) {
-                    authService.changePassword(orphan, password);
-                    orphan.setEmail(teacher.getEmail());
-                    orphan.setFullName(teacher.getFullName().trim());
-                    orphan.setEnabled(true);
-                    teacher.setUser(orphan);
-                } else {
-                    throw new BusinessException(
-                            "Login username '" + loginUsername + "' already exists. "
-                                    + "Choose a different username, or leave Login Username/Password blank.");
-                }
+        String loginPassword = (password == null || password.isBlank())
+                ? "Teacher123"
+                : password.trim();
+        if (loginUsername.length() < 3) {
+            throw new BusinessException("Login username must be at least 3 characters.");
+        }
+        var existingUser = authService.findByUsername(loginUsername);
+        if (existingUser.isPresent()) {
+            User orphan = existingUser.get();
+            if (orphan.getRole() == Role.TEACHER && teacherRepository.findByUserId(orphan.getId()).isEmpty()) {
+                authService.changePassword(orphan, loginPassword);
+                orphan.setEmail(teacher.getEmail());
+                orphan.setFullName(teacher.getFullName().trim());
+                orphan.setEnabled(true);
+                teacher.setUser(orphan);
             } else {
-                User user = authService.createUser(
-                        loginUsername, password, Role.TEACHER, teacher.getEmail(), teacher.getFullName());
-                teacher.setUser(user);
+                throw new BusinessException(
+                        "Login username '" + loginUsername + "' already exists. "
+                                + "Choose a different username.");
             }
+        } else {
+            User user = authService.createUser(
+                    loginUsername, loginPassword, Role.TEACHER, teacher.getEmail(), teacher.getFullName());
+            teacher.setUser(user);
         }
         if (teacher.getStatus() == null) {
             teacher.setStatus(TeacherStatus.ACTIVE);

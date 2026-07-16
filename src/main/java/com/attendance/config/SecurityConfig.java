@@ -4,6 +4,8 @@ import com.attendance.security.AuditLogoutHandler;
 import com.attendance.security.CustomUserDetailsService;
 import com.attendance.security.LoginAuthenticationFailureHandler;
 import com.attendance.security.LoginAuthenticationSuccessHandler;
+import com.attendance.security.StudentAwareAuthenticationProvider;
+import com.attendance.security.StudentLoginAccessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +27,7 @@ import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWrite
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
+    private final StudentLoginAccessService studentLoginAccessService;
     private final LoginAuthenticationSuccessHandler loginSuccessHandler;
     private final LoginAuthenticationFailureHandler loginFailureHandler;
     private final AuditLogoutHandler auditLogoutHandler;
@@ -36,7 +39,8 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        StudentAwareAuthenticationProvider provider =
+                new StudentAwareAuthenticationProvider(studentLoginAccessService);
         provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
