@@ -186,10 +186,7 @@
                             <span th:if="${viewAll and selectedSectionId == null}"> - All Sections</span>
                         </span>
                     </h3>
-                    <a th:if="${selectedSectionId != null}"
-                       th:href="@{/admin/students(departmentId=${selectedDepartmentId}, yearLevel=${selectedYearLevel})}"
-                       class="btn btn-secondary">← Back to Sections</a>
-                    <a th:if="${viewAll and selectedDepartmentId != null and selectedYearLevel != null and !selectedYearLevel.isEmpty() and selectedSectionId == null}"
+                    <a th:if="${selectedDepartmentId != null and selectedYearLevel != null and !selectedYearLevel.isEmpty()}"
                        th:href="@{/admin/students(departmentId=${selectedDepartmentId}, yearLevel=${selectedYearLevel})}"
                        class="btn btn-secondary">← Back to Sections</a>
                     <a th:if="${viewAll and selectedDepartmentId != null and (selectedYearLevel == null or selectedYearLevel.isEmpty())}"

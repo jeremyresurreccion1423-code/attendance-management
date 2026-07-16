@@ -167,11 +167,10 @@ public class AdminController {
                     students = studentService.findByDepartmentIdAndYearLevelAndSection(
                             departmentId, resolvedYearLevel, resolvedSectionId);
                     showStudentList = true;
-                } else if (isViewAll || filteredSections.isEmpty()) {
-                    // No sections to pick (or viewAll) — show students for this year immediately.
+                } else if (isViewAll) {
+                    // Explicit viewAll only — keep the section picker reachable via "Back to Sections".
                     students = studentService.findByDepartmentIdAndYearLevel(departmentId, resolvedYearLevel);
                     showStudentList = true;
-                    isViewAll = true;
                 }
             } else if (isViewAll) {
                 students = studentService.findByDepartmentId(departmentId);
