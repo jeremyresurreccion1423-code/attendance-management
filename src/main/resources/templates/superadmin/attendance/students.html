@@ -1,9 +1,9 @@
-﻿<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
 </head>
-<body th:replace="~{fragments/superadmin-page-shell :: shell('Students — Attendance Control', 'Student Management', 'Browse, filter, and manage student records', ~{::content})}">
+<body th:replace="~{fragments/superadmin-page-shell :: shell('Students � Attendance Control', 'Student Management', 'Browse, filter, and manage student records', ~{::content})}">
 <th:block th:fragment="content">
-<div class="sa-card sa-glass">
+<div class="sa-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
                     <h3 style="margin:0;">
                         <span th:if="${viewAll and selectedDepartmentId == null}">All Students</span>
@@ -19,16 +19,16 @@
                     </h3>
                     <a th:if="${selectedDepartmentId != null and selectedYearLevel != null and !selectedYearLevel.isEmpty()}"
                        th:href="@{/superadmin/attendance/students(departmentId=${selectedDepartmentId}, yearLevel=${selectedYearLevel})}"
-                       class="sa-btn sa-btn--ghost">â† Back to Sections</a>
+                       class="sa-btn sa-btn--ghost">? Back to Sections</a>
                     <a th:if="${viewAll and selectedDepartmentId != null and (selectedYearLevel == null or selectedYearLevel.isEmpty())}"
                        th:href="@{/superadmin/attendance/students}"
-                       class="sa-btn sa-btn--ghost">â† Back to Departments</a>
+                       class="sa-btn sa-btn--ghost">? Back to Departments</a>
                     <a th:if="${viewAll and selectedDepartmentId == null}"
                        th:href="@{/superadmin/attendance/students}"
-                       class="sa-btn sa-btn--ghost">â† Back to Departments</a>
+                       class="sa-btn sa-btn--ghost">? Back to Departments</a>
                 </div>
 
-                <form method="get" th:action="@{/superadmin/attendance/students}" class="student-search-bar">
+                <form method="get" th:action="@{/superadmin/attendance/students}" class="sa-filter-bar student-search-bar">
                     <input type="hidden" name="departmentId" th:if="${selectedDepartmentId != null}" th:value="${selectedDepartmentId}">
                     <input type="hidden" name="yearLevel" th:if="${selectedYearLevel != null}" th:value="${selectedYearLevel}">
                     <input type="hidden" name="sectionId" th:if="${selectedSectionId != null}" th:value="${selectedSectionId}">
@@ -48,7 +48,7 @@
                 </form>
             </div>
 
-            <div class="sa-card sa-glass">
+            <div class="sa-panel">
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
                     <h3 style="margin:0;">All Students <small id="studentCountLabel" style="font-weight:normal; color:#64748b;"></small></h3>
                     <div style="display:flex; gap:0.5rem; align-items:center;">

@@ -1,10 +1,10 @@
-﻿<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
 </head>
-<body th:replace="~{fragments/superadmin-page-shell :: shell('Sections — Attendance Control', 'Section Management', 'Organize sections by department and year level', ~{::content})}">
+<body th:replace="~{fragments/superadmin-page-shell :: shell('Sections � Attendance Control', 'Section Management', 'Organize sections by department and year level', ~{::content})}">
 <th:block th:fragment="content">
 <div th:if="${selectedDepartmentId == null}">
-            <div class="sa-card sa-glass">
+            <div class="sa-panel">
                 <h3>Select Department</h3>
                 <div class="course-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
                     <a th:each="d : ${departmentList}" th:href="@{|/superadmin/attendance/sections?departmentId=${d.id}|}" class="course-card">
@@ -16,9 +16,9 @@
         </div>
 
         <div th:if="${selectedDepartmentId != null and (selectedYearLevel == null or selectedYearLevel.isEmpty())}">
-            <div class="sa-card sa-glass">
+            <div class="sa-panel">
                 <h3>Select Year Level - <span th:text="${selectedDepartmentName}"></span></h3>
-                <a th:href="@{|/superadmin/attendance/sections|}" class="sa-btn sa-btn--ghost" style="margin-bottom: 1rem; display: inline-block;">â† Back to Departments</a>
+                <a th:href="@{|/superadmin/attendance/sections|}" class="sa-btn sa-btn--ghost" style="margin-bottom: 1rem; display: inline-block;">? Back to Departments</a>
                 <div class="year-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
                     <a th:each="yl : ${yearLevels}"
                        th:href="@{/superadmin/attendance/sections(departmentId=${selectedDepartmentId}, yearLevel=${yl})}"
@@ -28,14 +28,14 @@
         </div>
 
         <div th:if="${selectedDepartmentId != null and selectedYearLevel != null and !selectedYearLevel.isEmpty()}">
-            <div class="sa-card sa-glass">
+            <div class="sa-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3>Sections - <span th:text="${selectedDepartmentName}"></span> - <span th:text="${selectedYearLevel}"></span></h3>
-                    <a th:href="@{|/superadmin/attendance/sections?departmentId=${selectedDepartmentId}|}" class="sa-btn sa-btn--ghost">â† Back to Year Levels</a>
+                    <a th:href="@{|/superadmin/attendance/sections?departmentId=${selectedDepartmentId}|}" class="sa-btn sa-btn--ghost">? Back to Year Levels</a>
                 </div>
             </div>
 
-            <div class="sa-card sa-glass">
+            <div class="sa-panel">
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
                     <h3 style="margin:0;">All Sections <small id="sectionCountLabel" style="font-weight:normal; color:#64748b;"></small></h3>
                     <input type="search" id="sectionSearchInput" class="form-control" placeholder="Search sections...">

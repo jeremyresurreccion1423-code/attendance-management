@@ -1,85 +1,90 @@
-﻿<html xmlns:th="http://www.thymeleaf.org">
-<head>
-</head>
-<body th:replace="~{fragments/superadmin-page-shell :: shell('Departments — Attendance Control', 'Department Management', 'Create, edit, and view department details', ~{::content})}">
+<html xmlns:th="http://www.thymeleaf.org">
+<body th:replace="~{fragments/superadmin-page-shell :: shell('Departments ? Attendance Control', 'Department Management', 'Create, edit, and view department details', ~{::content})}">
 <th:block th:fragment="content">
-<div class="sa-stats" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1rem; margin-bottom:1.5rem;">
-            <div class="card stat-card">
-                <small>Total Departments</small>
-                <strong th:text="${#lists.size(departments)}">0</strong>
-            </div>
-            <div class="card stat-card">
-                <small>Total Teachers</small>
-                <strong th:text="${totalTeachers}">0</strong>
-            </div>
-            <div class="card stat-card">
-                <small>Total Students</small>
-                <strong th:text="${totalStudents}">0</strong>
-            </div>
-            <div class="card stat-card">
-                <small>Total Sections</small>
-                <strong th:text="${totalSections}">0</strong>
-            </div>
-        </div>
 
-        <div class="sa-card sa-glass">
-            <h3>All Departments</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Teachers</th>
-                        <th>Sections</th>
-                        <th>Students</th>
-                        <th>Subjects</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <th:block th:each="d : ${departments}">
-                    <tr>
-                        <td th:text="${d.name}"></td>
-                        <td th:text="${d.description != null ? d.description : '-'}"></td>
-                        <td th:text="${d.teacherCount}"></td>
-                        <td th:text="${d.sectionCount}"></td>
-                        <td th:text="${d.studentCount}"></td>
-                        <td th:text="${d.subjectCount}"></td>
-                        <td>
-                            <button type="button" class="sa-btn sa-btn--ghost sa-btn--sm" th:onclick="'toggleEdit(' + ${d.id} + ')'">Edit</button>
-                            <form th:action="@{|/superadmin/attendance/departments/${d.id}/delete|}" method="post" style="display:inline;" class="confirm-delete"
-                                  th:attr="data-confirm-message='Delete department ' + ${d.name} + '? This is only allowed when no records are linked.'">
-                                <button type="submit" class="sa-btn sa-btn--danger sa-btn--sm">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                    <tr th:id="'edit-row-' + ${d.id}" style="display:none; background:#f8faf8;">
-                        <td colspan="7">
-                            <form th:action="@{|/superadmin/attendance/departments/${d.id}/update|}" method="post" class="ams-validate">
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label>Name</label>
-                                        <input type="text" name="name" class="form-control" th:value="${d.name}" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Description</label>
-                                        <input type="text" name="description" class="form-control" th:value="${d.description}">
-                                    </div>
-                                </div>
-                                <button type="submit" class="sa-btn sa-btn--primary sa-btn--sm">Save</button>
-                                <button type="button" class="sa-btn sa-btn--ghost sa-btn--sm" th:onclick="'toggleEdit(' + ${d.id} + ')'">Cancel</button>
-                            </form>
-                        </td>
-                    </tr>
-                    </th:block>
-                    <tr th:if="${#lists.isEmpty(departments)}">
-                        <td colspan="7" style="text-align:center; color:#666;">No departments yet. <a th:href="@{|/superadmin/attendance/create#department|}">Create one</a>.</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+  <div class="sa-stats">
+    <article class="sa-stat">
+      <div class="sa-stat__head"><div class="sa-stat__icon"><i class="bi bi-building"></i></div></div>
+      <div class="sa-stat__label">Total Departments</div>
+      <div class="sa-stat__value" th:text="${#lists.size(departments)}">0</div>
+    </article>
+    <article class="sa-stat">
+      <div class="sa-stat__head"><div class="sa-stat__icon sa-stat__icon--sky"><i class="bi bi-person-check"></i></div></div>
+      <div class="sa-stat__label">Total Teachers</div>
+      <div class="sa-stat__value" th:text="${totalTeachers}">0</div>
+    </article>
+    <article class="sa-stat">
+      <div class="sa-stat__head"><div class="sa-stat__icon sa-stat__icon--emerald"><i class="bi bi-people"></i></div></div>
+      <div class="sa-stat__label">Total Students</div>
+      <div class="sa-stat__value" th:text="${totalStudents}">0</div>
+    </article>
+    <article class="sa-stat">
+      <div class="sa-stat__head"><div class="sa-stat__icon sa-stat__icon--amber"><i class="bi bi-layers"></i></div></div>
+      <div class="sa-stat__label">Total Sections</div>
+      <div class="sa-stat__value" th:text="${totalSections}">0</div>
+    </article>
+  </div>
 
-<script th:src="@{/js/forms.js}"></script>
+  <section class="sa-panel">
+    <div class="sa-card__head"><h2>All Departments</h2></div>
+    <div class="sa-table-wrap">
+      <table class="sa-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Teachers</th>
+            <th>Sections</th>
+            <th>Students</th>
+            <th>Subjects</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <th:block th:each="d : ${departments}">
+          <tr>
+            <td th:text="${d.name}"></td>
+            <td th:text="${d.description != null ? d.description : '-'}"></td>
+            <td th:text="${d.teacherCount}"></td>
+            <td th:text="${d.sectionCount}"></td>
+            <td th:text="${d.studentCount}"></td>
+            <td th:text="${d.subjectCount}"></td>
+            <td>
+              <button type="button" class="sa-btn sa-btn--ghost sa-btn--sm" th:onclick="'toggleEdit(' + ${d.id} + ')'">Edit</button>
+              <form th:action="@{|/superadmin/attendance/departments/${d.id}/delete|}" method="post" style="display:inline;" class="confirm-delete"
+                    th:attr="data-confirm-message='Delete department ' + ${d.name} + '? This is only allowed when no records are linked.'">
+                <button type="submit" class="sa-btn sa-btn--danger sa-btn--sm">Delete</button>
+              </form>
+            </td>
+          </tr>
+          <tr th:id="'edit-row-' + ${d.id}" style="display:none;">
+            <td colspan="7">
+              <form th:action="@{|/superadmin/attendance/departments/${d.id}/update|}" method="post" class="ams-validate">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" class="form-control" th:value="${d.name}" required>
+                  </div>
+                  <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" name="description" class="form-control" th:value="${d.description}">
+                  </div>
+                </div>
+                <button type="submit" class="sa-btn sa-btn--primary sa-btn--sm">Save</button>
+                <button type="button" class="sa-btn sa-btn--ghost sa-btn--sm" th:onclick="'toggleEdit(' + ${d.id} + ')'">Cancel</button>
+              </form>
+            </td>
+          </tr>
+          </th:block>
+          <tr th:if="${#lists.isEmpty(departments)}">
+            <td colspan="7" class="sa-empty-inline">No departments yet. <a th:href="@{/superadmin/attendance/create#department}" class="sa-link">Create one</a>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <script th:src="@{/js/forms.js}"></script>
 </th:block>
 </body>
 </html>

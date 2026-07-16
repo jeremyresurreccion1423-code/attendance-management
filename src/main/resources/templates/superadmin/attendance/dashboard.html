@@ -1,78 +1,126 @@
 ﻿<html xmlns:th="http://www.thymeleaf.org">
-<head>
-</head>
-<body th:replace="~{fragments/superadmin-page-shell :: shell('Attendance Dashboard — Control Center', 'Attendance Dashboard', 'Overview of students, subjects, and attendance activity', ~{::content})}">
+<body th:replace="~{fragments/superadmin-page-shell :: shell('Attendance Dashboard — Control Center', '', '', ~{::content})}">
 <th:block th:fragment="content">
-<div class="sa-stats">
-            <div class="sa-stat sa-stat--glass">
-                <div class="sa-stat__value" th:text="${data.totalStudents}">0</div>
-                <div class="sa-stat__label">Total Students</div>
-            </div>
-            <div class="sa-stat sa-stat--glass">
-                <div class="sa-stat__value" th:text="${data.totalSubjects}">0</div>
-                <div class="sa-stat__label">Total Subjects</div>
-            </div>
-            <div class="sa-stat sa-stat--glass">
-                <div class="sa-stat__value" th:text="${data.todayAttendance}">0</div>
-                <div class="sa-stat__label">Today's Attendance</div>
-            </div>
-            <div class="sa-stat sa-stat--glass" th:if="${data.lowAttendanceCount > 0}">
-                <div class="sa-stat__value" style="color:#dc2626;" th:text="${data.lowAttendanceCount}">0</div>
-                <div class="sa-stat__label">Low Attendance Alerts</div>
-            </div>
-        </div>
 
-        <div class="sa-card sa-glass">
-            <h3>Today's Attendance Analytics</h3>
-            <div class="sa-stats">
-                <div class="sa-stat sa-stat--glass">
-                    <div class="sa-stat__value" th:text="${data.todayAttendance}">0</div>
-                    <div class="sa-stat__label">Records Today</div>
-                </div>
-                <div class="sa-stat sa-stat--glass">
-                    <div class="sa-stat__value" th:text="${data.totalStudents}">0</div>
-                    <div class="sa-stat__label">Enrolled Students</div>
-                </div>
-                <div class="sa-stat sa-stat--glass">
-                    <div class="sa-stat__value" th:text="${data.totalSubjects}">0</div>
-                    <div class="sa-stat__label">Active Subjects</div>
-                </div>
-            </div>
-        </div>
+  <section class="sa-portal-greeting">
+    <div>
+      <p class="sa-welcome__eyebrow">Attendance Management</p>
+      <h1>Attendance Dashboard</h1>
+      <p>Overview of students, subjects, and attendance activity across Laguna University.</p>
+    </div>
+    <div class="sa-welcome__badge">
+      <i class="bi bi-calendar2-check"></i>
+      <span>Live Overview</span>
+    </div>
+  </section>
 
-        <div class="sa-card sa-glass">
-            <h3>Attendance Overview</h3>
-            <div class="trends-page-chart"><canvas id="attendanceOverviewChart"></canvas></div>
-        </div>
+  <div class="sa-stats">
+    <article class="sa-stat">
+      <div class="sa-stat__head">
+        <div class="sa-stat__icon"><i class="bi bi-people"></i></div>
+        <span class="sa-stat__tag sa-stat__tag--att">Attendance</span>
+      </div>
+      <div class="sa-stat__label">Total Students</div>
+      <div class="sa-stat__value" th:text="${data.totalStudents}">0</div>
+    </article>
+    <article class="sa-stat">
+      <div class="sa-stat__head">
+        <div class="sa-stat__icon sa-stat__icon--sky"><i class="bi bi-journal-text"></i></div>
+        <span class="sa-stat__tag sa-stat__tag--att">Attendance</span>
+      </div>
+      <div class="sa-stat__label">Total Subjects</div>
+      <div class="sa-stat__value" th:text="${data.totalSubjects}">0</div>
+    </article>
+    <article class="sa-stat">
+      <div class="sa-stat__head">
+        <div class="sa-stat__icon sa-stat__icon--emerald"><i class="bi bi-clipboard-check"></i></div>
+        <span class="sa-stat__tag sa-stat__tag--att">Attendance</span>
+      </div>
+      <div class="sa-stat__label">Today's Attendance</div>
+      <div class="sa-stat__value" th:text="${data.todayAttendance}">0</div>
+    </article>
+    <article class="sa-stat" th:if="${data.lowAttendanceCount > 0}">
+      <div class="sa-stat__head">
+        <div class="sa-stat__icon sa-stat__icon--rose"><i class="bi bi-exclamation-triangle"></i></div>
+        <span class="sa-stat__tag sa-stat__tag--att">Alert</span>
+      </div>
+      <div class="sa-stat__label">Low Attendance Alerts</div>
+      <div class="sa-stat__value sa-stat__value--danger" th:text="${data.lowAttendanceCount}">0</div>
+    </article>
+  </div>
 
-        <div class="sa-card sa-glass" th:if="${!#lists.isEmpty(data.lowAttendanceAlerts)}">
-            <h3>Low Attendance Alerts (&lt; 75%)</h3>
-            <table>
-                <thead><tr><th>Student No.</th><th>Name</th><th>Attendance %</th></tr></thead>
-                <tbody>
-                    <tr th:each="alert : ${data.lowAttendanceAlerts}">
-                        <td th:text="${alert.studentNumber}"></td>
-                        <td th:text="${alert.studentName}"></td>
-                        <td th:text="${alert.percentage} + '%'"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="sa-card sa-glass">
-            <h3>Quick Actions</h3>
-            <a th:href="@{|/superadmin/attendance/students|}" class="sa-btn sa-btn--primary">Manage Students</a>
-            <a th:href="@{|/superadmin/attendance/teachers|}" class="sa-btn sa-btn--primary" style="margin-left:0.5rem;">Manage Teachers</a>
-            <a th:href="@{|/superadmin/attendance/subjects|}" class="sa-btn sa-btn--primary" style="margin-left:0.5rem;">Manage Subjects</a>
-            <a th:href="@{|/superadmin/attendance/reports|}" class="sa-btn sa-btn--ghost" style="margin-left:0.5rem;">Generate Reports</a>
-        </div>
+  <div class="sa-portal-row">
+    <section class="sa-panel">
+      <div class="sa-card__head"><h2>Today's Attendance Analytics</h2></div>
+      <div class="sa-stats" style="margin-bottom:0;">
+        <article class="sa-stat">
+          <div class="sa-stat__label">Records Today</div>
+          <div class="sa-stat__value" th:text="${data.todayAttendance}">0</div>
+        </article>
+        <article class="sa-stat">
+          <div class="sa-stat__label">Enrolled Students</div>
+          <div class="sa-stat__value" th:text="${data.totalStudents}">0</div>
+        </article>
+        <article class="sa-stat">
+          <div class="sa-stat__label">Active Subjects</div>
+          <div class="sa-stat__value" th:text="${data.totalSubjects}">0</div>
+        </article>
+      </div>
+    </section>
 
-<script th:src="@{/js/vendor/chart.umd.min.js}"></script>
-<script th:src="@{/js/dashboard-charts.js(v=5)}"></script>
-<script th:inline="javascript">
-document.addEventListener('DOMContentLoaded', function () {
+    <section class="sa-panel">
+      <div class="sa-card__head"><h2>Attendance Overview</h2></div>
+      <div class="sa-chart-wrap trends-page-chart">
+        <canvas id="attendanceOverviewChart"></canvas>
+      </div>
+    </section>
+  </div>
+
+  <section class="sa-panel" th:if="${!#lists.isEmpty(data.lowAttendanceAlerts)}">
+    <div class="sa-card__head"><h2>Low Attendance Alerts (&lt; 75%)</h2></div>
+    <div class="sa-table-wrap">
+      <table class="sa-table">
+        <thead><tr><th>Student No.</th><th>Name</th><th>Attendance %</th></tr></thead>
+        <tbody>
+          <tr th:each="alert : ${data.lowAttendanceAlerts}">
+            <td th:text="${alert.studentNumber}"></td>
+            <td th:text="${alert.studentName}"></td>
+            <td th:text="${alert.percentage} + '%'"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sa-panel">
+    <div class="sa-card__head"><h2>Quick Actions</h2></div>
+    <div class="sa-actions">
+      <a th:href="@{/superadmin/attendance/students}" class="sa-action">
+        <span class="sa-action__icon"><i class="bi bi-mortarboard"></i></span>
+        <span><strong>Manage Students</strong><span>Browse and update student records</span></span>
+      </a>
+      <a th:href="@{/superadmin/attendance/teachers}" class="sa-action">
+        <span class="sa-action__icon"><i class="bi bi-person-check"></i></span>
+        <span><strong>Manage Teachers</strong><span>Department teacher administration</span></span>
+      </a>
+      <a th:href="@{/superadmin/attendance/subjects}" class="sa-action">
+        <span class="sa-action__icon"><i class="bi bi-book-half"></i></span>
+        <span><strong>Manage Subjects</strong><span>Subjects, sections, and assignments</span></span>
+      </a>
+      <a th:href="@{/superadmin/attendance/reports}" class="sa-action">
+        <span class="sa-action__icon"><i class="bi bi-file-earmark-bar-graph"></i></span>
+        <span><strong>Generate Reports</strong><span>Export attendance and student data</span></span>
+      </a>
+    </div>
+  </section>
+
+  <script th:src="@{/js/vendor/chart.umd.min.js}"></script>
+  <script th:src="@{/js/dashboard-charts.js(v=5)}"></script>
+  <script th:inline="javascript">
+  document.addEventListener('DOMContentLoaded', function () {
     DashboardCharts.renderAttendanceTrend('attendanceOverviewChart', /*[[${data.monthlyTrendChart}]]*/ {});
-});
-</script>
+  });
+  </script>
 </th:block>
 </body>
 </html>

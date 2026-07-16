@@ -1,5 +1,5 @@
-﻿<html xmlns:th="http://www.thymeleaf.org">
-<body th:replace="~{fragments/superadmin-page-shell :: shell('Create — Attendance Control', 'Create Dashboard', 'Add department, student, teacher, subject, and section in one place', ~{::content})}">
+<html xmlns:th="http://www.thymeleaf.org">
+<body th:replace="~{fragments/superadmin-page-shell :: shell('Create � Attendance Control', 'Create Dashboard', 'Add department, student, teacher, subject, and section in one place', ~{::content})}">
 <th:block th:fragment="content">
 <link th:href="@{/css/create.css(v=9)}" rel="stylesheet"/>
 <div class="create-dash">
@@ -64,7 +64,7 @@
                         </div>
                     </div>
                     <div class="create-panel-actions">
-                        <button type="button" class="btn create-next-btn" data-goto="student">Next: Add Student â†’</button>
+                        <button type="button" class="btn create-next-btn" data-goto="student">Next: Add Student →</button>
                     </div>
                 </div>
             </section>
@@ -93,7 +93,7 @@
                             <div class="form-group">
                                 <label>Full Name</label>
                                 <input type="text" th:field="*{fullName}" class="form-control" required minlength="2" maxlength="150"
-                                       pattern="[A-Za-zÃ€-Ã–Ã˜-Ã¶Ã¸-Ã¿Ã‘Ã± .'\-]{2,150}"
+                                       pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .'\-]{2,150}"
                                        title="Letters, spaces, and . ' - only"
                                        placeholder="e.g. Juan Dela Cruz">
                             </div>
@@ -152,7 +152,7 @@
                     <div class="create-existing" id="studentListPanel">
                         <div style="display:flex; justify-content:space-between; align-items:center; gap:0.75rem; flex-wrap:wrap;">
                             <h4 style="margin:0;">Recorded Students <small style="font-weight:normal; color:#64748b;">(newest first)</small></h4>
-                            <a th:href="@{|/superadmin/attendance/students?viewAll=true|}" class="sa-btn sa-btn--ghost sa-btn--sm">View All in Students â†’</a>
+                            <a th:href="@{|/superadmin/attendance/students?viewAll=true|}" class="sa-btn sa-btn--ghost sa-btn--sm">View All in Students →</a>
                         </div>
                         <div class="create-student-table-wrap" style="margin-top:0.75rem; overflow-x:auto;">
                             <table class="create-student-table" style="width:100%; border-collapse:collapse; font-size:0.9rem;">
@@ -185,8 +185,8 @@
                         </div>
                     </div>
                     <div class="create-panel-actions">
-                        <button type="button" class="btn create-next-btn" data-goto="department">â† Back</button>
-                        <button type="button" class="btn create-next-btn" data-goto="teacher">Next: Add Teacher â†’</button>
+                        <button type="button" class="btn create-next-btn" data-goto="department">? Back</button>
+                        <button type="button" class="btn create-next-btn" data-goto="teacher">Next: Add Teacher →</button>
                     </div>
                 </div>
             </section>
@@ -213,7 +213,7 @@
                             <div class="form-group">
                                 <label>Full Name</label>
                                 <input type="text" th:field="*{fullName}" class="form-control" required minlength="2" maxlength="150"
-                                       pattern="[A-Za-zÃ€-Ã–Ã˜-Ã¶Ã¸-Ã¿Ã‘Ã± .'\-]{2,150}"
+                                       pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .'\-]{2,150}"
                                        title="Letters, spaces, and . ' - only"
                                        placeholder="e.g. Maria Santos">
                             </div>
@@ -251,8 +251,8 @@
                         <button type="submit" class="sa-btn sa-btn--primary">Add Teacher</button>
                     </form>
                     <div class="create-panel-actions">
-                        <button type="button" class="btn create-next-btn" data-goto="student">â† Back</button>
-                        <button type="button" class="btn create-next-btn" data-goto="subject">Next: Create Subject â†’</button>
+                        <button type="button" class="btn create-next-btn" data-goto="student">? Back</button>
+                        <button type="button" class="btn create-next-btn" data-goto="subject">Next: Create Subject →</button>
                     </div>
                 </div>
             </section>
@@ -303,8 +303,8 @@
                         <button type="submit" class="sa-btn sa-btn--primary">Create Subject</button>
                     </form>
                     <div class="create-panel-actions">
-                        <button type="button" class="btn create-next-btn" data-goto="teacher">â† Back</button>
-                        <button type="button" class="btn create-next-btn" data-goto="section">Next: Create Section â†’</button>
+                        <button type="button" class="btn create-next-btn" data-goto="teacher">? Back</button>
+                        <button type="button" class="btn create-next-btn" data-goto="section">Next: Create Section →</button>
                     </div>
                 </div>
             </section>
@@ -341,7 +341,7 @@
                         <button type="submit" class="sa-btn sa-btn--primary">Create Section</button>
                     </form>
                     <div class="create-panel-actions">
-                        <button type="button" class="btn create-next-btn" data-goto="subject">â† Back</button>
+                        <button type="button" class="btn create-next-btn" data-goto="subject">? Back</button>
                         <button type="button" class="btn create-next-btn" data-goto="department">Back to Department</button>
                     </div>
                 </div>

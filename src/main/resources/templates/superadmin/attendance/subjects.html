@@ -1,10 +1,10 @@
-﻿<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
 </head>
-<body th:replace="~{fragments/superadmin-page-shell :: shell('Subjects — Attendance Control', 'Subject and Class Management', 'Manage subjects and student assignments', ~{::content})}">
+<body th:replace="~{fragments/superadmin-page-shell :: shell('Subjects � Attendance Control', 'Subject and Class Management', 'Manage subjects and student assignments', ~{::content})}">
 <th:block th:fragment="content">
 <div th:if="${selectedDepartmentId == null}">
-            <div class="sa-card sa-glass">
+            <div class="sa-panel">
                 <h3>Select Department</h3>
                 <div class="department-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
                     <a th:each="d : ${departmentList}" th:href="@{|/superadmin/attendance/subjects?departmentId=${d.id}|}" class="course-card">
@@ -19,22 +19,22 @@
         </div>
 
         <div th:if="${selectedDepartmentId != null}">
-            <div class="sa-card sa-glass">
+            <div class="sa-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3>Subjects - <span th:text="${selectedDepartmentName}"></span></h3>
-                    <a th:href="@{|/superadmin/attendance/subjects|}" class="sa-btn sa-btn--ghost">â† Back to Departments</a>
+                    <a th:href="@{|/superadmin/attendance/subjects|}" class="sa-btn sa-btn--ghost">? Back to Departments</a>
                 </div>
             </div>
 
-            <div class="sa-card sa-glass">
-                <form method="get" th:action="@{|/superadmin/attendance/subjects|}" class="student-search-bar">
+            <div class="sa-panel">
+                <form method="get" th:action="@{|/superadmin/attendance/subjects|}" class="sa-filter-bar student-search-bar">
                     <input type="hidden" name="departmentId" th:value="${selectedDepartmentId}">
                     <input type="search" name="search" class="form-control" th:value="${searchQuery}" placeholder="Search subjects..." id="subjectSearchInput">
                     <button type="submit" class="sa-btn sa-btn--primary">Apply</button>
                 </form>
             </div>
 
-            <div class="sa-card sa-glass">
+            <div class="sa-panel">
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
                     <h3 style="margin:0;">All Subjects <small id="subjectCountLabel" style="font-weight:normal; color:#64748b;"></small></h3>
                     <select id="subjectPageSize" class="form-control"><option value="10">10</option><option value="25">25</option></select>
