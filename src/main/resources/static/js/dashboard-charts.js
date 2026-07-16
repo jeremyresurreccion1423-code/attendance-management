@@ -4,10 +4,10 @@
     const red = "#dc2626";
     const amber = "#d97706";
     const rainbow = ["#ef4444", "#f59e0b", "#22c55e", "#3b82f6", "#a855f7", "#ec4899"];
-    const teacherBlue = "#2563EB";
-    const teacherSky = "#3B82F6";
-    const teacherAccent = "#60A5FA";
-    const teacherBlues = ["#1E3A8A", "#1D4ED8", "#2563EB", "#3B82F6", "#60A5FA", "#93C5FD"];
+    const teacherBlue = "#800020";
+    const teacherSky = "#A52A2A";
+    const teacherAccent = "#C0392B";
+    const teacherBlues = ["#5C0013", "#73001A", "#800020", "#A52A2A", "#C0392B", "#D6A4AE"];
     const purple = "#A855F7";
     const purpleLight = "#E9D5FF";
     const purpleShades = ["#1E1B4B", "#4C1D95", "#7C3AED", "#A855F7", "#C084FC", "#9333EA"];
@@ -107,7 +107,7 @@
                     label: "Total Records",
                     data: data.totals,
                     borderColor: teacher ? teacherBlue : (superAdmin ? controlCenter[0] : (admin ? "#7e22ce" : green)),
-                    backgroundColor: teacher ? "rgba(37, 99, 235, 0.18)" : (superAdmin ? "rgba(245, 158, 11, 0.2)" : (admin ? "rgba(126, 34, 206, 0.18)" : greenLight)),
+                    backgroundColor: teacher ? "rgba(128, 0, 32, 0.18)" : (superAdmin ? "rgba(245, 158, 11, 0.2)" : (admin ? "rgba(126, 34, 206, 0.18)" : greenLight)),
                     tension: 0.3,
                     fill: true
                 });
@@ -117,7 +117,7 @@
                     label: "Records",
                     data: data.labels.map(function () { return 0; }),
                     borderColor: teacher ? teacherSky : (superAdmin ? controlCenter[2] : (admin ? purple : green)),
-                    backgroundColor: teacher ? "rgba(59, 130, 246, 0.2)" : (superAdmin ? "rgba(59, 130, 246, 0.2)" : (admin ? purpleLight : greenLight)),
+                    backgroundColor: teacher ? "rgba(165, 42, 42, 0.2)" : (superAdmin ? "rgba(59, 130, 246, 0.2)" : (admin ? purpleLight : greenLight)),
                     tension: 0.3,
                     fill: false
                 });
