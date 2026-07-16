@@ -1993,6 +1993,27 @@ body.super-admin-theme .page-header > div:first-child span,
 body.super-admin-theme .page-header > div:first-child small {
     color: #9CA3AF;
 }
+body.super-admin-theme .page-header .btn-primary {
+    background: #F59E0B;
+    color: #111827;
+    border: 1px solid #F59E0B;
+    box-shadow: none;
+}
+body.super-admin-theme .page-header .btn-primary:hover {
+    background: #D97706;
+    border-color: #D97706;
+    color: #111827;
+}
+body.super-admin-theme .page-header .btn-secondary {
+    background: transparent;
+    color: #FFFFFF;
+    border: 1px solid #9CA3AF;
+}
+body.super-admin-theme .page-header .btn-secondary:hover {
+    border-color: #F59E0B;
+    color: #F59E0B;
+    background: transparent;
+}
 body.super-admin-theme .page-header-profile-widget .profile-trigger {
     background: #111827;
     color: #FFFFFF;
@@ -2134,4 +2155,22 @@ body.super-admin-theme .alert-info {
 body.super-admin-theme .badge-present {
     background: #ECFDF5;
     color: #047857;
+}
+body.super-admin-theme .create-stat,
+body.super-admin-theme .create-card,
+body.super-admin-theme .create-tabs {
+    border-color: #E5E7EB;
+}
+body.super-admin-theme .course-card:hover,
+body.super-admin-theme .year-card:hover,
+body.super-admin-theme .section-card:hover,
+body.super-admin-theme .department-card:hover {
+    box-shadow: 0 18px 40px rgba(17, 24, 39, 0.12);
+    border-color: #F59E0B;
+}
+body.super-admin-theme .course-card h4,
+body.super-admin-theme .year-card h4,
+body.super-admin-theme .section-card h4,
+body.super-admin-theme .department-card h4 {
+    color: #111827;
 }

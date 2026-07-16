@@ -7,11 +7,15 @@
     const purple = "#A855F7";
     const purpleLight = "#E9D5FF";
     const purpleShades = ["#1E1B4B", "#4C1D95", "#7C3AED", "#A855F7", "#C084FC", "#9333EA"];
+    const controlCenter = ["#F59E0B", "#10B981", "#3B82F6", "#111827", "#6B7280", "#EF4444"];
     const isTeacherTheme = function () {
         return document.body && document.body.classList.contains("teacher-theme");
     };
     const isAdminTheme = function () {
         return document.body && document.body.classList.contains("admin-theme");
+    };
+    const isSuperAdminTheme = function () {
+        return document.body && document.body.classList.contains("super-admin-theme");
     };
 
     function ensureChartJs() {
@@ -75,14 +79,15 @@
             if (data.labels.length === 0) return;
             const teacher = isTeacherTheme();
             const admin = isAdminTheme();
+            const superAdmin = isSuperAdminTheme();
 
             const datasets = [];
             if (data.present.length) {
                 datasets.push({
                     label: "Present",
                     data: data.present,
-                    borderColor: teacher ? rainbow[2] : (admin ? purple : green),
-                    backgroundColor: teacher ? "rgba(34, 197, 94, 0.25)" : (admin ? "rgba(196, 181, 253, 0.35)" : greenLight),
+                    borderColor: teacher ? rainbow[2] : (superAdmin ? controlCenter[1] : (admin ? purple : green)),
+                    backgroundColor: teacher ? "rgba(34, 197, 94, 0.25)" : (superAdmin ? "rgba(16, 185, 129, 0.25)" : (admin ? "rgba(196, 181, 253, 0.35)" : greenLight)),
                     tension: 0.3,
                     fill: false
                 });
@@ -97,8 +102,8 @@
                 datasets.push({
                     label: "Total Records",
                     data: data.totals,
-                    borderColor: teacher ? rainbow[4] : (admin ? "#7e22ce" : green),
-                    backgroundColor: teacher ? "rgba(168, 85, 247, 0.2)" : (admin ? "rgba(126, 34, 206, 0.18)" : greenLight),
+                    borderColor: teacher ? rainbow[4] : (superAdmin ? controlCenter[0] : (admin ? "#7e22ce" : green)),
+                    backgroundColor: teacher ? "rgba(168, 85, 247, 0.2)" : (superAdmin ? "rgba(245, 158, 11, 0.2)" : (admin ? "rgba(126, 34, 206, 0.18)" : greenLight)),
                     tension: 0.3,
                     fill: true
                 });
@@ -107,8 +112,8 @@
                 datasets.push({
                     label: "Records",
                     data: data.labels.map(function () { return 0; }),
-                    borderColor: teacher ? rainbow[5] : (admin ? purple : green),
-                    backgroundColor: teacher ? "rgba(236, 72, 153, 0.2)" : (admin ? purpleLight : greenLight),
+                    borderColor: teacher ? rainbow[5] : (superAdmin ? controlCenter[2] : (admin ? purple : green)),
+                    backgroundColor: teacher ? "rgba(236, 72, 153, 0.2)" : (superAdmin ? "rgba(59, 130, 246, 0.2)" : (admin ? purpleLight : greenLight)),
                     tension: 0.3,
                     fill: false
                 });
@@ -124,12 +129,17 @@
             const label = chart.grades ? "Final Grade" : "Attendance Rate %";
             const teacher = isTeacherTheme();
             const admin = isAdminTheme();
+            const superAdmin = isSuperAdminTheme();
             const backgroundColor = teacher
                 ? data.map(function (_, i) { return rainbow[i % rainbow.length]; })
-                : (admin ? data.map(function (_, i) { return purpleShades[i % purpleShades.length]; }) : greenLight);
+                : (superAdmin
+                    ? data.map(function (_, i) { return controlCenter[i % controlCenter.length]; })
+                    : (admin ? data.map(function (_, i) { return purpleShades[i % purpleShades.length]; }) : greenLight));
             const borderColor = teacher
                 ? data.map(function (_, i) { return rainbow[i % rainbow.length]; })
-                : (admin ? data.map(function (_, i) { return purpleShades[i % purpleShades.length]; }) : green);
+                : (superAdmin
+                    ? data.map(function (_, i) { return controlCenter[i % controlCenter.length]; })
+                    : (admin ? data.map(function (_, i) { return purpleShades[i % purpleShades.length]; }) : green));
             renderBarChart(canvasId, labels, [{
                 label: label,
                 data: data,
