@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -108,8 +109,51 @@ public class SubjectService {
         return enrollmentRepository.findBySubjectId(subjectId);
     }
 
+    @Transactional
     public List<Subject> findByDepartmentId(Long departmentId) {
-        return subjectRepository.findByDepartmentIdOrderBySubjectNameAsc(departmentId);
+        if (departmentId == null) {
+            return List.of();
+        }
+        List<Subject> subjects = subjectRepository.findAllForDepartment(departmentId);
+        for (Subject subject : subjects) {
+            repairDepartmentIfMissing(subject, departmentId);
+        }
+        return subjects.stream()
+                .filter(this::isDisplayableSubject)
+                .sorted(Comparator.comparing(
+                        s -> s.getSubjectName() != null ? s.getSubjectName().toLowerCase() : "",
+                        Comparator.naturalOrder()))
+                .toList();
+    }
+
+    private void repairDepartmentIfMissing(Subject subject, Long departmentId) {
+        Department target = null;
+        if (subject.getSection() != null
+                && subject.getSection().getDepartment() != null
+                && departmentId.equals(subject.getSection().getDepartment().getId())) {
+            target = subject.getSection().getDepartment();
+        } else if (subject.getTeacher() != null
+                && subject.getTeacher().getDepartment() != null
+                && departmentId.equals(subject.getTeacher().getDepartment().getId())) {
+            target = subject.getTeacher().getDepartment();
+        }
+        if (target == null) {
+            return;
+        }
+        if (subject.getDepartment() == null
+                || subject.getDepartment().getId() == null
+                || !departmentId.equals(subject.getDepartment().getId())) {
+            subject.setDepartment(target);
+            subjectRepository.save(subject);
+        }
+    }
+
+    private boolean isDisplayableSubject(Subject subject) {
+        return subject != null
+                && subject.getSubjectCode() != null && !subject.getSubjectCode().isBlank()
+                && subject.getSubjectName() != null && !subject.getSubjectName().isBlank()
+                && subject.getTeacher() != null
+                && subject.getSection() != null;
     }
 
     private void resolveRelations(Subject subject) {

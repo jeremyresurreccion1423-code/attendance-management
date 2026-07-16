@@ -117,7 +117,12 @@
         item.hidden = !visible;
         if (visible) visibleCount += 1;
       });
-      if (emptyEl) emptyEl.hidden = visibleCount > 0;
+      if (emptyEl) {
+        emptyEl.hidden = visibleCount > 0;
+        emptyEl.textContent = items.length === 0
+          ? 'No students in this section.'
+          : 'No students match your search.';
+      }
     }
 
     if (searchInput) searchInput.addEventListener('input', applySearch);

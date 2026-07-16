@@ -86,6 +86,14 @@
             paginationEl.appendChild(next);
         }
 
+        function pairedEditRow(row) {
+            const next = row.nextElementSibling;
+            if (next && next.id && next.id.startsWith('edit-row-')) {
+                return next;
+            }
+            return null;
+        }
+
         function render() {
             const filtered = getFilteredRows();
             const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
@@ -93,12 +101,20 @@
 
             allRows.forEach((row) => {
                 row.style.display = 'none';
+                const editRow = pairedEditRow(row);
+                if (editRow && editRow.dataset.editOpen !== '1') {
+                    editRow.style.display = 'none';
+                }
             });
 
             const start = (page - 1) * pageSize;
             const visible = filtered.slice(start, start + pageSize);
             visible.forEach((row) => {
                 row.style.display = '';
+                const editRow = pairedEditRow(row);
+                if (editRow && editRow.dataset.editOpen === '1') {
+                    editRow.style.display = 'table-row';
+                }
             });
 
             if (countEl) {

@@ -93,6 +93,15 @@ public class SchemaMigrationV2Initializer {
                 """);
 
         jdbcTemplate.update("""
+                UPDATE subjects sub
+                SET department_id = s.department_id
+                FROM sections s
+                WHERE sub.department_id IS NULL
+                  AND sub.section_id = s.id
+                  AND s.department_id IS NOT NULL
+                """);
+
+        jdbcTemplate.update("""
                 UPDATE teachers
                 SET status = 'ACTIVE'
                 WHERE status IS NULL
