@@ -8,18 +8,7 @@
 <body>
 <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
 <div class="app-layout">
-    <aside class="sidebar">
-        <div class="brand"><h2>AMS</h2><small>Student Portal</small></div>
-        <nav>
-            <a href="/student/dashboard">Dashboard</a>
-            <a href="/student/attendance">Attendance</a>
-            <a href="/student/scan" class="active">QR Attendance</a>
-            <a href="/student/grades">Grades</a>
-            <a href="/student/schedule">Schedule</a>
-            <a href="/student/trends">Trends</a>
-            <a href="/logout" style="margin-top:2rem; display:block;">Logout</a>
-        </nav>
-    </aside>
+    <div th:replace="~{fragments/student-sidebar :: sidebar('scan')}"></div>
     <main class="main-content">
         <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
         <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>

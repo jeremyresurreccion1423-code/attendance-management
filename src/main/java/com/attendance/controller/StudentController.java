@@ -24,6 +24,7 @@ public class StudentController {
     private final TimetableService timetableService;
     private final ProfilePhotoService profilePhotoService;
     private final SharedAttendanceStudentProfileBridgeService sharedAttendanceStudentProfileBridgeService;
+    private final SubjectService subjectService;
 
     private Student getCurrentStudent(Authentication auth) {
         User user = authService.findByUsername(auth.getName())
@@ -82,6 +83,15 @@ public class StudentController {
             redirect.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/student/scan";
+    }
+
+    @GetMapping("/subjects")
+    public String subjects(Authentication auth, Model model) {
+        Student student = getCurrentStudent(auth);
+        model.addAttribute("student", student);
+        model.addAttribute("enrollments", subjectService.getEnrollmentsByStudent(student.getId()));
+        model.addAttribute("profilePhotoUrl", profilePhotoService.resolveProfilePhotoUrl(auth.getName()));
+        return "student/subjects";
     }
 
     @GetMapping("/grades")

@@ -109,6 +109,10 @@ public class SubjectService {
         return enrollmentRepository.findBySubjectId(subjectId);
     }
 
+    public List<Enrollment> getEnrollmentsByStudent(Long studentId) {
+        return enrollmentRepository.findByStudentId(studentId);
+    }
+
     @Transactional
     public List<Subject> findByDepartmentId(Long departmentId) {
         if (departmentId == null) {

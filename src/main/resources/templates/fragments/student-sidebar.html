@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="sidebar(activePage)">
+    <aside class="sidebar">
+        <div class="brand"><h2>AMS</h2><small>Student Portal</small></div>
+        <nav>
+            <a th:href="@{/student/dashboard}" th:classappend="${activePage == 'dashboard'} ? 'active' : ''">Dashboard</a>
+            <a th:href="@{/student/subjects}" th:classappend="${activePage == 'subjects'} ? 'active' : ''">Subjects</a>
+            <a th:href="@{/student/attendance}" th:classappend="${activePage == 'attendance'} ? 'active' : ''">Attendance</a>
+            <a th:href="@{/student/scan}" th:classappend="${activePage == 'scan'} ? 'active' : ''">QR Attendance</a>
+            <a th:href="@{/student/grades}" th:classappend="${activePage == 'grades'} ? 'active' : ''">Grades</a>
+            <a th:href="@{/student/schedule}" th:classappend="${activePage == 'schedule'} ? 'active' : ''">Schedule</a>
+            <a th:href="@{/student/trends}" th:classappend="${activePage == 'trends'} ? 'active' : ''">Trends</a>
+            <a th:href="@{/logout}" style="margin-top:2rem; display:block;">Logout</a>
+        </nav>
+    </aside>
+</th:block>
+</body>
+</html>
