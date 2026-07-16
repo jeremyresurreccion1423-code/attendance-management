@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>My Schedule - AMS</title>
     <link rel="stylesheet" th:href="@{/css/style.css(v=7)}">
-    <link rel="stylesheet" th:href="@{/css/schedule.css}">
+    <link rel="stylesheet" th:href="@{/css/schedule.css(v=2)}">
 </head>
 <body>
 <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
@@ -14,7 +14,7 @@
         <div class="page-header">
             <div>
                 <h1>Class Schedule</h1>
-                <span th:text="'Weekly timetable for ' + ${student.fullName}"></span>
+                <span th:text="|Weekly timetable for ${student.fullName}|">Weekly timetable</span>
             </div>
             <div class="page-header-profile-widget">
                 <button type="button" class="profile-trigger" onclick="toggleProfileMenu(this)">
@@ -99,16 +99,20 @@
                     <span class="schedule-day-count" th:text="${entry.value.size()} + ' class(es)'">0 class(es)</span>
                 </div>
                 <div class="schedule-day-items">
-                    <article class="schedule-item-card" th:each="s : ${entry.value}">
+                    <article class="schedule-item-card" th:each="s : ${entry.value}"
+                             th:with="teacherName=${s.teacher != null ? s.teacher.fullName : (s.subject.teacher != null ? s.subject.teacher.fullName : 'TBA')},
+                                      scheduledDate=${s.createdAt != null ? #temporals.format(s.createdAt, 'MMM dd, yyyy') : 'N/A'},
+                                      roomName=${s.room != null and !#strings.isEmpty(s.room) ? s.room : 'TBA'}">
                         <div class="schedule-item-time">
                             <span th:text="${#temporals.format(s.startTime, 'hh:mm a')}">08:00 AM</span>
-                            <small th:text="'to ' + ${#temporals.format(s.endTime, 'hh:mm a')}">to 10:00 AM</small>
+                            <small th:text="|to ${#temporals.format(s.endTime, 'hh:mm a')}|">to 10:00 AM</small>
                         </div>
                         <div>
                             <div class="schedule-item-subject" th:text="${s.subject.subjectName}">Subject</div>
                             <div class="schedule-item-meta">
-                                <span th:text="|Room: ${s.room != null and !#strings.isEmpty(s.room) ? s.room : 'TBA'}|">Room: TBA</span>
-                                <span th:text="|Teacher: ${s.teacher != null ? s.teacher.fullName : 'TBA'}|">Teacher: TBA</span>
+                                <span th:text="|Date scheduled: ${scheduledDate}|">Date scheduled: N/A</span>
+                                <span th:text="|Room: ${roomName}|">Room: TBA</span>
+                                <span th:text="|Teacher: ${teacherName}|">Teacher: TBA</span>
                             </div>
                         </div>
                     </article>
@@ -122,6 +126,7 @@
                     <thead>
                     <tr>
                         <th data-sort="day">Day</th>
+                        <th data-sort="date">Date Scheduled</th>
                         <th data-sort="time">Time</th>
                         <th data-sort="subject">Subject</th>
                         <th data-sort="room">Room</th>
@@ -130,12 +135,13 @@
                     </thead>
                     <tbody>
                     <tr th:each="s : ${schedules}"
-                        th:attr="data-day=${s.dayOfWeek.ordinal()},data-time=${s.startTime},data-subject=${s.subject.subjectName},data-room=${s.room != null ? s.room : ''},data-teacher=${s.teacher != null ? s.teacher.fullName : ''}">
+                        th:attr="data-day=${s.dayOfWeek.ordinal()},data-date=${s.createdAt != null ? #temporals.format(s.createdAt, 'yyyy-MM-dd HH:mm') : ''},data-time=${s.startTime},data-subject=${s.subject.subjectName},data-room=${s.room != null ? s.room : ''},data-teacher=${s.teacher != null ? s.teacher.fullName : (s.subject.teacher != null ? s.subject.teacher.fullName : '')}">
                         <td th:text="${#strings.capitalize(#strings.toLowerCase(s.dayOfWeek.name()))}"></td>
+                        <td th:text="${s.createdAt != null ? #temporals.format(s.createdAt, 'MMM dd, yyyy') : 'N/A'}"></td>
                         <td th:text="|${#temporals.format(s.startTime, 'hh:mm a')} - ${#temporals.format(s.endTime, 'hh:mm a')}|"></td>
                         <td th:text="${s.subject.subjectName}"></td>
                         <td th:text="${s.room != null and !#strings.isEmpty(s.room) ? s.room : 'TBA'}"></td>
-                        <td th:text="${s.teacher != null ? s.teacher.fullName : 'TBA'}"></td>
+                        <td th:text="${s.teacher != null ? s.teacher.fullName : (s.subject.teacher != null ? s.subject.teacher.fullName : 'TBA')}"></td>
                     </tr>
                     </tbody>
                 </table>
