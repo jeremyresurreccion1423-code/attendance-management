@@ -81,15 +81,12 @@
                                     <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
                                     <input type="search" class="form-control assign-search" placeholder="Search student..." data-assign-search>
                                     <div class="assign-students-list" data-assign-list>
-                                        <th:block th:each="st : ${students}">
-                                        <label class="assign-student-item"
-                                               th:if="${sub.section != null and st.section != null and st.section.id == sub.section.id}"
-                                               th:attr="data-search-text=${#strings.toLowerCase(st.fullName + ' ' + st.studentNumber)}">
+                                        <label class="assign-student-item" th:each="st : ${students}"
+                                               th:attr="data-search-text=${#strings.toLowerCase(st.fullName + ' ' + st.studentNumber + ' ' + (st.section != null ? st.section.name : ''))}">
                                             <input type="checkbox" name="studentIds" th:value="${st.id}" data-assign-checkbox>
-                                            <span th:text="${st.fullName + ' (' + st.studentNumber + ')'}"></span>
+                                            <span th:text="${st.fullName + ' (' + st.studentNumber + ')' + (st.section != null ? ' — ' + st.section.name : '')}"></span>
                                         </label>
-                                        </th:block>
-                                        <div class="assign-empty" data-assign-empty hidden>No students in this section.</div>
+                                        <div class="assign-empty" data-assign-empty hidden>No students in this department.</div>
                                     </div>
                                     <div class="assign-students-actions">
                                         <small class="assign-selected-count" data-assign-count>0 selected</small>
@@ -223,7 +220,7 @@ function bindAssignWidget(widget) {
         if (emptyEl) {
             emptyEl.hidden = visibleCount > 0;
             emptyEl.textContent = items.length === 0
-                ? 'No students in this section.'
+                ? 'No students in this department.'
                 : 'No students match your search.';
         }
     }
