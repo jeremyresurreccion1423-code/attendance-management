@@ -138,7 +138,19 @@ public class SectionService {
     }
 
     public List<Section> findByDepartmentIdAndYearLevel(Long departmentId, String yearLevel) {
-        return sectionRepository.findByDepartmentIdAndYearLevelOrderBySectionNameAsc(departmentId, yearLevel);
+        String normalized = normalizeYearLevel(yearLevel);
+        if (normalized == null) {
+            return List.of();
+        }
+        List<Section> matched = sectionRepository
+                .findByDepartmentIdAndYearLevelIgnoreCaseOrderBySectionNameAsc(departmentId, normalized);
+        if (!matched.isEmpty()) {
+            return matched;
+        }
+        // Fallback for legacy/corrupted year_level values (e.g. "2nd Year§ionId=2")
+        return sectionRepository.findByDepartmentIdOrderBySectionNameAsc(departmentId).stream()
+                .filter(s -> normalized.equalsIgnoreCase(normalizeYearLevel(s.getYearLevel())))
+                .toList();
     }
 
     private void validateSection(Section section, Long currentId) {

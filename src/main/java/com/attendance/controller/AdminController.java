@@ -599,10 +599,11 @@ public class AdminController {
                            Authentication auth,
                            @RequestParam(required = false) Long departmentId,
                            @RequestParam(required = false) String yearLevel) {
+        String resolvedYearLevel = sanitizeYearLevel(yearLevel);
         List<Section> sections;
         if (departmentId != null) {
-            if (yearLevel != null && !yearLevel.isEmpty()) {
-                sections = sectionService.findByDepartmentIdAndYearLevel(departmentId, yearLevel);
+            if (resolvedYearLevel != null && !resolvedYearLevel.isBlank()) {
+                sections = sectionService.findByDepartmentIdAndYearLevel(departmentId, resolvedYearLevel);
             } else {
                 sections = sectionService.findByDepartmentId(departmentId);
             }
@@ -613,7 +614,7 @@ public class AdminController {
         model.addAttribute("sections", sections);
         model.addAttribute("departmentList", departmentService.findAll());
         model.addAttribute("selectedDepartmentId", departmentId);
-        model.addAttribute("selectedYearLevel", yearLevel);
+        model.addAttribute("selectedYearLevel", resolvedYearLevel);
         if (departmentId != null) {
             model.addAttribute("yearLevels", sectionService.findYearLevelsByDepartmentId(departmentId));
             departmentService.findAll().stream()
@@ -630,8 +631,8 @@ public class AdminController {
             dept.setId(departmentId);
             section.setDepartment(dept);
         }
-        if (yearLevel != null && !yearLevel.isEmpty()) {
-            section.setYearLevel(yearLevel);
+        if (resolvedYearLevel != null && !resolvedYearLevel.isBlank()) {
+            section.setYearLevel(resolvedYearLevel);
         }
         model.addAttribute("section", section);
         return "admin/sections";

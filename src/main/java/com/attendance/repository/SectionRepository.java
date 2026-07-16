@@ -11,6 +11,8 @@ public interface SectionRepository extends JpaRepository<Section, Long> {
 
     List<Section> findByDepartmentIdAndYearLevelOrderBySectionNameAsc(Long departmentId, String yearLevel);
 
+    List<Section> findByDepartmentIdAndYearLevelIgnoreCaseOrderBySectionNameAsc(Long departmentId, String yearLevel);
+
     boolean existsByDepartmentIdAndYearLevelIgnoreCaseAndSectionNameIgnoreCase(
             Long departmentId, String yearLevel, String sectionName);
 
