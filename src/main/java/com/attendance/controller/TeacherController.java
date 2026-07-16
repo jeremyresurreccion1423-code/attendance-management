@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/teacher")
@@ -73,6 +75,29 @@ public class TeacherController {
         model.addAttribute("teacher", teacher);
         model.addAttribute("profilePhotoUrl", profilePhotoService.resolveProfilePhotoUrl(auth.getName()));
         return "teacher/trends";
+    }
+
+    @GetMapping("/subjects")
+    public String subjects(Authentication auth, Model model,
+                           @RequestParam(required = false) Long subjectId) {
+        Teacher teacher = getCurrentTeacher(auth);
+        List<Subject> subjects = subjectService.findByTeacherId(teacher.getId());
+        model.addAttribute("subjects", subjects);
+        model.addAttribute("teacher", teacher);
+        model.addAttribute("profilePhotoUrl", profilePhotoService.resolveProfilePhotoUrl(auth.getName()));
+
+        Map<Long, Integer> enrollmentCounts = new HashMap<>();
+        for (Subject subject : subjects) {
+            enrollmentCounts.put(subject.getId(), subjectService.getEnrollments(subject.getId()).size());
+        }
+        model.addAttribute("enrollmentCounts", enrollmentCounts);
+
+        if (subjectId != null) {
+            Subject selected = requireOwnedSubject(teacher, subjectId);
+            model.addAttribute("selectedSubject", selected);
+            model.addAttribute("enrollments", subjectService.getEnrollments(subjectId));
+        }
+        return "teacher/subjects";
     }
 
     @GetMapping("/attendance")
