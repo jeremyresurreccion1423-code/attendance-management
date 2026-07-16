@@ -13,7 +13,7 @@
         <div class="page-header">
             <div>
                 <h1>My Subjects</h1>
-                <span th:text="'Enrolled subjects for ' + ${student.fullName}">Enrolled subjects</span>
+                <span th:text="|Enrolled subjects for ${student.fullName}|">Enrolled subjects</span>
             </div>
             <div class="page-header-profile-widget">
                 <button type="button" class="profile-trigger" onclick="toggleProfileMenu(this)">
@@ -51,7 +51,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="e : ${enrollments}">
+                <tr th:each="e : ${enrollments}" th:if="${e.subject != null}">
                     <td th:text="${e.subject.subjectCode}">CODE</td>
                     <td th:text="${e.subject.subjectName}">Subject</td>
                     <td th:text="${e.subject.teacher != null ? e.subject.teacher.fullName : '-'}">Teacher</td>

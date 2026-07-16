@@ -110,7 +110,15 @@ public class SubjectService {
     }
 
     public List<Enrollment> getEnrollmentsByStudent(Long studentId) {
-        return enrollmentRepository.findByStudentId(studentId);
+        if (studentId == null) {
+            return List.of();
+        }
+        return enrollmentRepository.findDetailedByStudentId(studentId).stream()
+                .filter(e -> e.getSubject() != null)
+                .sorted(Comparator.comparing(
+                        e -> e.getSubject().getSubjectName() != null ? e.getSubject().getSubjectName().toLowerCase() : "",
+                        Comparator.naturalOrder()))
+                .toList();
     }
 
     @Transactional
