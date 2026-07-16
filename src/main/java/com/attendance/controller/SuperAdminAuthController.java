@@ -1,32 +1,49 @@
 package com.attendance.controller;
 
+import com.attendance.config.LibraryAppLinks;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * Dedicated login page for the Super Admin role — kept completely separate from the
- * regular Admin/Teacher/Student login so Super Admin authentication never mixes with
- * end-user flows.
+ * Super Admin login is hosted on the Library app only — redirect any visit here to that portal.
  */
 @Controller
+@RequiredArgsConstructor
 public class SuperAdminAuthController {
+
+    private final LibraryAppLinks libraryAppLinks;
 
     @GetMapping("/super-admin/login")
     public String login(@RequestParam(required = false) String error,
-                        @RequestParam(required = false) String logout,
-                        Model model) {
-        if ("locked".equals(error)) {
-            model.addAttribute("error", "Account locked after too many failed attempts. Try again in 15 minutes.");
-        } else if ("disabled".equals(error)) {
-            model.addAttribute("error", "This Super Admin account is disabled.");
-        } else if (error != null) {
-            model.addAttribute("error", "Invalid Super Admin credentials");
+                        @RequestParam(required = false) String logout) {
+        StringBuilder query = new StringBuilder();
+        if (error != null) {
+            query.append("error=").append(error);
         }
         if (logout != null) {
-            model.addAttribute("message", "You have been logged out of the System Control Center");
+            if (!query.isEmpty()) {
+                query.append('&');
+            }
+            query.append("logout=").append(logout);
         }
-        return "super-admin/login";
+        return "redirect:" + libraryAppLinks.superAdminLoginWithQuery(query.toString());
+    }
+
+    @PostMapping("/super-admin/login")
+    public String loginPost() {
+        return "redirect:" + libraryAppLinks.superAdminLogin();
+    }
+
+    @GetMapping("/super-admin/logout")
+    public String logoutGet() {
+        return "redirect:" + libraryAppLinks.superAdminLogout();
+    }
+
+    @PostMapping("/super-admin/logout")
+    public String logoutPost() {
+        return "redirect:" + libraryAppLinks.superAdminLogout();
     }
 }
