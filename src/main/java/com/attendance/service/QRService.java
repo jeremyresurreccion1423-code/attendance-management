@@ -37,7 +37,8 @@ public class QRService {
                 .orElseThrow(() -> new IllegalArgumentException("Subject not found"));
         LocalDate targetDate = sessionDate != null ? sessionDate : LocalDate.now();
 
-        LocalDateTime expiresAt = LocalDateTime.now().plusHours(2);
+        // QR attendance window: 15 minutes from generation
+        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(15);
         Timetable selectedTimetable = null;
         if (timetableId != null) {
             Timetable timetable = timetableRepository.findById(timetableId)
@@ -52,16 +53,6 @@ public class QRService {
             DayOfWeek expectedDay = DayOfWeek.valueOf(targetDate.getDayOfWeek().name());
             if (timetable.getDayOfWeek() != expectedDay) {
                 throw new IllegalArgumentException("Selected schedule does not match the chosen date.");
-            }
-
-            LocalTime end = timetable.getEndTime() != null ? timetable.getEndTime() : LocalTime.of(23, 59);
-            LocalDateTime scheduleBasedExpiry = LocalDateTime.of(targetDate, end).plusHours(2);
-            if (targetDate.equals(LocalDate.now())) {
-                expiresAt = scheduleBasedExpiry.isAfter(LocalDateTime.now())
-                        ? scheduleBasedExpiry
-                        : LocalDateTime.now().plusHours(2);
-            } else {
-                expiresAt = scheduleBasedExpiry;
             }
         }
 
