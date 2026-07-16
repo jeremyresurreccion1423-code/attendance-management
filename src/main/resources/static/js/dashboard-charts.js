@@ -8,9 +8,9 @@
     const teacherSky = "#A52A2A";
     const teacherAccent = "#C0392B";
     const teacherBlues = ["#5C0013", "#73001A", "#800020", "#A52A2A", "#C0392B", "#D6A4AE"];
-    const purple = "#A855F7";
-    const purpleLight = "#E9D5FF";
-    const purpleShades = ["#1E1B4B", "#4C1D95", "#7C3AED", "#A855F7", "#C084FC", "#9333EA"];
+    const adminBlue = "#6B9BD2";
+    const adminBlueLight = "#E8F1F8";
+    const adminBlues = ["#3D5A7A", "#4A78AF", "#5A89C0", "#6B9BD2", "#7EABD8", "#A8C5DE"];
     const controlCenter = ["#F59E0B", "#10B981", "#3B82F6", "#111827", "#6B7280", "#EF4444"];
     const isTeacherTheme = function () {
         return document.body && document.body.classList.contains("teacher-theme");
@@ -90,8 +90,8 @@
                 datasets.push({
                     label: "Present",
                     data: data.present,
-                    borderColor: teacher ? "#10B981" : (superAdmin ? controlCenter[1] : (admin ? purple : green)),
-                    backgroundColor: teacher ? "rgba(16, 185, 129, 0.25)" : (superAdmin ? "rgba(16, 185, 129, 0.25)" : (admin ? "rgba(196, 181, 253, 0.35)" : greenLight)),
+                    borderColor: teacher ? "#10B981" : (superAdmin ? controlCenter[1] : (admin ? adminBlue : green)),
+                    backgroundColor: teacher ? "rgba(16, 185, 129, 0.25)" : (superAdmin ? "rgba(16, 185, 129, 0.25)" : (admin ? "rgba(107, 155, 210, 0.28)" : greenLight)),
                     tension: 0.3,
                     fill: false
                 });
@@ -106,8 +106,8 @@
                 datasets.push({
                     label: "Total Records",
                     data: data.totals,
-                    borderColor: teacher ? teacherBlue : (superAdmin ? controlCenter[0] : (admin ? "#7e22ce" : green)),
-                    backgroundColor: teacher ? "rgba(37, 99, 235, 0.18)" : (superAdmin ? "rgba(245, 158, 11, 0.2)" : (admin ? "rgba(126, 34, 206, 0.18)" : greenLight)),
+                    borderColor: teacher ? teacherBlue : (superAdmin ? controlCenter[0] : (admin ? "#5A89C0" : green)),
+                    backgroundColor: teacher ? "rgba(128, 0, 32, 0.18)" : (superAdmin ? "rgba(245, 158, 11, 0.2)" : (admin ? "rgba(90, 137, 192, 0.18)" : greenLight)),
                     tension: 0.3,
                     fill: true
                 });
@@ -116,8 +116,8 @@
                 datasets.push({
                     label: "Records",
                     data: data.labels.map(function () { return 0; }),
-                    borderColor: teacher ? teacherSky : (superAdmin ? controlCenter[2] : (admin ? purple : green)),
-                    backgroundColor: teacher ? "rgba(59, 130, 246, 0.2)" : (superAdmin ? "rgba(59, 130, 246, 0.2)" : (admin ? purpleLight : greenLight)),
+                    borderColor: teacher ? teacherSky : (superAdmin ? controlCenter[2] : (admin ? adminBlue : green)),
+                    backgroundColor: teacher ? "rgba(165, 42, 42, 0.2)" : (superAdmin ? "rgba(59, 130, 246, 0.2)" : (admin ? adminBlueLight : greenLight)),
                     tension: 0.3,
                     fill: false
                 });
@@ -138,12 +138,12 @@
                 ? data.map(function (_, i) { return teacherBlues[i % teacherBlues.length]; })
                 : (superAdmin
                     ? data.map(function (_, i) { return controlCenter[i % controlCenter.length]; })
-                    : (admin ? data.map(function (_, i) { return purpleShades[i % purpleShades.length]; }) : greenLight));
+                    : (admin ? data.map(function (_, i) { return adminBlues[i % adminBlues.length]; }) : greenLight));
             const borderColor = teacher
                 ? data.map(function (_, i) { return teacherBlues[i % teacherBlues.length]; })
                 : (superAdmin
                     ? data.map(function (_, i) { return controlCenter[i % controlCenter.length]; })
-                    : (admin ? data.map(function (_, i) { return purpleShades[i % purpleShades.length]; }) : green));
+                    : (admin ? data.map(function (_, i) { return adminBlues[i % adminBlues.length]; }) : green));
             renderBarChart(canvasId, labels, [{
                 label: label,
                 data: data,
