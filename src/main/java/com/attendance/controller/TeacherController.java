@@ -137,10 +137,6 @@ public class TeacherController {
             model.addAttribute("sessionActive", Boolean.TRUE.equals(qr.getActive())
                     && qr.getExpiresAt() != null
                     && qr.getExpiresAt().isAfter(java.time.LocalDateTime.now()));
-            model.addAttribute("expiresAtEpochMs", qr.getExpiresAt()
-                    .atZone(java.time.ZoneId.systemDefault())
-                    .toInstant()
-                    .toEpochMilli());
             return "teacher/qr-display";
         } catch (IllegalArgumentException ex) {
             redirect.addFlashAttribute("error", ex.getMessage());

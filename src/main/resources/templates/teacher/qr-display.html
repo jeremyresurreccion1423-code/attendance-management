@@ -82,13 +82,6 @@
                              width="320"
                              height="320">
                     </div>
-
-                    <div class="qrs-countdown"
-                         id="qrCountdown"
-                         th:attr="data-expires-ms=${expiresAtEpochMs}">
-                        <span class="qrs-countdown-label">Time remaining</span>
-                        <strong class="qrs-countdown-value" id="qrCountdownValue">00:15:00</strong>
-                    </div>
                 </section>
 
                 <!-- Session info + actions -->
@@ -257,12 +250,8 @@
 <script th:src="@{/js/layout.js}"></script>
 <script th:inline="javascript">
 (function () {
-    const expiresAtEpochMs = Number(/*[[${expiresAtEpochMs}]]*/ 0);
     const backUrl = /*[[@{/teacher/attendance(subjectId=${qr.subject.id}, date=${qr.sessionDate})}]]*/ '/teacher/attendance';
-    const countdownEl = document.getElementById('qrCountdown');
-    const countdownValue = document.getElementById('qrCountdownValue');
     const toastEl = document.getElementById('qrsToast');
-    const SESSION_MS = 15 * 60 * 1000;
 
     function showToast(message, type) {
         if (!toastEl) return;
@@ -275,50 +264,6 @@
             toastEl.hidden = true;
         }, 2400);
     }
-
-    function formatRemaining(ms) {
-        if (ms <= 0) return '00:00:00';
-        const totalSec = Math.floor(ms / 1000);
-        const h = String(Math.floor(totalSec / 3600)).padStart(2, '0');
-        const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
-        const s = String(totalSec % 60).padStart(2, '0');
-        return h + ':' + m + ':' + s;
-    }
-
-    let expiresAtMs = expiresAtEpochMs;
-    if (!expiresAtMs || isNaN(expiresAtMs)) {
-        const fromAttr = countdownEl ? Number(countdownEl.getAttribute('data-expires-ms')) : 0;
-        expiresAtMs = fromAttr && !isNaN(fromAttr) ? fromAttr : (Date.now() + SESSION_MS);
-    }
-
-    function markExpired() {
-        const live = document.querySelector('.qrs-live-badge');
-        const hero = document.querySelector('.qrs-hero');
-        if (live) {
-            live.className = 'qrs-expired-badge';
-            live.textContent = 'EXPIRED';
-        }
-        if (hero) {
-            hero.classList.remove('is-live');
-            hero.classList.add('is-expired');
-        }
-    }
-
-    function tick() {
-        if (!countdownValue) return;
-        const remaining = expiresAtMs - Date.now();
-        countdownValue.textContent = formatRemaining(remaining);
-        if (countdownEl) {
-            countdownEl.classList.toggle('is-urgent', remaining > 0 && remaining < 5 * 60 * 1000);
-            countdownEl.classList.toggle('is-expired', remaining <= 0);
-        }
-        if (remaining <= 0) {
-            markExpired();
-        }
-    }
-
-    tick();
-    setInterval(tick, 1000);
 
     const copyBtn = document.getElementById('copyCodeBtn');
     const sessionCodeEl = document.getElementById('sessionCode');

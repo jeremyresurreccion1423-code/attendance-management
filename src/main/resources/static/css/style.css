@@ -1013,49 +1013,6 @@ body.teacher-theme.qr-session-page .app-layout {
     height: auto;
     aspect-ratio: 1;
 }
-.qrs-countdown {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.2rem;
-    padding: 0.75rem 1.25rem;
-    border-radius: 14px;
-    background: #EFF6FF;
-    border: 1px solid #BFDBFE;
-    min-width: 180px;
-    transition: background 0.25s ease, border-color 0.25s ease;
-}
-.qrs-countdown-label {
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #3B82F6;
-}
-.qrs-countdown-value {
-    font-size: 1.55rem;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.04em;
-    color: #1E40AF;
-    animation: qrs-tick 1s ease-in-out infinite;
-}
-.qrs-countdown.is-urgent {
-    background: #FFF7ED;
-    border-color: #FDBA74;
-}
-.qrs-countdown.is-urgent .qrs-countdown-label,
-.qrs-countdown.is-urgent .qrs-countdown-value {
-    color: #C2410C;
-}
-.qrs-countdown.is-expired {
-    background: #FEF2F2;
-    border-color: #FECACA;
-}
-.qrs-countdown.is-expired .qrs-countdown-label,
-.qrs-countdown.is-expired .qrs-countdown-value {
-    color: #B91C1C;
-    animation: none;
-}
 .qrs-info-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -1279,10 +1236,6 @@ body.teacher-theme.qr-session-page .app-layout {
     0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.55); }
     70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
     100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-@keyframes qrs-tick {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.72; }
 }
 
 @media (max-width: 960px) {
