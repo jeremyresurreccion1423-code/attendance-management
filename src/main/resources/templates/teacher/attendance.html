@@ -36,39 +36,9 @@
                     <span class="profile-caret">▾</span>
                 </button>
                 <div class="profile-menu">
-                    <button type="button" class="profile-menu-action" onclick="toggleProfilePanel('profile-panel')">My Profile</button>
+                    <a href="/profile" class="profile-menu-action">My Profile</a>
+                    <a href="/forgot-password" class="profile-menu-action">Forgot Password</a>
                     <a href="/logout" class="profile-menu-action profile-logout">Logout</a>
-                </div>
-                <div class="profile-panel" id="profile-panel">
-                    <div class="profile-panel-title">My Profile</div>
-                    <div class="profile-summary">
-                        <div class="profile-summary-avatar">
-                            <img th:if="${profilePhotoUrl != null}" th:src="${profilePhotoUrl}" alt="Profile photo" />
-                            <span th:unless="${profilePhotoUrl != null}" th:text="${profileInitial ?: 'U'}">U</span>
-                        </div>
-                        <div class="profile-summary-meta">
-                            <strong th:text="${#authentication.name != null ? #authentication.name : 'User'}">user</strong>
-                            <small th:text="${#authentication.authorities[0].authority}">ROLE_TEACHER</small>
-                        </div>
-                    </div>
-                    <div class="profile-info">
-                        <p><strong>Username:</strong> <span th:text="${#authentication.name}">user</span></p>
-                        <p><strong>Role:</strong> <span th:text="${#authentication.authorities[0].authority}">ROLE_TEACHER</span></p>
-                    </div>
-                    <div class="profile-panel-section">
-                        <div class="profile-panel-section-title">Upload Photo</div>
-                        <form action="/profile/photo" method="post" enctype="multipart/form-data">
-                            <div class="form-group"><input type="file" name="photo" accept="image/*" required></div>
-                            <div class="profile-panel-actions"><button type="submit" class="btn btn-primary btn-sm">Upload</button></div>
-                        </form>
-                    </div>
-                                        <div class="profile-panel-section">
-                        <div class="profile-panel-section-title">Change Password</div>
-                        <p style="font-size:0.85rem;color:#64748b;margin:0 0 0.65rem;">Password changes require OTP sent to your Gmail.</p>
-                        <div class="profile-panel-actions">
-                            <a href="/forgot-password" class="btn btn-primary btn-sm">Reset via OTP</a>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -144,31 +114,8 @@
     </main>
 </div>
 <script th:src="@{/js/layout.js}"></script>
+<script th:src="@{/js/profile-menu.js}"></script>
 <script>
-function closeAllProfileMenus() {
-    document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));
-    document.querySelectorAll('.profile-panel').forEach(panel => panel.classList.remove('show'));
-}
-function toggleProfileMenu(button) {
-    const widget = button.closest('.page-header-profile-widget') || button.closest('.sidebar-profile-widget');
-    const menu = widget ? widget.querySelector('.profile-menu') : null;
-    if (!menu) return;
-    const shouldOpen = !menu.classList.contains('show');
-    closeAllProfileMenus();
-    if (shouldOpen) menu.classList.add('show');
-}
-function toggleProfilePanel(panelId) {
-    closeAllProfileMenus();
-    const panel = document.getElementById(panelId);
-    if (panel) panel.classList.add('show');
-}
-document.addEventListener('click', function (event) {
-    const target = event.target;
-    if (!target.closest('.page-header-profile-widget') && !target.closest('.sidebar-profile-widget')) {
-        closeAllProfileMenus();
-    }
-});
-
 const qrBtn = document.getElementById('generateQrBtn');
 if (qrBtn) {
     qrBtn.addEventListener('click', function () {
