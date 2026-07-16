@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Reports - AMS</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=15)}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=16)}">
 </head>
 <body th:class="${#authorization.expression('hasRole(''SUPER_ADMIN'')')} ? 'super-admin-theme' : 'admin-theme'">
 <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
@@ -42,13 +42,13 @@
                     <input type="date" id="endDate" class="form-control" th:value="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
                 </div>
             </form>
-            <a href="#" onclick="exportReport('excel')" class="btn btn-success">Export Excel</a>
-            <a href="#" onclick="exportReport('pdf')" class="btn btn-danger" style="margin-left:0.5rem;">Export PDF</a>
+            <a href="#" onclick="exportReport('excel')" class="btn btn-primary">Export Excel</a>
+            <a href="#" onclick="exportReport('pdf')" class="btn btn-secondary" style="margin-left:0.5rem;">Export PDF</a>
         </div>
 
         <div class="card">
             <h3>Student Report</h3>
-            <a th:href="@{|/admin/reports/students/pdf|}" class="btn btn-danger">Export Student List (PDF)</a>
+            <a th:href="@{|/admin/reports/students/pdf|}" class="btn btn-primary">Export Student List (PDF)</a>
         </div>
     </main>
 </div>

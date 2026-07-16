@@ -2360,6 +2360,32 @@ body.admin-theme .app-layout {
     background: #F8FAFC;
 }
 body.admin-theme a { color: #5A89C0; }
+body.admin-theme a.btn-primary,
+body.admin-theme a.btn-primary:hover,
+body.admin-theme a.btn-primary:focus {
+    color: #FFFFFF;
+}
+body.admin-theme a.btn-success,
+body.admin-theme a.btn-success:hover,
+body.admin-theme a.btn-success:focus,
+body.admin-theme a.btn-danger,
+body.admin-theme a.btn-danger:hover,
+body.admin-theme a.btn-danger:focus,
+body.admin-theme a.btn-warning,
+body.admin-theme a.btn-warning:hover,
+body.admin-theme a.btn-warning:focus {
+    color: #FFFFFF;
+}
+body.admin-theme a.btn-secondary,
+body.admin-theme a.btn-secondary:hover,
+body.admin-theme a.btn-secondary:focus {
+    color: #3D5A7A;
+}
+body.admin-theme a.btn-light,
+body.admin-theme a.btn-light:hover,
+body.admin-theme a.btn-light:focus {
+    color: #5A89C0;
+}
 body.admin-theme .sidebar {
     background: #3D5A7A;
     color: #D9E6F2;
