@@ -22,7 +22,6 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
-import org.springframework.security.web.util.matcher.OrRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -68,40 +67,6 @@ public class SecurityConfig {
 
     @Bean
     @Order(1)
-    public SecurityFilterChain superAdminChain(HttpSecurity http) throws Exception {
-        http.securityMatcher(new OrRequestMatcher(
-                new AntPathRequestMatcher("/super-admin/**"),
-                new AntPathRequestMatcher("/superadmin/**")));
-
-        http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                        "/super-admin/login",
-                        "/super-admin/login/process",
-                        "/super-admin/sso",
-                        "/super-admin/bridge/**",
-                        "/css/**",
-                        "/js/**",
-                        "/images/**")
-                .permitAll()
-                .anyRequest().hasRole("SUPER_ADMIN"))
-            .exceptionHandling(ex -> ex
-                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/super-admin/login")))
-            .logout(logout -> logout
-                .logoutUrl("/super-admin/logout")
-                .addLogoutHandler(auditLogoutHandler)
-                .logoutSuccessUrl("/super-admin/login?logout=true")
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
-                .permitAll())
-            .headers(this::applySecurityHeaders);
-
-        return http.build();
-    }
-
-    @Bean
-    @Order(2)
     public SecurityFilterChain adminChain(HttpSecurity http) throws Exception {
         http.securityMatcher(new AntPathRequestMatcher("/admin/**"));
 
@@ -133,21 +98,16 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Order(3)
+    @Order(2)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher(new NegatedRequestMatcher(
-                new OrRequestMatcher(
-                        new AntPathRequestMatcher("/super-admin/**"),
-                        new AntPathRequestMatcher("/superadmin/**"),
-                        new AntPathRequestMatcher("/admin/**"))));
+        http.securityMatcher(new NegatedRequestMatcher(new AntPathRequestMatcher("/admin/**")));
 
         http
             .csrf(csrf -> csrf.disable())
             .headers(this::applySecurityHeaders)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/login", "/forgot-password", "/forgot-password/**", "/error", "/css/**", "/js/**", "/images/**", "/uploads/**", "/h2-console/**").permitAll()
-                .requestMatchers("/api/v1/super-admin/dashboard-stats").permitAll()
-                .requestMatchers("/api/v1/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                .requestMatchers("/api/v1/**").hasRole("ADMIN")
                 .requestMatchers("/teacher/**").hasAnyRole("ADMIN", "TEACHER")
                 .requestMatchers("/student/**").hasAnyRole("ADMIN", "STUDENT")
                 .anyRequest().authenticated()

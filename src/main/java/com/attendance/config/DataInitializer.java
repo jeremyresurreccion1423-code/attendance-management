@@ -36,21 +36,12 @@ public class DataInitializer implements CommandLineRunner {
         sharedLibrarySchemaRepairService.repairStudentProfileUserForeignKey();
 
         if (!seedOnStartup) {
-            userRepository.findByUsername("superadmin")
-                    .orElseGet(() -> authService.createUser(
-                            "superadmin", "SuperAdmin@123", Role.SUPER_ADMIN,
-                            "edulibrary67+superadmin@gmail.com", "System Super Admin"));
             ensureDashboardAdminAccount();
             ensureDemoTeacherAccount();
             ensureTeacherLoginAccounts();
-            System.out.println("=== Attendance seed-on-startup disabled (superadmin + dashadmin + teacher login ensured) ===");
+            System.out.println("=== Attendance seed-on-startup disabled (dashadmin + teacher login ensured) ===");
             return;
         }
-
-        userRepository.findByUsername("superadmin")
-                .orElseGet(() -> authService.createUser(
-                        "superadmin", "SuperAdmin@123", Role.SUPER_ADMIN,
-                        "edulibrary67+superadmin@gmail.com", "System Super Admin"));
 
         ensureDashboardAdminAccount();
 

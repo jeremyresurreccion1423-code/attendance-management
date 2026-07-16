@@ -1,17 +1,12 @@
 package com.attendance.model;
 
 public enum Role {
-    SUPER_ADMIN,
     ADMIN,
     TEACHER,
     STUDENT;
 
-    /** Attendance or system admin (includes Super Admin). */
+    /** Attendance or system admin. */
     public boolean isAdminLevel() {
-        return this == SUPER_ADMIN || this == ADMIN;
-    }
-
-    public boolean isSuperAdmin() {
-        return this == SUPER_ADMIN;
+        return this == ADMIN;
     }
 }

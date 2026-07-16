@@ -26,9 +26,7 @@ public class LoginAuthenticationFailureHandler extends SimpleUrlAuthenticationFa
                                         HttpServletResponse response,
                                         AuthenticationException exception) throws IOException, ServletException {
         String username = request.getParameter("username");
-        String loginPath = request.getRequestURI() != null && request.getRequestURI().startsWith("/super-admin")
-                ? "/super-admin/login"
-                : "/login";
+        String loginPath = "/login";
 
         if (exception instanceof LockedException) {
             getRedirectStrategy().sendRedirect(request, response, loginPath + "?error=locked");

@@ -2,8 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <th:block th:fragment="sidebar(activePage)">
-    <!-- Admin and Super Admin (bridged from Library) share the same Attendance admin nav -->
-    <aside class="sidebar" sec:authorize="hasAnyRole('ADMIN', 'SUPER_ADMIN')">
+    <aside class="sidebar" sec:authorize="hasRole('ADMIN')">
         <div class="brand"><h2>AMS</h2><small>Admin Panel</small></div>
         <div class="sidebar-nav-scroll">
             <nav>

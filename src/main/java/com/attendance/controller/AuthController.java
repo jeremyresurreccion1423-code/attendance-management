@@ -349,7 +349,6 @@ public class AuthController {
         model.addAttribute("todayDay", today.format(DateTimeFormatter.ofPattern("EEEE")));
         model.addAttribute("profileDetails", profileDetails);
         model.addAttribute("dashboardPath", switch (user.getRole()) {
-            case SUPER_ADMIN -> "/admin/dashboard";
             case ADMIN -> "/admin/dashboard";
             case TEACHER -> "/teacher/dashboard";
             case STUDENT -> "/student/dashboard";
@@ -438,9 +437,7 @@ public class AuthController {
                 .orElseThrow(() -> new IllegalStateException("User not found: " + auth.getName()));
         authService.updateLastLogin(auth.getName());
 
-        if (user.getRole() == com.attendance.model.Role.SUPER_ADMIN) {
-            return "redirect:/admin/dashboard";
-        } else if (user.getRole() == com.attendance.model.Role.ADMIN) {
+        if (user.getRole() == com.attendance.model.Role.ADMIN) {
             return "redirect:/admin/dashboard";
         } else if (user.getRole() == com.attendance.model.Role.TEACHER) {
             if (teacherRepository.findByUserId(user.getId()).isEmpty()) {

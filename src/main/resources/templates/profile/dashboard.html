@@ -5,7 +5,7 @@
     <title>My Profile - AMS</title>
     <link rel="stylesheet" th:href="@{/css/style.css(v=13)}">
 </head>
-<body th:class="${roleName == 'TEACHER' ? 'teacher-theme' : (roleName == 'ADMIN' ? 'admin-theme' : (roleName == 'SUPER_ADMIN' ? 'super-admin-theme' : ''))}">
+<body th:class="${roleName == 'TEACHER' ? 'teacher-theme' : (roleName == 'ADMIN' ? 'admin-theme' : '')}">
 <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
 <div class="app-layout">
     <aside class="sidebar">
