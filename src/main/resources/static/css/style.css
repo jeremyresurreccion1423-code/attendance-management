@@ -2277,6 +2277,53 @@ body.teacher-theme .qr-badge-present {
     color: #065F46;
 }
 
+/* Teacher profile page — blue match */
+body.teacher-theme .profile-topbar {
+    background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 55%, #3B82F6 100%);
+    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.22);
+}
+body.teacher-theme .profile-main-header {
+    background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #3B82F6 100%);
+    color: #FFFFFF;
+    border: 1px solid #1D4ED8;
+}
+body.teacher-theme .profile-main-header h2 { color: #FFFFFF; }
+body.teacher-theme .profile-main-header small { color: rgba(219, 234, 254, 0.95); }
+body.teacher-theme .profile-hero {
+    background: linear-gradient(180deg, #DBEAFE 0%, #EFF6FF 100%);
+    border: 1px solid #BFDBFE;
+}
+body.teacher-theme .profile-hero-avatar {
+    background: linear-gradient(135deg, #2563EB, #3B82F6);
+    color: #FFFFFF;
+    border: 2px solid #93C5FD;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+}
+body.teacher-theme .profile-hero h3 { color: #1E3A8A; }
+body.teacher-theme .profile-badge {
+    background: #EFF6FF;
+    color: #1D4ED8;
+    border: 1px solid #93C5FD;
+}
+body.teacher-theme .profile-main-column table th {
+    background: #EFF6FF;
+    color: #1E40AF;
+}
+body.teacher-theme .profile-main-column .card h3,
+body.teacher-theme .profile-main-column .card h4 {
+    color: #1E3A8A;
+}
+body.teacher-theme .profile-topbar .page-header-profile-widget .profile-trigger {
+    background: #FFFFFF;
+    border-color: #BFDBFE;
+}
+body.teacher-theme .profile-topbar .page-header-profile-widget .profile-meta strong {
+    color: #1E3A8A;
+}
+body.teacher-theme .profile-topbar .page-header-profile-widget .profile-meta small {
+    color: #3B82F6;
+}
+
 /* Admin panel color theme
    Secondary: #A855F7 | Background: #F8FAFC | Sidebar: #1E1B4B | Text: #111827 */
 body.admin-theme {
