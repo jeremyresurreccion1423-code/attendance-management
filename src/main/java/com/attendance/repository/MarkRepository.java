@@ -9,5 +9,6 @@ import java.util.Optional;
 public interface MarkRepository extends JpaRepository<Mark, Long> {
     List<Mark> findByStudentId(Long studentId);
     List<Mark> findBySubjectId(Long subjectId);
+    void deleteBySubjectId(Long subjectId);
     Optional<Mark> findByStudentIdAndSubjectId(Long studentId, Long subjectId);
 }

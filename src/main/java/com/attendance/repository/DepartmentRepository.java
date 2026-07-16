@@ -21,6 +21,13 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
     @Query("SELECT COUNT(st) FROM Student st WHERE st.department.id = :departmentId")
     long countStudentsByDepartmentId(Long departmentId);
 
-    @Query("SELECT COUNT(sub) FROM Subject sub WHERE sub.department.id = :departmentId")
+    @Query("""
+            SELECT COUNT(sub) FROM Subject sub
+            WHERE sub.department.id = :departmentId
+              AND sub.subjectCode IS NOT NULL AND TRIM(sub.subjectCode) <> ''
+              AND sub.subjectName IS NOT NULL AND TRIM(sub.subjectName) <> ''
+              AND sub.teacher IS NOT NULL
+              AND sub.section IS NOT NULL
+            """)
     long countSubjectsByDepartmentId(Long departmentId);
 }

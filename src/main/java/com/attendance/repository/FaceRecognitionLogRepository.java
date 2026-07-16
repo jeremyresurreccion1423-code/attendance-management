@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface FaceRecognitionLogRepository extends JpaRepository<FaceRecognitionLog, Long> {
     List<FaceRecognitionLog> findByStudentId(Long studentId);
+    void deleteBySubjectId(Long subjectId);
 }

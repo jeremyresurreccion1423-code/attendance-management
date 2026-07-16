@@ -17,11 +17,13 @@ import java.util.List;
 public class DepartmentService {
 
     private final DepartmentRepository departmentRepository;
+    private final SubjectService subjectService;
 
     public List<Department> findAll() {
         return departmentRepository.findAllByOrderByNameAsc();
     }
 
+    @Transactional
     public List<DepartmentDTO> findAllDetailed() {
         return findAll().stream().map(this::toDetailedDto).toList();
     }
@@ -97,6 +99,7 @@ public class DepartmentService {
 
     private DepartmentDTO toDetailedDto(Department department) {
         Long id = department.getId();
+        subjectService.purgeIncompleteForDepartment(id);
         return DepartmentDTO.from(
                 department,
                 departmentRepository.countTeachersByDepartmentId(id),

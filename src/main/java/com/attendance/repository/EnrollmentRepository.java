@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     List<Enrollment> findBySubjectId(Long subjectId);
+    void deleteBySubjectId(Long subjectId);
     List<Enrollment> findByStudentId(Long studentId);
     Optional<Enrollment> findByStudentIdAndSubjectId(Long studentId, Long subjectId);
     boolean existsByStudentIdAndSubjectId(Long studentId, Long subjectId);

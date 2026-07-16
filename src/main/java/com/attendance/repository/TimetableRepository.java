@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface TimetableRepository extends JpaRepository<Timetable, Long> {
     List<Timetable> findBySubjectId(Long subjectId);
+    void deleteBySubjectId(Long subjectId);
     List<Timetable> findByTeacherId(Long teacherId);
     List<Timetable> findByPublishedTrue();
     List<Timetable> findByDayOfWeekAndPublishedTrue(DayOfWeek dayOfWeek);

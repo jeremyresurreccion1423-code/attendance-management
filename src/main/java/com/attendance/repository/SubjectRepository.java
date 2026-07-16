@@ -43,4 +43,17 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
     Page<Subject> findAllByOrderBySubjectNameAsc(Pageable pageable);
     long countByTeacherId(Long teacherId);
     boolean existsBySubjectCodeAndIdNot(String subjectCode, Long id);
+
+    /** Incomplete / ghost rows that inflate department counts but are hidden from the Subjects UI. */
+    @Query("""
+            SELECT s FROM Subject s
+            WHERE s.department.id = :departmentId
+              AND (
+                    s.teacher IS NULL
+                 OR s.section IS NULL
+                 OR s.subjectCode IS NULL OR TRIM(s.subjectCode) = ''
+                 OR s.subjectName IS NULL OR TRIM(s.subjectName) = ''
+              )
+            """)
+    List<Subject> findIncompleteByDepartmentId(@Param("departmentId") Long departmentId);
 }

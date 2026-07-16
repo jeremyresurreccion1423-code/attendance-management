@@ -23,6 +23,11 @@ public class SubjectService {
     private final TeacherRepository teacherRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final StudentRepository studentRepository;
+    private final TimetableRepository timetableRepository;
+    private final AttendanceQRRepository attendanceQRRepository;
+    private final AttendanceRepository attendanceRepository;
+    private final MarkRepository markRepository;
+    private final FaceRecognitionLogRepository faceRecognitionLogRepository;
     private final DomainValidationService domainValidationService;
 
     public List<Subject> findAll() {
@@ -84,10 +89,34 @@ public class SubjectService {
         if (!subjectRepository.existsById(id)) {
             throw new BusinessException("Subject not found.");
         }
-        if (!enrollmentRepository.findBySubjectId(id).isEmpty()) {
-            throw new BusinessException("Cannot delete subject with enrolled students.");
-        }
+        deleteRelatedRecords(id);
         subjectRepository.deleteById(id);
+    }
+
+    /**
+     * Removes incomplete subject rows for a department so department SUBJECTS counts
+     * match what admins see on the Subjects page.
+     */
+    @Transactional
+    public int purgeIncompleteForDepartment(Long departmentId) {
+        if (departmentId == null) {
+            return 0;
+        }
+        List<Subject> incomplete = subjectRepository.findIncompleteByDepartmentId(departmentId);
+        for (Subject subject : incomplete) {
+            deleteRelatedRecords(subject.getId());
+            subjectRepository.delete(subject);
+        }
+        return incomplete.size();
+    }
+
+    private void deleteRelatedRecords(Long subjectId) {
+        faceRecognitionLogRepository.deleteBySubjectId(subjectId);
+        attendanceRepository.deleteBySubjectId(subjectId);
+        markRepository.deleteBySubjectId(subjectId);
+        enrollmentRepository.deleteBySubjectId(subjectId);
+        attendanceQRRepository.deleteBySubjectId(subjectId);
+        timetableRepository.deleteBySubjectId(subjectId);
     }
 
     @Transactional

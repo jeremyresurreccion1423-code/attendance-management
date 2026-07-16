@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     List<Attendance> findBySubjectIdAndAttendanceDate(Long subjectId, LocalDate date);
     List<Attendance> findBySubjectIdAndAttendanceDateBetween(Long subjectId, LocalDate start, LocalDate end);
+    void deleteBySubjectId(Long subjectId);
     List<Attendance> findByStudentId(Long studentId);
     List<Attendance> findByStudentIdAndSubjectId(Long studentId, Long subjectId);
     Optional<Attendance> findByStudentIdAndSubjectIdAndAttendanceDate(Long studentId, Long subjectId, LocalDate date);
