@@ -4,10 +4,10 @@
     const red = "#dc2626";
     const amber = "#d97706";
     const rainbow = ["#ef4444", "#f59e0b", "#22c55e", "#3b82f6", "#a855f7", "#ec4899"];
-    const teacherBlue = "#4F86A0";
-    const teacherSky = "#6298B0";
-    const teacherAccent = "#74A6BC";
-    const teacherBlues = ["#314F61", "#3A6A84", "#4F86A0", "#6298B0", "#74A6BC", "#9BB8C9"];
+    const teacherBlue = "#3B82F6";
+    const teacherSky = "#60A5FA";
+    const teacherAccent = "#93C5FD";
+    const teacherBlues = ["#1E3A5F", "#2563EB", "#3B82F6", "#60A5FA", "#93C5FD", "#BFDBFE"];
     const purple = "#A855F7";
     const purpleLight = "#E9D5FF";
     const purpleShades = ["#1E1B4B", "#4C1D95", "#7C3AED", "#A855F7", "#C084FC", "#9333EA"];
