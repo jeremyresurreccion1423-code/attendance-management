@@ -40,6 +40,7 @@ Or: `mvn spring-boot:run "-Djava.net.preferIPv4Stack=true"`
 | Role | Username | Password | Login page |
 |------|----------|----------|------------|
 | Super Admin | `superadmin` | `SuperAdmin@123` | `/super-admin/login` (System Control Center) |
+| Dashboard Admin | `dashadmin` | `DashAdmin@2026` | `/login` (admin dashboard) |
 | Admin | `admin` | `admin123` | `/login` |
 | Teacher | `teacher1` | `teacher123` | `/login` |
 | Student | `student1` | `student123` | `/login` |

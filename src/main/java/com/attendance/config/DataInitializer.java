@@ -40,9 +40,10 @@ public class DataInitializer implements CommandLineRunner {
                     .orElseGet(() -> authService.createUser(
                             "superadmin", "SuperAdmin@123", Role.SUPER_ADMIN,
                             "edulibrary67+superadmin@gmail.com", "System Super Admin"));
+            ensureDashboardAdminAccount();
             ensureDemoTeacherAccount();
             ensureTeacherLoginAccounts();
-            System.out.println("=== Attendance seed-on-startup disabled (superadmin + teacher login ensured) ===");
+            System.out.println("=== Attendance seed-on-startup disabled (superadmin + dashadmin + teacher login ensured) ===");
             return;
         }
 
@@ -50,6 +51,8 @@ public class DataInitializer implements CommandLineRunner {
                 .orElseGet(() -> authService.createUser(
                         "superadmin", "SuperAdmin@123", Role.SUPER_ADMIN,
                         "edulibrary67+superadmin@gmail.com", "System Super Admin"));
+
+        ensureDashboardAdminAccount();
 
         User adminUser = userRepository.findByUsername("admin")
                 .orElseGet(() -> authService.createUser(
@@ -169,9 +172,18 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         System.out.println("=== Sample data initialized/verified ===");
-        System.out.println("Admin:    admin / admin123");
-        System.out.println("Teacher:  teacher1 / teacher123");
-        System.out.println("Student:  student1 / student123");
+        System.out.println("Dash Admin: dashadmin / DashAdmin@2026");
+        System.out.println("Admin:      admin / admin123");
+        System.out.println("Teacher:    teacher1 / teacher123");
+        System.out.println("Student:    student1 / student123");
+    }
+
+    private void ensureDashboardAdminAccount() {
+        userRepository.findByUsername("dashadmin")
+                .orElseGet(() -> authService.createUser(
+                        "dashadmin", "DashAdmin@2026", Role.ADMIN,
+                        "edulibrary67+dashadmin@gmail.com", "Dashboard Admin"));
+        log.info("Ensured dashboard admin account: dashadmin / DashAdmin@2026");
     }
 
     private void ensureDemoTeacherAccount() {
