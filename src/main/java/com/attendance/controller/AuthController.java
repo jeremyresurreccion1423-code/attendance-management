@@ -58,7 +58,6 @@ public class AuthController {
     public String login(@RequestParam(required = false) String error,
                         @RequestParam(required = false) String message,
                         @RequestParam(required = false) String logout,
-                        @RequestParam(required = false) String superAdmin,
                         Model model) {
         if ("session".equals(error)) {
             model.addAttribute("error", "Your session has expired. Please log in again.");
@@ -72,9 +71,6 @@ public class AuthController {
             model.addAttribute("error", "Your account has been disabled. Please contact the administrator.");
         } else if (error != null) {
             model.addAttribute("error", "Invalid username or password.");
-        }
-        if (superAdmin != null) {
-            model.addAttribute("error", "Super Admin accounts must sign in via the Library System Control Center.");
         }
         if (logout != null) {
             model.addAttribute("message", "You have been logged out successfully.");

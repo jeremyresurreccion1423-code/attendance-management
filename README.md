@@ -44,6 +44,10 @@ Or: `mvn spring-boot:run "-Djava.net.preferIPv4Stack=true"`
 
 Student credentials also work in the Library app (shared `public.users`).
 
+## System integration
+
+Both apps share one Supabase PostgreSQL database, unified `public.users` authentication, and bidirectional student profile sync between the `public` and `library` schemas.
+
 ## Project layout
 
 ```
