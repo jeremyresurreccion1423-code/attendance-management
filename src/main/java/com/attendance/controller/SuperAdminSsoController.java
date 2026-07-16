@@ -57,7 +57,7 @@ public class SuperAdminSsoController {
     /** Inbound: consume a handoff token issued by Library and sign the Super Admin into this app. */
     @GetMapping("/super-admin/sso")
     public String receiveSso(@RequestParam String token,
-                             @RequestParam(defaultValue = "/admin/dashboard") String next,
+                             @RequestParam(defaultValue = "/superadmin/attendance/dashboard") String next,
                              HttpServletRequest request,
                              HttpServletResponse response) {
         var usernameOpt = ssoTokenService.validateToken(token);
@@ -78,7 +78,7 @@ public class SuperAdminSsoController {
         SecurityContextHolder.setContext(context);
         securityContextRepository.saveContext(context, request, response);
 
-        String safeNext = isSafeLocalPath(next) ? next : "/admin/dashboard";
+        String safeNext = isSafeLocalPath(next) ? next : "/superadmin/attendance/dashboard";
         return "redirect:" + safeNext;
     }
 

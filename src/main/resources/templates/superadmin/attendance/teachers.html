@@ -1,0 +1,113 @@
+﻿<html xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+<body th:replace="~{fragments/superadmin-page-shell :: shell('Teachers — Attendance Control', 'Teacher Management', 'Browse and manage teacher records by department', ~{::content})}">
+<th:block th:fragment="content">
+<div th:if="${selectedDepartmentId == null}">
+            <div class="sa-card sa-glass">
+                <h3>Select Department</h3>
+                <div class="department-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+                    <a th:each="d : ${departmentList}" th:href="@{|/superadmin/attendance/teachers?departmentId=${d.id}|}" class="course-card">
+                        <h4 th:text="${d.name}"></h4>
+                        <p>Click to view teachers</p>
+                    </a>
+                    <div th:if="${#lists.isEmpty(departmentList)}" style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #666;">
+                        <p>No departments found. <a th:href="@{|/superadmin/attendance/create#department|}">Create a department</a> first.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${selectedDepartmentId != null}">
+            <div class="sa-card sa-glass">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3>Teachers - <span th:text="${selectedDepartmentName}"></span></h3>
+                    <a th:href="@{|/superadmin/attendance/teachers|}" class="sa-btn sa-btn--ghost">â† Back to Departments</a>
+                </div>
+            </div>
+
+            <div class="sa-card sa-glass">
+                <form method="get" th:action="@{|/superadmin/attendance/teachers|}" class="student-search-bar">
+                    <input type="hidden" name="departmentId" th:value="${selectedDepartmentId}">
+                    <input type="search" name="search" class="form-control" th:value="${searchQuery}" placeholder="Search teachers..." id="teacherSearchInput">
+                    <select name="status" class="form-control" id="teacherStatusFilter">
+                        <option value="">All Status</option>
+                        <option value="ACTIVE" th:selected="${statusFilter == 'ACTIVE'}">ACTIVE</option>
+                        <option value="INACTIVE" th:selected="${statusFilter == 'INACTIVE'}">INACTIVE</option>
+                    </select>
+                    <button type="submit" class="sa-btn sa-btn--primary">Apply</button>
+                </form>
+            </div>
+
+            <div class="sa-card sa-glass">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+                    <h3 style="margin:0;">All Teachers <small id="teacherCountLabel" style="font-weight:normal; color:#64748b;"></small></h3>
+                    <select id="teacherPageSize" class="form-control"><option value="10">10</option><option value="25">25</option><option value="50">50</option></select>
+                </div>
+                <table id="teachersTable">
+                    <thead>
+                        <tr>
+                            <th data-sort="employee-id">Employee ID</th>
+                            <th data-sort="name">Name</th>
+                            <th data-sort="department">Department</th>
+                            <th data-sort="email">Email</th>
+                            <th data-sort="status">Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <th:block th:each="t : ${teachers}">
+                        <tr data-admin-row
+                            th:attr="data-status=${t.status}, data-search=${#strings.toLowerCase(t.fullName + ' ' + t.employeeId + ' ' + (t.email != null ? t.email : ''))}, data-employee-id=${t.employeeId}, data-name=${t.fullName}, data-department=${t.department != null ? t.department.name : ''}, data-email=${t.email}">
+                            <td th:text="${t.employeeId}"></td>
+                            <td th:text="${t.fullName}"></td>
+                            <td th:text="${t.department != null ? t.department.name : '-'}"></td>
+                            <td th:text="${t.email}"></td>
+                            <td th:text="${t.status}"></td>
+                            <td>
+                                <button type="button" class="sa-btn sa-btn--ghost sa-btn--sm" th:onclick="'toggleEdit(' + ${t.id} + ')'">Edit</button>
+                                <form th:action="@{|/superadmin/attendance/teachers/${t.id}/delete|}" method="post" style="display:inline;" class="confirm-delete" th:attr="data-confirm-message='Delete teacher ' + ${t.fullName} + '?'">
+                                    <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
+                                    <button type="submit" class="sa-btn sa-btn--danger sa-btn--sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:id="'edit-row-' + ${t.id}" style="display:none; background:#f8faf8;">
+                            <td colspan="6">
+                                <form th:action="@{|/superadmin/attendance/teachers/${t.id}/update|}" method="post" class="ams-validate" data-lookup-form>
+                                    <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
+                                    <div class="form-row">
+                                        <div class="form-group"><label>Name</label><input type="text" name="fullName" class="form-control" th:value="${t.fullName}" required></div>
+                                        <div class="form-group"><label>Department</label>
+                                            <select name="department.id" class="form-control" data-lookup-role="department" required th:attr="data-selected=${t.department != null ? t.department.id : ''}">
+                                                <option value="">-- Loading --</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group"><label>Contact</label><input type="text" name="contactNumber" class="form-control" th:value="${t.contactNumber}" inputmode="numeric" pattern="[0-9]*"></div>
+                                        <div class="form-group"><label>Email</label><input type="email" name="email" class="form-control" th:value="${t.email}" required pattern="[\w.+-]+@gmail\.com" title="Only Gmail addresses are allowed (example@gmail.com)"></div>
+                                        <div class="form-group"><label>Status</label>
+                                            <select name="status" class="form-control">
+                                                <option value="ACTIVE" th:selected="${t.status != null and t.status.name() == 'ACTIVE'}">ACTIVE</option>
+                                                <option value="INACTIVE" th:selected="${t.status != null and t.status.name() == 'INACTIVE'}">INACTIVE</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="sa-btn sa-btn--primary sa-btn--sm">Save</button>
+                                    <button type="button" class="sa-btn sa-btn--ghost sa-btn--sm" th:onclick="'toggleEdit(' + ${t.id} + ')'">Cancel</button>
+                                </form>
+                            </td>
+                        </tr>
+                        </th:block>
+                        <tr th:if="${#lists.isEmpty(teachers)}">
+                            <td colspan="6" style="text-align:center; color:#666;">No teachers yet for this department.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="teacherPagination" class="admin-pagination"></div>
+            </div>
+        </div>
+
+<script th:src="@{/js/forms.js}"></script>
+</th:block>
+</body>
+</html>

@@ -18,7 +18,11 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -54,10 +58,10 @@ public class SecurityConfig {
                     ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
             .contentSecurityPolicy(csp -> csp.policyDirectives(
                     "default-src 'self'; "
-                            + "script-src 'self' 'unsafe-inline'; "
-                            + "style-src 'self' 'unsafe-inline'; "
+                            + "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; "
+                            + "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
                             + "img-src 'self' data: blob:; "
-                            + "font-src 'self' data:; "
+                            + "font-src 'self' data: https://cdn.jsdelivr.net https://fonts.gstatic.com; "
                             + "connect-src 'self'; "
                             + "frame-ancestors 'self'"));
     }
@@ -65,18 +69,78 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain superAdminChain(HttpSecurity http) throws Exception {
+        http.securityMatcher(new OrRequestMatcher(
+                new AntPathRequestMatcher("/super-admin/**"),
+                new AntPathRequestMatcher("/superadmin/**")));
+
         http
-            .securityMatcher("/super-admin/**")
             .csrf(csrf -> csrf.disable())
-            .headers(this::applySecurityHeaders)
-            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                        "/super-admin/login",
+                        "/super-admin/login/process",
+                        "/super-admin/sso",
+                        "/super-admin/bridge/**",
+                        "/css/**",
+                        "/js/**",
+                        "/images/**")
+                .permitAll()
+                .anyRequest().hasRole("SUPER_ADMIN"))
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/super-admin/login")))
+            .logout(logout -> logout
+                .logoutUrl("/super-admin/logout")
+                .addLogoutHandler(auditLogoutHandler)
+                .logoutSuccessUrl("/super-admin/login?logout=true")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .permitAll())
+            .headers(this::applySecurityHeaders);
 
         return http.build();
     }
 
     @Bean
     @Order(2)
+    public SecurityFilterChain adminChain(HttpSecurity http) throws Exception {
+        http.securityMatcher(new AntPathRequestMatcher("/admin/**"));
+
+        http
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated())
+            .formLogin(form -> form
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .successHandler(loginSuccessHandler)
+                .failureHandler(loginFailureHandler)
+                .permitAll())
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .addLogoutHandler(auditLogoutHandler)
+                .logoutSuccessUrl("/login?logout=true")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .permitAll())
+            .authenticationProvider(authenticationProvider())
+            .headers(this::applySecurityHeaders);
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(3)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher(new NegatedRequestMatcher(
+                new OrRequestMatcher(
+                        new AntPathRequestMatcher("/super-admin/**"),
+                        new AntPathRequestMatcher("/superadmin/**"),
+                        new AntPathRequestMatcher("/admin/**"))));
+
         http
             .csrf(csrf -> csrf.disable())
             .headers(this::applySecurityHeaders)
@@ -84,7 +148,6 @@ public class SecurityConfig {
                 .requestMatchers("/", "/login", "/forgot-password", "/forgot-password/**", "/error", "/css/**", "/js/**", "/images/**", "/uploads/**", "/h2-console/**").permitAll()
                 .requestMatchers("/api/v1/super-admin/dashboard-stats").permitAll()
                 .requestMatchers("/api/v1/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
-                .requestMatchers("/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                 .requestMatchers("/teacher/**").hasAnyRole("ADMIN", "TEACHER")
                 .requestMatchers("/student/**").hasAnyRole("ADMIN", "STUDENT")
                 .anyRequest().authenticated()

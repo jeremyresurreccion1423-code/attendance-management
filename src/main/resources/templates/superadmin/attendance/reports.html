@@ -1,0 +1,37 @@
+﻿<html xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+<body th:replace="~{fragments/superadmin-page-shell :: shell('Reports — Attendance Control', 'Reports', 'Export attendance and student reports', ~{::content})}">
+<th:block th:fragment="content">
+<div class="sa-card sa-glass">
+            <h3>Attendance Report</h3>
+            <form class="form-row">
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" id="startDate" class="form-control" th:value="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
+                </div>
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="date" id="endDate" class="form-control" th:value="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
+                </div>
+            </form>
+            <a href="#" onclick="exportReport('excel')" class="sa-btn sa-btn--success">Export Excel</a>
+            <a href="#" onclick="exportReport('pdf')" class="sa-btn sa-btn--danger" style="margin-left:0.5rem;">Export PDF</a>
+        </div>
+
+        <div class="sa-card sa-glass">
+            <h3>Student Report</h3>
+            <a th:href="@{|/superadmin/attendance/reports/students/pdf|}" class="sa-btn sa-btn--danger">Export Student List (PDF)</a>
+        </div>
+
+<script th:inline="javascript">
+function exportReport(type) {
+    const start = document.getElementById('startDate').value;
+    const end = document.getElementById('endDate').value;
+    const base = /*[[@{|/superadmin/attendance/reports/attendance/|}]]*/ '/superadmin/attendance/reports/attendance/';
+    window.location = base + type + '?start=' + encodeURIComponent(start) + '&end=' + encodeURIComponent(end);
+}
+</script>
+</th:block>
+</body>
+</html>

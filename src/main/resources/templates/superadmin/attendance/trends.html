@@ -1,0 +1,60 @@
+﻿<html xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+<body th:replace="~{fragments/superadmin-page-shell :: shell('Trends — Attendance Control', 'Attendance Trends', 'Weekly and monthly attendance analytics', ~{::content})}">
+<th:block th:fragment="content">
+<div class="sa-stats">
+            <div class="sa-stat sa-stat--glass">
+                <div class="sa-stat__value" th:text="${data.todayAttendance}">0</div>
+                <div class="sa-stat__label">Today's Records</div>
+            </div>
+            <div class="sa-stat sa-stat--glass">
+                <div class="sa-stat__value" th:text="${data.weeklyAttendance}">0</div>
+                <div class="sa-stat__label">Weekly Records</div>
+            </div>
+            <div class="sa-stat sa-stat--glass">
+                <div class="sa-stat__value" th:text="${data.monthlyAttendance}">0</div>
+                <div class="sa-stat__label">Monthly Records</div>
+            </div>
+            <div class="sa-stat sa-stat--glass">
+                <div class="sa-stat__value" th:text="${data.totalStudents}">0</div>
+                <div class="sa-stat__label">Total Students</div>
+            </div>
+        </div>
+
+        <div class="sa-card sa-glass">
+            <h3>Weekly Attendance Trend</h3>
+            <div class="trends-page-chart"><canvas id="weeklyTrendChart"></canvas></div>
+        </div>
+
+        <div class="sa-card sa-glass">
+            <h3>Monthly Attendance Trend</h3>
+            <div class="trends-page-chart"><canvas id="monthlyTrendChart"></canvas></div>
+        </div>
+
+        <div class="sa-card sa-glass" th:if="${!#lists.isEmpty(data.lowAttendanceAlerts)}">
+            <h3>Low Attendance Alerts (&lt; 75%)</h3>
+            <table>
+                <thead><tr><th>Student No.</th><th>Name</th><th>Attendance %</th></tr></thead>
+                <tbody>
+                    <tr th:each="alert : ${data.lowAttendanceAlerts}">
+                        <td th:text="${alert.studentNumber}"></td>
+                        <td th:text="${alert.studentName}"></td>
+                        <td th:text="${alert.percentage} + '%'"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+<script th:src="@{/js/vendor/chart.umd.min.js}"></script>
+<script th:src="@{/js/dashboard-charts.js(v=5)}"></script>
+<script th:src="@{/js/profile-menu.js}"></script>
+<script th:inline="javascript">
+document.addEventListener('DOMContentLoaded', function () {
+    DashboardCharts.renderAttendanceTrend('weeklyTrendChart', /*[[${data.dailyTrendChart}]]*/ {});
+    DashboardCharts.renderAttendanceTrend('monthlyTrendChart', /*[[${data.monthlyTrendChart}]]*/ {});
+});
+</script>
+</th:block>
+</body>
+</html>

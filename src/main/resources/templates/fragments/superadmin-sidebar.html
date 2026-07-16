@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside class="sa-sidebar" id="saSidebar" aria-label="Super Admin navigation" th:fragment="sidebar">
+  <div class="sa-sidebar__brand">
+    <a th:href="@{/superadmin/attendance/dashboard}" class="sa-sidebar__logo">
+      <span class="sa-sidebar__logo-icon"><i data-lucide="calendar-check"></i></span>
+      <span class="sa-sidebar__logo-text">
+        <strong>EduLibrary</strong>
+        <small>Attendance Control</small>
+      </span>
+    </a>
+  </div>
+
+  <div class="sa-sidebar__scroll">
+    <nav class="sa-sidebar__nav">
+      <p class="sa-sidebar__label">Attendance Module</p>
+      <a class="sa-nav-link" th:href="@{/superadmin/attendance/dashboard}"
+         th:classappend="${navUri != null and navUri.startsWith('/superadmin/attendance/dashboard')} ? ' sa-nav-link--active'">
+        <i data-lucide="layout-dashboard"></i>
+        <span>Dashboard</span>
+      </a>
+      <a class="sa-nav-link" th:href="@{/superadmin/attendance/departments}"
+         th:classappend="${navUri != null and navUri.startsWith('/superadmin/attendance/departments')} ? ' sa-nav-link--active'">
+        <i data-lucide="building-2"></i>
+        <span>Departments</span>
+      </a>
+      <a class="sa-nav-link" th:href="@{/superadmin/attendance/create}"
+         th:classappend="${navUri != null and navUri.startsWith('/superadmin/attendance/create')} ? ' sa-nav-link--active'">
+        <i data-lucide="plus-circle"></i>
+        <span>Create / Add</span>
+      </a>
+      <a class="sa-nav-link" th:href="@{/superadmin/attendance/students}"
+         th:classappend="${navUri != null and navUri.startsWith('/superadmin/attendance/students')} ? ' sa-nav-link--active'">
+        <i data-lucide="graduation-cap"></i>
+        <span>Students</span>
+      </a>
+      <a class="sa-nav-link" th:href="@{/superadmin/attendance/teachers}"
+         th:classappend="${navUri != null and navUri.startsWith('/superadmin/attendance/teachers')} ? ' sa-nav-link--active'">
+        <i data-lucide="user-check"></i>
+        <span>Teachers</span>
+      </a>
+      <a class="sa-nav-link" th:href="@{/superadmin/attendance/subjects}"
+         th:classappend="${navUri != null and navUri.startsWith('/superadmin/attendance/subjects')} ? ' sa-nav-link--active'">
+        <i data-lucide="book-open"></i>
+        <span>Subjects</span>
+      </a>
+      <a class="sa-nav-link" th:href="@{/superadmin/attendance/sections}"
+         th:classappend="${navUri != null and navUri.startsWith('/superadmin/attendance/sections')} ? ' sa-nav-link--active'">
+        <i data-lucide="layers"></i>
+        <span>Sections</span>
+      </a>
+      <a class="sa-nav-link" th:href="@{/superadmin/attendance/reports}"
+         th:classappend="${navUri != null and navUri.startsWith('/superadmin/attendance/reports')} ? ' sa-nav-link--active'">
+        <i data-lucide="file-bar-chart"></i>
+        <span>Reports</span>
+      </a>
+      <a class="sa-nav-link" th:href="@{/superadmin/attendance/trends}"
+         th:classappend="${navUri != null and navUri.startsWith('/superadmin/attendance/trends')} ? ' sa-nav-link--active'">
+        <i data-lucide="trending-up"></i>
+        <span>Trends</span>
+      </a>
+
+      <p class="sa-sidebar__label">System</p>
+      <a class="sa-nav-link" th:href="${libraryControlCenterUrl}">
+        <i data-lucide="arrow-left"></i>
+        <span>Library Control Center</span>
+      </a>
+    </nav>
+  </div>
+
+  <div class="sa-sidebar__footer">
+    <div class="sa-sidebar__status">
+      <i data-lucide="activity"></i>
+      <span>Attendance Administration</span>
+    </div>
+  </div>
+</aside>
+<div class="sa-sidebar-backdrop" id="saSidebarBackdrop" onclick="saCloseSidebar()"></div>
+</body>
+</html>

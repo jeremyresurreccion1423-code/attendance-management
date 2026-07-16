@@ -1,0 +1,78 @@
+﻿<html xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+<body th:replace="~{fragments/superadmin-page-shell :: shell('Attendance Dashboard — Control Center', 'Attendance Dashboard', 'Overview of students, subjects, and attendance activity', ~{::content})}">
+<th:block th:fragment="content">
+<div class="sa-stats">
+            <div class="sa-stat sa-stat--glass">
+                <div class="sa-stat__value" th:text="${data.totalStudents}">0</div>
+                <div class="sa-stat__label">Total Students</div>
+            </div>
+            <div class="sa-stat sa-stat--glass">
+                <div class="sa-stat__value" th:text="${data.totalSubjects}">0</div>
+                <div class="sa-stat__label">Total Subjects</div>
+            </div>
+            <div class="sa-stat sa-stat--glass">
+                <div class="sa-stat__value" th:text="${data.todayAttendance}">0</div>
+                <div class="sa-stat__label">Today's Attendance</div>
+            </div>
+            <div class="sa-stat sa-stat--glass" th:if="${data.lowAttendanceCount > 0}">
+                <div class="sa-stat__value" style="color:#dc2626;" th:text="${data.lowAttendanceCount}">0</div>
+                <div class="sa-stat__label">Low Attendance Alerts</div>
+            </div>
+        </div>
+
+        <div class="sa-card sa-glass">
+            <h3>Today's Attendance Analytics</h3>
+            <div class="sa-stats">
+                <div class="sa-stat sa-stat--glass">
+                    <div class="sa-stat__value" th:text="${data.todayAttendance}">0</div>
+                    <div class="sa-stat__label">Records Today</div>
+                </div>
+                <div class="sa-stat sa-stat--glass">
+                    <div class="sa-stat__value" th:text="${data.totalStudents}">0</div>
+                    <div class="sa-stat__label">Enrolled Students</div>
+                </div>
+                <div class="sa-stat sa-stat--glass">
+                    <div class="sa-stat__value" th:text="${data.totalSubjects}">0</div>
+                    <div class="sa-stat__label">Active Subjects</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sa-card sa-glass">
+            <h3>Attendance Overview</h3>
+            <div class="trends-page-chart"><canvas id="attendanceOverviewChart"></canvas></div>
+        </div>
+
+        <div class="sa-card sa-glass" th:if="${!#lists.isEmpty(data.lowAttendanceAlerts)}">
+            <h3>Low Attendance Alerts (&lt; 75%)</h3>
+            <table>
+                <thead><tr><th>Student No.</th><th>Name</th><th>Attendance %</th></tr></thead>
+                <tbody>
+                    <tr th:each="alert : ${data.lowAttendanceAlerts}">
+                        <td th:text="${alert.studentNumber}"></td>
+                        <td th:text="${alert.studentName}"></td>
+                        <td th:text="${alert.percentage} + '%'"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="sa-card sa-glass">
+            <h3>Quick Actions</h3>
+            <a th:href="@{|/superadmin/attendance/students|}" class="sa-btn sa-btn--primary">Manage Students</a>
+            <a th:href="@{|/superadmin/attendance/teachers|}" class="sa-btn sa-btn--primary" style="margin-left:0.5rem;">Manage Teachers</a>
+            <a th:href="@{|/superadmin/attendance/subjects|}" class="sa-btn sa-btn--primary" style="margin-left:0.5rem;">Manage Subjects</a>
+            <a th:href="@{|/superadmin/attendance/reports|}" class="sa-btn sa-btn--ghost" style="margin-left:0.5rem;">Generate Reports</a>
+        </div>
+
+<script th:src="@{/js/vendor/chart.umd.min.js}"></script>
+<script th:src="@{/js/dashboard-charts.js(v=5)}"></script>
+<script th:inline="javascript">
+document.addEventListener('DOMContentLoaded', function () {
+    DashboardCharts.renderAttendanceTrend('attendanceOverviewChart', /*[[${data.monthlyTrendChart}]]*/ {});
+});
+</script>
+</th:block>
+</body>
+</html>

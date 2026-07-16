@@ -23,7 +23,7 @@ public class SuperAdminController {
 
     @GetMapping("/super-admin/create")
     public String create() {
-        return "redirect:/admin/create";
+        return "redirect:/superadmin/attendance/create";
     }
 
     @GetMapping("/super-admin/security")
