@@ -38,8 +38,13 @@ public class SectionService {
 
     public List<String> findYearLevelsByDepartmentId(Long departmentId) {
         domainValidationService.requireDepartment(departmentId);
-        Set<String> available = new LinkedHashSet<>(
-                sectionRepository.findDistinctYearLevelsByDepartmentId(departmentId));
+        Set<String> available = new LinkedHashSet<>();
+        for (String raw : sectionRepository.findDistinctYearLevelsByDepartmentId(departmentId)) {
+            String normalized = normalizeYearLevel(raw);
+            if (normalized != null) {
+                available.add(normalized);
+            }
+        }
         available.addAll(DEFAULT_YEAR_LEVELS);
         if (available.isEmpty()) {
             return DEFAULT_YEAR_LEVELS;
@@ -52,9 +57,46 @@ public class SectionService {
             }
         }
         available.stream()
+                .filter(this::isValidYearLevel)
                 .sorted(String.CASE_INSENSITIVE_ORDER)
                 .forEach(ordered::add);
         return ordered;
+    }
+
+    private String normalizeYearLevel(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        String cleaned = raw.trim();
+        int comma = cleaned.indexOf(',');
+        if (comma >= 0) {
+            cleaned = cleaned.substring(0, comma).trim();
+        }
+        int mark = cleaned.indexOf('§');
+        if (mark >= 0) {
+            cleaned = cleaned.substring(0, mark).trim();
+        }
+        int amp = cleaned.toLowerCase().indexOf("&section");
+        if (amp >= 0) {
+            cleaned = cleaned.substring(0, amp).trim();
+        }
+        int ion = cleaned.toLowerCase().indexOf("ionid=");
+        if (ion >= 0) {
+            cleaned = cleaned.substring(0, ion).trim();
+        }
+        if (cleaned.isBlank()) {
+            return null;
+        }
+        for (String level : DEFAULT_YEAR_LEVELS) {
+            if (level.equalsIgnoreCase(cleaned)) {
+                return level;
+            }
+        }
+        return isValidYearLevel(cleaned) ? cleaned : null;
+    }
+
+    private boolean isValidYearLevel(String level) {
+        return level != null && level.matches("(?i)\\d+(st|nd|rd|th)\\s+Year");
     }
 
     @Transactional
