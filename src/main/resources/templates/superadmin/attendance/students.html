@@ -1,9 +1,147 @@
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-</head>
-<body th:replace="~{fragments/superadmin-page-shell :: shell('Students — Attendance Control', 'Student Management', 'Browse, filter, and manage student records', ~{::content})}">
+<body th:replace="~{fragments/superadmin-page-shell :: shell('Students ? Attendance Control', 'Student Management', 'Browse, filter, and manage student records', ~{::content})}">
 <th:block th:fragment="content">
-<div class="sa-panel">
+        <!-- Department Selection -->
+        <div th:if="${selectedDepartmentId == null}">
+            <div class="sa-panel">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+                    <h3 style="margin:0;">Select Department</h3>
+                    <a th:href="@{/superadmin/attendance/students(viewAll=true)}" class="sa-btn sa-btn--primary">View All Students</a>
+                </div>
+                <div class="course-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+                    <a th:each="d : ${departmentList}" th:href="@{/superadmin/attendance/students(departmentId=${d.id})}" class="course-card">
+                        <h4 th:text="${d.name}"></h4>
+                        <p>Click to view students</p>
+                    </a>
+                    <div th:if="${#lists.isEmpty(departmentList)}" style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #666;">
+                        <p>No departments found. <a th:href="@{/superadmin/attendance/create#department}">Create a department</a> first.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Year Level Selection -->
+        <div th:if="${selectedDepartmentId != null and (selectedYearLevel == null or selectedYearLevel.isEmpty())}">
+            <div class="sa-panel">
+                <h3>Select Year Level - <span th:text="${selectedDepartmentName}"></span></h3>
+                <a th:href="@{/superadmin/attendance/students}" class="sa-btn sa-btn--ghost" style="margin-bottom: 1rem; display: inline-block;">? Back to Departments</a>
+                <div class="year-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+                    <a th:each="yl : ${yearLevels}"
+                       th:href="@{/superadmin/attendance/students(departmentId=${selectedDepartmentId}, yearLevel=${yl})}"
+                       class="year-card"><h4 th:text="${yl}"></h4></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Selection -->
+        <div th:if="${selectedDepartmentId != null and selectedYearLevel != null and !selectedYearLevel.isEmpty() and selectedSectionId == null and !viewAll}">
+            <div class="sa-panel">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+                    <h3 style="margin:0;">Select Section - <span th:text="${selectedDepartmentName}"></span> - <span th:text="${selectedYearLevel}"></span></h3>
+                    <a th:href="@{/superadmin/attendance/students(departmentId=${selectedDepartmentId}, yearLevel=${selectedYearLevel}, viewAll=true)}"
+                       class="sa-btn sa-btn--primary">View All Students in Year</a>
+                </div>
+                <a th:href="@{/superadmin/attendance/students(departmentId=${selectedDepartmentId})}"
+                   class="sa-btn sa-btn--ghost" style="margin-bottom: 1rem; display: inline-block;">? Back to Year Levels</a>
+                <div class="section-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+                    <a th:each="s : ${filteredSections}"
+                       th:href="@{/superadmin/attendance/students(departmentId=${selectedDepartmentId}, yearLevel=${selectedYearLevel}, sectionId=${s.id})}"
+                       class="section-card">
+                        <h4 th:text="${s.name}"></h4>
+                    </a>
+                    <div th:if="${#lists.isEmpty(filteredSections)}" style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #666;">
+                        <p>No sections found for this department and year level.</p>
+                        <a th:href="@{/superadmin/attendance/students(departmentId=${selectedDepartmentId}, yearLevel=${selectedYearLevel}, viewAll=true)}"
+                           class="sa-btn sa-btn--primary">View All Students in Year</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student List -->
+        <div th:if="${showStudentList}">
+            <div class="sa-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+                    <h3 style="margin:0;">Add Student</h3>
+                    <a th:href="@{/superadmin/attendance/create#student}" class="sa-btn sa-btn--ghost sa-btn--sm">Open Create Dashboard</a>
+                </div>
+                <form th:action="@{/superadmin/attendance/students}" method="post" th:object="${student}" class="ams-validate" data-lookup-form>
+                    <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
+                    <input type="hidden" name="returnYearLevel" th:value="${selectedYearLevel}">
+                    <input type="hidden" name="returnSectionId" th:if="${selectedSectionId != null}" th:value="${selectedSectionId}">
+                    <input type="hidden" name="returnViewAll" th:if="${viewAll}" value="true">
+                    <input type="hidden" name="returnSearch" th:value="${searchQuery}">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Student Number <small style="color:#64748b;">(auto-generated)</small></label>
+                            <input type="text" th:field="*{studentNumber}" class="form-control" readonly aria-readonly="true">
+                            <small style="display:block; margin-top:0.35rem; color:#64748b;">
+                                Starts at 101-001 and increments automatically.
+                            </small>
+                        </div>
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" th:field="*{fullName}" class="form-control" required minlength="2" maxlength="150"
+                                   pattern="[A-Za-z?-??-??-??? .'\-]{2,150}"
+                                   title="Letters, spaces, and . ' - only">
+                        </div>
+                        <div class="form-group">
+                            <label>Department</label>
+                            <select th:field="*{department.id}" class="form-control" data-lookup-role="department" required
+                                    th:attr="data-selected=${selectedDepartmentId}">
+                                <option value="">-- Loading departments... --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Year Level</label>
+                            <select th:field="*{yearLevel}" class="form-control" data-lookup-role="year-level" required
+                                    th:attr="data-selected=${selectedYearLevel}">
+                                <option value="">-- Select department first --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Section</label>
+                            <select th:field="*{section.id}" class="form-control" data-lookup-role="section" required
+                                    th:attr="data-selected=${selectedSectionId}">
+                                <option value="">-- Select department &amp; year first --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Contact <small style="color:#64748b;">(optional)</small></label>
+                            <input type="text" th:field="*{contactNumber}" class="form-control" inputmode="numeric"
+                                   pattern="[0-9]{7,15}|^$"
+                                   title="Leave blank or enter 7 to 15 digits">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" th:field="*{email}" class="form-control" required maxlength="100"
+                                   pattern="[\w.+-]+@gmail\.com"
+                                   title="Only Gmail addresses are allowed (example@gmail.com)"
+                                   placeholder="student@gmail.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select th:field="*{status}" class="form-control">
+                                <option value="ACTIVE">ACTIVE</option>
+                                <option value="INACTIVE">INACTIVE</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Login Username <small style="color:#64748b;">(optional)</small></label>
+                            <input type="text" name="username" class="form-control" autocomplete="off" minlength="3"
+                                   placeholder="Leave blank to use student number">
+                        </div>
+                        <div class="form-group">
+                            <label>Login Password <small style="color:#64748b;">(optional)</small></label>
+                            <input type="password" name="password" class="form-control" minlength="8" autocomplete="new-password"
+                                   placeholder="8+ chars, upper, lower, number">
+                        </div>
+                    </div>
+                    <button type="submit" class="sa-btn sa-btn--primary">Add Student</button>
+                </form>
+            </div>
+
+            <div class="sa-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
                     <h3 style="margin:0;">
                         <span th:if="${viewAll and selectedDepartmentId == null}">All Students</span>
@@ -28,7 +166,7 @@
                        class="sa-btn sa-btn--ghost">? Back to Departments</a>
                 </div>
 
-                <form method="get" th:action="@{/superadmin/attendance/students}" class="sa-filter-bar student-search-bar">
+                <form method="get" th:action="@{/superadmin/attendance/students}" class="student-search-bar">
                     <input type="hidden" name="departmentId" th:if="${selectedDepartmentId != null}" th:value="${selectedDepartmentId}">
                     <input type="hidden" name="yearLevel" th:if="${selectedYearLevel != null}" th:value="${selectedYearLevel}">
                     <input type="hidden" name="sectionId" th:if="${selectedSectionId != null}" th:value="${selectedSectionId}">
@@ -164,6 +302,22 @@
         </div>
 
 <script th:src="@{/js/forms.js}"></script>
+<script th:src="@{/js/lookup-filter.js(v=3)}"></script>
+<script th:src="@{/js/admin-list.js(v=1)}"></script>
+<script th:src="@{/js/superadmin-attendance-pages.js(v=1)}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    initAdminTable(document.getElementById('studentsTable'), {
+        searchInput: document.getElementById('studentSearchInput'),
+        statusFilter: document.getElementById('studentStatusFilter'),
+        pageSizeSelect: document.getElementById('studentPageSize'),
+        paginationEl: document.getElementById('studentPagination'),
+        countEl: document.getElementById('studentCountLabel'),
+        defaultPageSize: 10,
+    });
+});
+
+</script>
 </th:block>
 </body>
 </html>

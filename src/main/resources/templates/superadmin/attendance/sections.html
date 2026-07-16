@@ -1,9 +1,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-</head>
 <body th:replace="~{fragments/superadmin-page-shell :: shell('Sections — Attendance Control', 'Section Management', 'Organize sections by department and year level', ~{::content})}">
 <th:block th:fragment="content">
-<div th:if="${selectedDepartmentId == null}">
+        <div th:if="${selectedDepartmentId == null}">
             <div class="sa-panel">
                 <h3>Select Department</h3>
                 <div class="course-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
@@ -147,28 +145,17 @@
         </div>
 
 <script th:src="@{/js/forms.js}"></script>
-<script th:src="@{/js/lookup-filter.js(v=2)}"></script>
+<script th:src="@{/js/lookup-filter.js(v=3)}"></script>
 <script th:src="@{/js/admin-list.js(v=1)}"></script>
+<script th:src="@{/js/superadmin-attendance-pages.js(v=1)}"></script>
 <script>
-function toggleEdit(id) {
-    const row = document.getElementById('edit-row-' + id);
-    if (!row) return;
-    const opening = row.style.display === 'none';
-    row.style.display = opening ? 'table-row' : 'none';
-    if (opening && window.adminLookups) {
-        const form = row.querySelector('form[data-lookup-form]');
-        if (form) window.adminLookups.bindForm(form);
-    }
-}
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof initAdminTable === 'function') {
-        initAdminTable(document.getElementById('sectionsTable'), {
-            searchInput: document.getElementById('sectionSearchInput'),
-            pageSizeSelect: document.getElementById('sectionPageSize'),
-            paginationEl: document.getElementById('sectionPagination'),
-            countEl: document.getElementById('sectionCountLabel'),
-        });
-    }
+    initAdminTable(document.getElementById('sectionsTable'), {
+        searchInput: document.getElementById('sectionSearchInput'),
+        pageSizeSelect: document.getElementById('sectionPageSize'),
+        paginationEl: document.getElementById('sectionPagination'),
+        countEl: document.getElementById('sectionCountLabel'),
+    });
 });
 </script>
 </th:block>

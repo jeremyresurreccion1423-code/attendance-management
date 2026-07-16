@@ -2,24 +2,25 @@
 <body th:replace="~{fragments/superadmin-page-shell :: shell('Departments ? Attendance Control', 'Department Management', 'Create, edit, and view department details', ~{::content})}">
 <th:block th:fragment="content">
 
+  <div class="sa-toolbar" style="margin-bottom:16px;">
+    <p class="sa-lead" style="margin:0;">Create, edit, and manage academic departments.</p>
+    <a th:href="@{/superadmin/attendance/create#department}" class="sa-btn sa-btn--primary">Create Department</a>
+  </div>
+
   <div class="sa-stats">
     <article class="sa-stat">
-      <div class="sa-stat__head"><div class="sa-stat__icon"><i class="bi bi-building"></i></div></div>
       <div class="sa-stat__label">Total Departments</div>
       <div class="sa-stat__value" th:text="${#lists.size(departments)}">0</div>
     </article>
     <article class="sa-stat">
-      <div class="sa-stat__head"><div class="sa-stat__icon sa-stat__icon--sky"><i class="bi bi-person-check"></i></div></div>
       <div class="sa-stat__label">Total Teachers</div>
       <div class="sa-stat__value" th:text="${totalTeachers}">0</div>
     </article>
     <article class="sa-stat">
-      <div class="sa-stat__head"><div class="sa-stat__icon sa-stat__icon--emerald"><i class="bi bi-people"></i></div></div>
       <div class="sa-stat__label">Total Students</div>
       <div class="sa-stat__value" th:text="${totalStudents}">0</div>
     </article>
     <article class="sa-stat">
-      <div class="sa-stat__head"><div class="sa-stat__icon sa-stat__icon--amber"><i class="bi bi-layers"></i></div></div>
       <div class="sa-stat__label">Total Sections</div>
       <div class="sa-stat__value" th:text="${totalSections}">0</div>
     </article>
@@ -85,6 +86,7 @@
   </section>
 
   <script th:src="@{/js/forms.js}"></script>
+  <script th:src="@{/js/superadmin-attendance-pages.js(v=1)}"></script>
 </th:block>
 </body>
 </html>
