@@ -36,9 +36,44 @@ public class SchemaMigrationV2Initializer {
         addForeignKeysIfMissing();
         normalizeAttendanceMethodConstraint();
         addAttendanceQrTimetableColumn();
+        ensureFaceRecognitionLogTable();
         releaseEmailsOnDeletedLoginAccounts();
 
         log.info("Schema migration v2 completed");
+    }
+
+    private void ensureFaceRecognitionLogTable() {
+        jdbcTemplate.execute("""
+                CREATE TABLE IF NOT EXISTS face_recognition_log (
+                    id BIGSERIAL PRIMARY KEY,
+                    student_id BIGINT NOT NULL,
+                    subject_id BIGINT,
+                    result VARCHAR(20) NOT NULL,
+                    confidence_score DOUBLE PRECISION,
+                    image_path VARCHAR(255),
+                    verified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+                """);
+        try {
+            jdbcTemplate.execute("""
+                    DO $$ BEGIN
+                        ALTER TABLE face_recognition_log
+                            ADD CONSTRAINT fk_face_recognition_log_student
+                            FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE;
+                    EXCEPTION WHEN duplicate_object THEN NULL;
+                    END $$
+                    """);
+            jdbcTemplate.execute("""
+                    DO $$ BEGIN
+                        ALTER TABLE face_recognition_log
+                            ADD CONSTRAINT fk_face_recognition_log_subject
+                            FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE SET NULL;
+                    EXCEPTION WHEN duplicate_object THEN NULL;
+                    END $$
+                    """);
+        } catch (Exception ex) {
+            log.warn("face_recognition_log FK may already exist: {}", ex.getMessage());
+        }
     }
 
     /**

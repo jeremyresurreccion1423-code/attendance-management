@@ -7,6 +7,7 @@ import com.attendance.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,7 @@ public class SubjectService {
     private final AttendanceQRRepository attendanceQRRepository;
     private final AttendanceRepository attendanceRepository;
     private final MarkRepository markRepository;
-    private final FaceRecognitionLogRepository faceRecognitionLogRepository;
+    private final JdbcTemplate jdbcTemplate;
     private final DomainValidationService domainValidationService;
 
     public List<Subject> findAll() {
@@ -111,12 +112,27 @@ public class SubjectService {
     }
 
     private void deleteRelatedRecords(Long subjectId) {
-        faceRecognitionLogRepository.deleteBySubjectId(subjectId);
+        deleteFaceRecognitionLogsIfPresent(subjectId);
         attendanceRepository.deleteBySubjectId(subjectId);
         markRepository.deleteBySubjectId(subjectId);
         enrollmentRepository.deleteBySubjectId(subjectId);
         attendanceQRRepository.deleteBySubjectId(subjectId);
         timetableRepository.deleteBySubjectId(subjectId);
+    }
+
+    /** Safe on DBs that never created face_recognition_log (ddl-auto=none). */
+    private void deleteFaceRecognitionLogsIfPresent(Long subjectId) {
+        Boolean exists = jdbcTemplate.queryForObject(
+                """
+                        SELECT EXISTS (
+                            SELECT 1 FROM information_schema.tables
+                            WHERE table_schema = 'public' AND table_name = 'face_recognition_log'
+                        )
+                        """,
+                Boolean.class);
+        if (Boolean.TRUE.equals(exists)) {
+            jdbcTemplate.update("DELETE FROM face_recognition_log WHERE subject_id = ?", subjectId);
+        }
     }
 
     @Transactional
