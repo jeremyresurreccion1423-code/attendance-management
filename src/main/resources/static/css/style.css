@@ -1597,28 +1597,31 @@ body.control-center-auth .auth-page .alert-error {
 
 /* Teacher panel — rainbow theme (replaces green accents) */
 body.teacher-theme {
-    --primary: #ec4899;
-    --primary-dark: #7c3aed;
-    --primary-light: #fdf4ff;
-    --primary-lighter: #faf5ff;
+    --primary: #3B82F6;
+    --primary-dark: #2563EB;
+    --primary-light: #EFF6FF;
+    --primary-lighter: #F8FAFC;
     --success: #8b5cf6;
     --bg: #faf5ff;
-    --border: #e9d5ff;
-    --shadow: 0 4px 20px rgba(124, 58, 237, 0.1);
+    --border: #E5E7EB;
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     background: linear-gradient(135deg, #fff1f2 0%, #fef3c7 22%, #ecfdf5 44%, #eff6ff 66%, #faf5ff 88%, #fdf2f8 100%);
 }
 body.teacher-theme .app-layout {
     background: linear-gradient(135deg, #fff1f2 0%, #fef3c7 22%, #ecfdf5 44%, #eff6ff 66%, #faf5ff 88%, #fdf2f8 100%);
 }
-body.teacher-theme a { color: #7c3aed; }
-body.teacher-theme .sidebar { border-right-color: #e9d5ff; }
-body.teacher-theme .sidebar nav a:hover,
+body.teacher-theme a { color: #2563EB; }
+body.teacher-theme .sidebar { border-right-color: #E5E7EB; }
 body.teacher-theme .sidebar nav a.active,
-body.teacher-theme .sidebar-group-btn:hover,
 body.teacher-theme .sidebar-group.open > .sidebar-group-btn,
-body.teacher-theme .sidebar-trends-btn:hover,
 body.teacher-theme .sidebar-trends-btn.open {
-    background: linear-gradient(135deg, #ef4444 0%, #f59e0b 25%, #22c55e 50%, #3b82f6 75%, #a855f7 100%);
+    background: #3B82F6;
+    color: #ffffff;
+}
+body.teacher-theme .sidebar nav a:hover,
+body.teacher-theme .sidebar-group-btn:hover,
+body.teacher-theme .sidebar-trends-btn:hover {
+    background: #2563EB;
     color: #ffffff;
 }
 body.teacher-theme .page-header-profile-widget .profile-trigger {
@@ -1641,7 +1644,8 @@ body.teacher-theme .sidebar-profile-widget .profile-avatar {
     background: linear-gradient(135deg, #ef4444, #f59e0b, #22c55e, #3b82f6, #a855f7);
 }
 body.teacher-theme .stat-card {
-    border-color: #e9d5ff;
+    border-color: #E5E7EB;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 body.teacher-theme .stat-card .value {
     background: linear-gradient(90deg, #ef4444, #f59e0b, #22c55e, #3b82f6, #a855f7);
@@ -1681,8 +1685,8 @@ body.teacher-theme .stats-grid .stat-card:nth-child(6n+6) .value {
     color: #ec4899;
 }
 body.teacher-theme .card {
-    border-color: #e9d5ff;
-    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.08);
+    border-color: #E5E7EB;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 body.teacher-theme th {
     background: linear-gradient(90deg, #fff1f2, #fef3c7, #ecfdf5, #eff6ff, #faf5ff);
@@ -1696,12 +1700,12 @@ body.teacher-theme .form-control:focus {
     box-shadow: 0 0 0 0.2rem rgba(168, 85, 247, 0.15);
 }
 body.teacher-theme .btn-primary {
-    background: linear-gradient(135deg, #ef4444 0%, #f59e0b 25%, #22c55e 50%, #3b82f6 75%, #a855f7 100%);
-    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.28);
+    background: #3B82F6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.28);
 }
 body.teacher-theme .btn-primary:hover {
-    background: linear-gradient(135deg, #dc2626 0%, #d97706 25%, #16a34a 50%, #2563eb 75%, #9333ea 100%);
-    box-shadow: 0 6px 16px rgba(168, 85, 247, 0.38);
+    background: #2563EB;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.38);
 }
 body.teacher-theme .btn-success {
     background: linear-gradient(135deg, #22c55e 0%, #3b82f6 50%, #a855f7 100%);
