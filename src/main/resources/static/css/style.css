@@ -2877,3 +2877,173 @@ body.super-admin-theme .section-card h4,
 body.super-admin-theme .department-card h4 {
     color: #111827;
 }
+
+/* ========== Library-style admin header (topbar + purple welcome) ========== */
+.page-header--lib {
+    background: transparent !important;
+    margin-bottom: 1rem;
+    padding: 0.15rem 0;
+    box-shadow: none;
+}
+
+.page-header-profile-widget--compact .profile-trigger {
+    min-width: 0 !important;
+    width: auto;
+    gap: 0.35rem;
+    padding: 0.35rem 0.55rem 0.35rem 0.35rem;
+    border-radius: 999px;
+}
+
+.page-header-profile-widget--compact .profile-meta {
+    display: none;
+}
+
+.page-header-profile-widget--compact .profile-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.85rem;
+}
+
+.page-header-profile-widget--compact .profile-caret {
+    font-size: 0.85rem;
+    line-height: 1;
+}
+
+.ams-welcome {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    padding: 1.65rem 1.85rem;
+    margin-bottom: 1.5rem;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 50%, #9333EA 100%);
+    color: #fff;
+    box-shadow: 0 20px 50px rgba(91, 33, 182, 0.18);
+    position: relative;
+    overflow: hidden;
+}
+
+.ams-welcome::after {
+    content: "";
+    position: absolute;
+    top: -40%;
+    right: -8%;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    pointer-events: none;
+}
+
+.ams-welcome__copy {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+}
+
+.ams-welcome__eyebrow {
+    margin: 0 0 0.45rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+.ams-welcome__title {
+    margin: 0 0 0.45rem;
+    font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #fff;
+    line-height: 1.25;
+}
+
+.ams-welcome__text {
+    margin: 0;
+    font-size: 0.92rem;
+    opacity: 0.9;
+    max-width: 48ch;
+    line-height: 1.55;
+}
+
+.ams-welcome__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    font-size: 0.82rem;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
+    position: relative;
+    z-index: 1;
+    white-space: nowrap;
+}
+
+body.admin-theme .page-header--lib {
+    background: transparent;
+}
+
+body.admin-theme .page-header--lib h1 {
+    color: #1E1B4B;
+}
+
+body.admin-theme .page-header-profile-widget--compact .profile-trigger {
+    background: #FFFFFF;
+    border: 1px solid rgba(109, 40, 217, 0.14);
+    box-shadow: 0 4px 14px rgba(91, 33, 182, 0.08);
+}
+
+body.admin-theme .page-header-profile-widget--compact .profile-trigger:hover {
+    background: #F5F3FF;
+    border-color: rgba(124, 58, 237, 0.35);
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.12);
+}
+
+body.admin-theme .page-header-profile-widget--compact .profile-avatar {
+    background: linear-gradient(145deg, #7C3AED, #6D28D9);
+    color: #FFFFFF;
+    border-color: transparent;
+}
+
+body.admin-theme .page-header-profile-widget--compact .profile-caret {
+    color: #7C3AED;
+}
+
+body.super-admin-theme .page-header--lib {
+    background: transparent;
+}
+
+body.super-admin-theme .page-header--lib h1 {
+    color: #111827;
+}
+
+body.super-admin-theme .page-header-profile-widget--compact .profile-trigger {
+    background: #111827;
+    border-color: #1F2937;
+}
+
+body.super-admin-theme .page-header-profile-widget--compact .profile-avatar {
+    background: linear-gradient(145deg, #F59E0B, #D97706);
+    color: #111827;
+    border-color: transparent;
+}
+
+body.super-admin-theme .page-header-profile-widget--compact .profile-caret {
+    color: #F59E0B;
+}
+
+@media (max-width: 720px) {
+    .ams-welcome {
+        padding: 1.25rem 1.35rem;
+    }
+    .ams-welcome__badge {
+        width: 100%;
+        justify-content: center;
+    }
+}

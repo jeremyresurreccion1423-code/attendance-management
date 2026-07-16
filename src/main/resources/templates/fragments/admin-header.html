@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Library-style topbar + purple welcome banner; logout lives in the compact top-right profile menu -->
+<th:block th:fragment="header(title, subtitle, badge)">
+    <div class="page-header page-header--lib">
+        <h1 th:text="${title}">Admin</h1>
+        <div class="page-header-profile-widget page-header-profile-widget--compact">
+            <button type="button" class="profile-trigger" onclick="toggleProfileMenu(this)" aria-haspopup="true" aria-label="Account menu">
+                <img th:if="${profilePhotoUrl != null}" class="profile-avatar profile-avatar-img" th:src="${profilePhotoUrl}" alt="Profile photo" />
+                <span th:unless="${profilePhotoUrl != null}" class="profile-avatar" th:text="${profileInitial ?: 'U'}">U</span>
+                <span class="profile-caret" aria-hidden="true">▾</span>
+            </button>
+            <div class="profile-menu" role="menu">
+                <a href="/profile" class="profile-menu-action" role="menuitem">My Profile</a>
+                <a href="/forgot-password" class="profile-menu-action" role="menuitem">Forgot Password</a>
+                <a th:href="@{/logout}" class="profile-menu-action profile-logout" role="menuitem">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <section class="ams-welcome" aria-label="Attendance welcome">
+        <div class="ams-welcome__copy">
+            <p class="ams-welcome__eyebrow">Attendance Management</p>
+            <h2 class="ams-welcome__title">
+                <span data-ams-greeting
+                      th:attr="data-name=${#authentication.name != null ? #authentication.name : 'Admin'}"
+                      th:text="'Good morning, ' + (${#authentication.name != null ? #authentication.name : 'Admin'}) + '!'">Good morning, Admin!</span>
+            </h2>
+            <p class="ams-welcome__text" th:text="${subtitle}">Here's what's happening today.</p>
+        </div>
+        <span class="ams-welcome__badge" th:if="${badge != null and !#strings.isEmpty(badge)}">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <span th:text="${badge}">Overview</span>
+        </span>
+    </section>
+</th:block>
+</body>
+</html>

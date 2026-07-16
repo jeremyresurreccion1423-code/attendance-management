@@ -23,6 +23,13 @@
 
     ensureForgotPasswordInProfileMenus();
 
+    document.querySelectorAll("[data-ams-greeting]").forEach((el) => {
+        const name = el.getAttribute("data-name") || "Admin";
+        const hour = new Date().getHours();
+        const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+        el.textContent = `${greeting}, ${name}!`;
+    });
+
     if (toggleButton && sidebar) {
         const storageKey = "ams-sidebar-collapsed";
         const applyState = (collapsed) => {

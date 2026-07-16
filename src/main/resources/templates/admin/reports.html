@@ -10,25 +10,7 @@
 <div class="app-layout">
     <div th:replace="~{fragments/admin-sidebar :: sidebar('ams-reports')}"></div>
     <main class="main-content">
-        <div class="page-header">
-            <h1>Reports</h1>
-            <div class="page-header-profile-widget">
-                <button type="button" class="profile-trigger" onclick="toggleProfileMenu(this)">
-                    <img th:if="${profilePhotoUrl != null}" class="profile-avatar profile-avatar-img" th:src="${profilePhotoUrl}" alt="Profile photo" />
-                    <span th:unless="${profilePhotoUrl != null}" class="profile-avatar" th:text="${profileInitial ?: 'U'}">U</span>
-                    <span class="profile-meta">
-                        <strong>My Profile</strong>
-                        <small th:text="${#authentication.name != null ? #authentication.name : 'User'}">user</small>
-                    </span>
-                    <span class="profile-caret">▾</span>
-                </button>
-                <div class="profile-menu">
-                    <a href="/profile" class="profile-menu-action">My Profile</a>
-                    <a href="/forgot-password" class="profile-menu-action">Forgot Password</a>
-                    <a th:href="@{/logout}" class="profile-menu-action profile-logout">Logout</a>
-                </div>
-            </div>
-        </div>
+        <div th:replace="~{fragments/admin-header :: header('Reports', 'Generate and export attendance reports.', 'Reports Overview')}"></div>
 
         <div class="card">
             <h3>Attendance Report</h3>
