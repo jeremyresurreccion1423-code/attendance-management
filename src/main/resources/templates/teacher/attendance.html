@@ -60,9 +60,10 @@
                         <input type="date" name="date" class="form-control" th:value="${selectedDate}">
                     </div>
                     <div class="form-group" th:if="${selectedSubject != null}">
-                        <label>Published Schedule Time</label>
-                        <select name="timetableId" class="form-control" th:disabled="${#lists.isEmpty(availableSchedules)}">
+                        <label>Published Schedule Time <span style="font-weight:400;color:#64748b;">(optional)</span></label>
+                        <select name="timetableId" class="form-control">
                             <option value="" th:if="${#lists.isEmpty(availableSchedules)}">No published schedule for selected date</option>
+                            <option value="" th:unless="${#lists.isEmpty(availableSchedules)}">-- Optional: pick schedule --</option>
                             <option th:each="tt : ${availableSchedules}"
                                     th:value="${tt.id}"
                                     th:text="${tt.startTime + ' - ' + tt.endTime + (tt.room != null ? ' (' + tt.room + ')' : '')}"
@@ -77,10 +78,14 @@
                         class="btn btn-success"
                         style="margin-left:0.5rem;"
                         id="generateQrBtn"
-                        th:disabled="${#lists.isEmpty(availableSchedules)}"
                         th:attr="data-subject-id=${selectedSubject}">
                     Generate QR Code
                 </button>
+                <p th:if="${selectedSubject != null and #lists.isEmpty(availableSchedules)}"
+                   class="form-hint"
+                   style="margin-top:0.75rem; color:#64748b; font-size:0.88rem;">
+                    No published schedule for this date. QR can still be generated for the selected subject and date.
+                </p>
             </form>
         </div>
 
@@ -115,6 +120,7 @@
 </div>
 <script th:src="@{/js/layout.js}"></script>
 <script th:src="@{/js/profile-menu.js}"></script>
+<script th:src="@{/js/forms.js}"></script>
 <script>
 const qrBtn = document.getElementById('generateQrBtn');
 if (qrBtn) {
@@ -123,59 +129,68 @@ if (qrBtn) {
         const subjectInput = attendanceForm ? attendanceForm.querySelector('select[name="subjectId"]') : null;
         const dateInput = attendanceForm ? attendanceForm.querySelector('input[name="date"]') : null;
         const timetableInput = attendanceForm ? attendanceForm.querySelector('select[name="timetableId"]') : null;
-        const subjectId = subjectInput ? subjectInput.value : qrBtn.getAttribute('data-subject-id');
+        const subjectId = (subjectInput && subjectInput.value) ? subjectInput.value : qrBtn.getAttribute('data-subject-id');
         const selectedDate = dateInput ? dateInput.value : '';
-        const timetableId = timetableInput ? timetableInput.value : '';
+        const timetableId = (timetableInput && !timetableInput.disabled && timetableInput.value) ? timetableInput.value : '';
         if (!subjectId) {
-            alert('Please select a subject first.');
-            return;
-        }
-        if (!timetableId) {
             if (window.amsShowStatus) {
-                window.amsShowStatus('error', 'Please choose a published schedule time first.');
+                window.amsShowStatus('error', 'Please select a subject first.');
             } else {
-                alert('Please choose a published schedule time first.');
+                alert('Please select a subject first.');
             }
             return;
         }
         const doGenerate = function() {
             qrBtn.disabled = true;
-            qrBtn.textContent = 'Getting location...';
-            let targetUrl = '/teacher/attendance/qr?subjectId=' + encodeURIComponent(subjectId)
-                + '&timetableId=' + encodeURIComponent(timetableId);
+            qrBtn.textContent = 'Generating...';
+            let targetUrl = '/teacher/attendance/qr?subjectId=' + encodeURIComponent(subjectId);
+            if (timetableId) {
+                targetUrl += '&timetableId=' + encodeURIComponent(timetableId);
+            }
             if (selectedDate) {
                 targetUrl += '&date=' + encodeURIComponent(selectedDate);
             }
+            const go = function(url) {
+                window.location.href = url;
+            };
             if (!navigator.geolocation) {
-                window.location.href = targetUrl;
+                go(targetUrl);
                 return;
             }
+            qrBtn.textContent = 'Getting location...';
+            let finished = false;
+            const finish = function(url) {
+                if (finished) return;
+                finished = true;
+                go(url);
+            };
+            // Don't block QR generation if location is slow or denied.
+            const fallbackTimer = setTimeout(function () {
+                finish(targetUrl);
+            }, 4000);
             navigator.geolocation.getCurrentPosition(
                 function (pos) {
-                    window.location.href = targetUrl
-                        + '&latitude=' + pos.coords.latitude
-                        + '&longitude=' + pos.coords.longitude;
+                    clearTimeout(fallbackTimer);
+                    finish(targetUrl
+                        + '&latitude=' + encodeURIComponent(pos.coords.latitude)
+                        + '&longitude=' + encodeURIComponent(pos.coords.longitude));
                 },
                 function () {
-                    if (window.amsShowStatus) {
-                        window.amsShowStatus('error', 'Location access denied. QR will be generated without geo-validation.');
-                    } else {
-                        alert('Location access denied. QR will be generated without geo-validation.');
-                    }
-                    window.location.href = targetUrl;
+                    clearTimeout(fallbackTimer);
+                    finish(targetUrl);
                 },
-                { enableHighAccuracy: true, timeout: 10000 }
+                { enableHighAccuracy: false, timeout: 3500, maximumAge: 60000 }
             );
         };
         if (window.amsConfirm) {
-            window.amsConfirm('Generate QR attendance session? Your location will be captured for geo-validation.', {
+            window.amsConfirm('Generate QR attendance session? Your location will be captured for geo-validation when available.', {
                 type: 'warning',
                 title: 'Generate QR Session',
                 okText: 'Generate QR'
             }).then(function(confirmed) {
                 if (confirmed) doGenerate();
             });
-        } else if (confirm('Generate QR attendance session? Your location will be captured for geo-validation.')) {
+        } else if (confirm('Generate QR attendance session? Your location will be captured for geo-validation when available.')) {
             doGenerate();
         }
     });

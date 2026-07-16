@@ -113,13 +113,33 @@ public class TeacherController {
                                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                                @RequestParam(required = false) Double latitude,
                                @RequestParam(required = false) Double longitude,
-                               Model model) {
-        AttendanceQR qr = qrService.generateQR(subjectId, date, timetableId, latitude, longitude);
-        model.addAttribute("qr", qr);
-        model.addAttribute("qrImage", qrService.generateQRImageBase64(qr.getQrCode()));
-        model.addAttribute("latitude", latitude);
-        model.addAttribute("longitude", longitude);
-        return "teacher/qr-display";
+                               Model model,
+                               RedirectAttributes redirect) {
+        try {
+            AttendanceQR qr = qrService.generateQR(subjectId, date, timetableId, latitude, longitude);
+            model.addAttribute("qr", qr);
+            model.addAttribute("qrImage", qrService.generateQRImageBase64(qr.getQrCode()));
+            model.addAttribute("latitude", latitude);
+            model.addAttribute("longitude", longitude);
+            return "teacher/qr-display";
+        } catch (IllegalArgumentException ex) {
+            redirect.addFlashAttribute("error", ex.getMessage());
+            StringBuilder redirectUrl = new StringBuilder("redirect:/teacher/attendance?subjectId=").append(subjectId);
+            if (date != null) {
+                redirectUrl.append("&date=").append(date);
+            }
+            if (timetableId != null) {
+                redirectUrl.append("&timetableId=").append(timetableId);
+            }
+            return redirectUrl.toString();
+        } catch (Exception ex) {
+            redirect.addFlashAttribute("error", "Failed to generate QR code. Please try again.");
+            StringBuilder redirectUrl = new StringBuilder("redirect:/teacher/attendance?subjectId=").append(subjectId);
+            if (date != null) {
+                redirectUrl.append("&date=").append(date);
+            }
+            return redirectUrl.toString();
+        }
     }
 
     @GetMapping("/marks")
