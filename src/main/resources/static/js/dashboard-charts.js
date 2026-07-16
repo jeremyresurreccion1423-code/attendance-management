@@ -4,9 +4,9 @@
     const red = "#dc2626";
     const amber = "#d97706";
     const rainbow = ["#ef4444", "#f59e0b", "#22c55e", "#3b82f6", "#a855f7", "#ec4899"];
-    const purple = "#581c87";
-    const purpleLight = "#c4b5fd";
-    const purpleShades = ["#4c1d95", "#581c87", "#6b21a8", "#7e22ce", "#9333ea", "#a855f7"];
+    const purple = "#A855F7";
+    const purpleLight = "#E9D5FF";
+    const purpleShades = ["#1E1B4B", "#4C1D95", "#7C3AED", "#A855F7", "#C084FC", "#9333EA"];
     const isTeacherTheme = function () {
         return document.body && document.body.classList.contains("teacher-theme");
     };
