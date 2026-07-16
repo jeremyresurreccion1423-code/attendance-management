@@ -14,8 +14,11 @@ import com.attendance.util.ValidationHelper;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
@@ -537,8 +540,18 @@ public class AdminController {
                 ? studentService.findByDepartmentId(departmentId)
                 : List.of();
 
+        Map<Long, Set<Long>> enrolledStudentIdsBySubject = new HashMap<>();
+        for (Subject subjectItem : subjects) {
+            Set<Long> enrolledIds = subjectService.getEnrollments(subjectItem.getId()).stream()
+                    .filter(e -> e.getStudent() != null && e.getStudent().getId() != null)
+                    .map(e -> e.getStudent().getId())
+                    .collect(Collectors.toCollection(HashSet::new));
+            enrolledStudentIdsBySubject.put(subjectItem.getId(), enrolledIds);
+        }
+
         model.addAttribute("subjects", subjects);
         model.addAttribute("students", departmentStudents);
+        model.addAttribute("enrolledStudentIdsBySubject", enrolledStudentIdsBySubject);
         model.addAttribute("departmentList", departmentService.findAll());
         model.addAttribute("selectedDepartmentId", departmentId);
         model.addAttribute("searchQuery", search != null ? search : "");

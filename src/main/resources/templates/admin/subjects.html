@@ -80,11 +80,18 @@
                                 <form th:action="@{|/admin/subjects/${sub.id}/assign-students|}" method="post" class="assign-students-widget" data-assign-widget>
                                     <input type="hidden" name="returnDepartmentId" th:value="${selectedDepartmentId}">
                                     <input type="search" class="form-control assign-search" placeholder="Search student..." data-assign-search>
-                                    <div class="assign-students-list" data-assign-list>
+                                    <div class="assign-students-list" data-assign-list
+                                         th:with="enrolledIds=${enrolledStudentIdsBySubject != null ? enrolledStudentIdsBySubject[sub.id] : null}">
                                         <label class="assign-student-item" th:each="st : ${students}"
+                                               th:classappend="${enrolledIds != null and enrolledIds.contains(st.id)} ? ' is-enrolled' : ''"
                                                th:attr="data-search-text=${#strings.toLowerCase(st.fullName + ' ' + st.studentNumber + ' ' + (st.section != null ? st.section.name : ''))}">
-                                            <input type="checkbox" name="studentIds" th:value="${st.id}" data-assign-checkbox>
-                                            <span th:text="${st.fullName + ' (' + st.studentNumber + ')' + (st.section != null ? ' — ' + st.section.name : '')}"></span>
+                                            <input type="checkbox" name="studentIds" th:value="${st.id}" data-assign-checkbox
+                                                   th:checked="${enrolledIds != null and enrolledIds.contains(st.id)}"
+                                                   th:disabled="${enrolledIds != null and enrolledIds.contains(st.id)}">
+                                            <span>
+                                                <th:block th:text="${st.fullName + ' (' + st.studentNumber + ')' + (st.section != null ? ' — ' + st.section.name : '')}">Student</th:block>
+                                                <small th:if="${enrolledIds != null and enrolledIds.contains(st.id)}" class="assign-enrolled-tag">Enrolled</small>
+                                            </span>
                                         </label>
                                         <div class="assign-empty" data-assign-empty hidden>No students in this department.</div>
                                     </div>
@@ -204,8 +211,13 @@ function bindAssignWidget(widget) {
     const clearBtn = widget.querySelector('[data-assign-clear]');
 
     function updateCount() {
-        const selected = checkboxes.filter(cb => cb.checked).length;
-        if (countEl) countEl.textContent = `${selected} selected`;
+        const selected = checkboxes.filter(cb => cb.checked && !cb.disabled).length;
+        const enrolled = checkboxes.filter(cb => cb.disabled && cb.checked).length;
+        if (countEl) {
+            countEl.textContent = enrolled > 0
+                ? `${selected} selected · ${enrolled} enrolled`
+                : `${selected} selected`;
+        }
     }
 
     function applySearch() {
@@ -241,16 +253,18 @@ function bindAssignWidget(widget) {
     }
     if (clearBtn) {
         clearBtn.addEventListener('click', () => {
-            checkboxes.forEach((cb) => cb.checked = false);
+            checkboxes.forEach((cb) => {
+                if (!cb.disabled) cb.checked = false;
+            });
             updateCount();
         });
     }
     widget.addEventListener('submit', (event) => {
-        const selected = checkboxes.filter(cb => cb.checked).length;
+        const selected = checkboxes.filter(cb => cb.checked && !cb.disabled).length;
         if (selected === 0) {
             event.preventDefault();
             if (window.amsConfirm) {
-                window.amsConfirm("Pumili ng kahit isang student bago mag-assign.", {
+                window.amsConfirm("Pumili ng kahit isang bagong student bago mag-assign.", {
                     title: "No Student Selected",
                     okText: "OK",
                     cancelText: "Close"
