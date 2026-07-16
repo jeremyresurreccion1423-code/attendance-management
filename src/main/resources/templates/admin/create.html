@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Create Dashboard - AMS</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=17)}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=18)}">
     <link rel="stylesheet" th:href="@{/css/create.css(v=9)}">
 </head>
 <body class="admin-theme">
@@ -15,7 +15,7 @@
         <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
         <div class="create-dash">
-            <div th:replace="~{fragments/admin-header :: header('Create Dashboard', 'Create departments students teachers subjects and sections in one place.', 'Create Overview')}"></div>
+            <th:block th:replace="~{fragments/admin-header :: header('Create Dashboard', 'Create departments students teachers subjects and sections in one place.', 'Create Overview')}"></th:block>
 
             <div class="create-stats">
                 <div class="create-stat">

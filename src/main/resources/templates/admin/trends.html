@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Attendance Trends - AMS</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=17)}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=18)}">
 </head>
 <body class="admin-theme">
 <button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
 <div class="app-layout">
     <div th:replace="~{fragments/admin-sidebar :: sidebar('ams-trends')}"></div>
     <main class="main-content">
-        <div th:replace="~{fragments/admin-header :: header('Attendance Trends', 'Weekly and monthly attendance analytics.', 'Trends')}"></div>
+        <th:block th:replace="~{fragments/admin-header :: header('Attendance Trends', 'Weekly and monthly attendance analytics.', 'Trends')}"></th:block>
 
         <div class="stats-grid">
             <div class="stat-card">
