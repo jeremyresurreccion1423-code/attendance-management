@@ -1,6 +1,7 @@
 package com.attendance.controller;
 
 import com.attendance.model.*;
+import com.attendance.repository.UserRepository;
 import com.attendance.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -33,6 +34,8 @@ public class AdminController {
     private final SectionService sectionService;
     private final DepartmentService departmentService;
     private final ProfilePhotoService profilePhotoService;
+    private final AuthService authService;
+    private final UserRepository userRepository;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model, Authentication auth) {
@@ -46,6 +49,72 @@ public class AdminController {
         model.addAttribute("data", dashboardService.getAdminTrendsData());
         model.addAttribute("profilePhotoUrl", profilePhotoService.resolveProfilePhotoUrl(auth.getName()));
         return "admin/trends";
+    }
+
+    @GetMapping("/admins")
+    public String listAdmins(Model model, Authentication auth) {
+        model.addAttribute("admins", userRepository.findByRoleOrderByUsernameAsc(Role.ADMIN));
+        model.addAttribute("currentUsername", auth.getName());
+        model.addAttribute("adminCount", userRepository.countByRole(Role.ADMIN));
+        return "admin/admins";
+    }
+
+    @PostMapping("/admins")
+    public String createAdmin(@RequestParam String username,
+                              @RequestParam String password,
+                              @RequestParam String confirmPassword,
+                              @RequestParam(required = false) String email,
+                              @RequestParam(required = false) String fullName,
+                              RedirectAttributes redirect) {
+        try {
+            ValidationHelper.requireText(username, "Username");
+            String trimmedUsername = username.trim();
+            if (!trimmedUsername.matches("^[A-Za-z0-9_-]{3,50}$")) {
+                throw new IllegalArgumentException(
+                        "Username must be 3–50 characters and only contain letters, numbers, underscore, or hyphen.");
+            }
+            ValidationHelper.validatePassword(password);
+            if (password == null || !password.equals(confirmPassword)) {
+                throw new IllegalArgumentException("Passwords do not match.");
+            }
+            if (email != null && !email.isBlank()) {
+                ValidationHelper.requireEmail(email);
+            }
+            authService.createUser(
+                    trimmedUsername,
+                    password,
+                    Role.ADMIN,
+                    email,
+                    fullName);
+            redirect.addFlashAttribute("message", "Admin account \"" + trimmedUsername + "\" created successfully.");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/admin/admins";
+    }
+
+    @PostMapping("/admins/{id}/delete")
+    public String deleteAdmin(@PathVariable Long id,
+                              Authentication auth,
+                              RedirectAttributes redirect) {
+        try {
+            User target = userRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Admin account not found."));
+            if (target.getRole() != Role.ADMIN) {
+                throw new IllegalArgumentException("Not an admin account.");
+            }
+            if (target.getUsername().equalsIgnoreCase(auth.getName())) {
+                throw new IllegalArgumentException("You cannot delete your own account.");
+            }
+            if (userRepository.countByRole(Role.ADMIN) <= 1) {
+                throw new IllegalArgumentException("Cannot delete the last admin account.");
+            }
+            userRepository.delete(target);
+            redirect.addFlashAttribute("message", "Admin account \"" + target.getUsername() + "\" deleted.");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/admin/admins";
     }
 
     @GetMapping("/create")
