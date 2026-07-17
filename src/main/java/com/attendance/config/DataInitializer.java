@@ -11,6 +11,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -47,7 +48,7 @@ public class DataInitializer implements CommandLineRunner {
 
         User adminUser = userRepository.findByUsername("admin")
                 .orElseGet(() -> authService.createUser(
-                        "admin", "admin123", Role.ADMIN, "mercadocarlo645@gmail.com", "System Admin"));
+                        "admin", "admin123", Role.ADMIN, "edulibrary67+admin@gmail.com", "System Admin"));
 
         User teacherUser = userRepository.findByUsername("teacher1")
                 .orElseGet(() -> authService.createUser(
@@ -165,23 +166,39 @@ public class DataInitializer implements CommandLineRunner {
         log.info("Sample data initialized/verified");
     }
 
+    private static final String DEFAULT_ADMIN_EMAIL = "mercadocarlo645@gmail.com";
+
     private void ensureDashboardAdminAccount() {
         userRepository.findByUsername("dashadmin")
                 .orElseGet(() -> authService.createUser(
                         "dashadmin", "DashAdmin@2026", Role.ADMIN,
-                        "mercadocarlo645@gmail.com", "Dashboard Admin"));
-        userRepository.findAll().stream()
-                .filter(u -> u.getRole() == Role.ADMIN)
-                .filter(u -> {
-                    String email = u.getEmail();
-                    return email == null || email.isBlank()
-                            || "resurreccionjeremy9@gmail.com".equalsIgnoreCase(email.trim());
-                })
-                .forEach(u -> {
-                    u.setEmail("mercadocarlo645@gmail.com");
-                    userRepository.save(u);
-                });
+                        DEFAULT_ADMIN_EMAIL, "Dashboard Admin"));
+        assignAdminEmailIfAvailable("jeremy", DEFAULT_ADMIN_EMAIL);
+        assignAdminEmailIfAvailable("admin", DEFAULT_ADMIN_EMAIL);
         log.info("Ensured dashboard admin account: dashadmin");
+    }
+
+    private void assignAdminEmailIfAvailable(String username, String email) {
+        userRepository.findByUsername(username).ifPresent(user -> {
+            if (user.getRole() != Role.ADMIN || email == null || email.isBlank()) {
+                return;
+            }
+            String current = user.getEmail();
+            if (current != null && !current.isBlank()
+                    && !"resurreccionjeremy9@gmail.com".equalsIgnoreCase(current.trim())) {
+                return;
+            }
+            String normalizedEmail = email.trim().toLowerCase();
+            Optional<User> existingOwner = userRepository.findByEmailIgnoreCase(normalizedEmail);
+            if (existingOwner.isPresent() && !existingOwner.get().getId().equals(user.getId())) {
+                log.warn("Skipped email update for {} — {} already used by {}",
+                        username, normalizedEmail, existingOwner.get().getUsername());
+                return;
+            }
+            user.setEmail(normalizedEmail);
+            userRepository.save(user);
+            log.info("Set admin {} email to {}", username, normalizedEmail);
+        });
     }
 
     private void ensureDemoTeacherAccount() {

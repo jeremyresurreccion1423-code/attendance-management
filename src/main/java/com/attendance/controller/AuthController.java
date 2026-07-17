@@ -388,9 +388,13 @@ public class AuthController {
         if (user.getEmail() != null && !user.getEmail().isBlank()) {
             return user.getEmail().trim();
         }
-        user.setEmail(DEFAULT_ADMIN_EMAIL);
-        userRepository.save(user);
-        return DEFAULT_ADMIN_EMAIL;
+        Optional<User> owner = userRepository.findByEmailIgnoreCase(DEFAULT_ADMIN_EMAIL);
+        if (owner.isEmpty() || owner.get().getId().equals(user.getId())) {
+            user.setEmail(DEFAULT_ADMIN_EMAIL);
+            userRepository.save(user);
+            return DEFAULT_ADMIN_EMAIL;
+        }
+        return "—";
     }
 
     private static String formatRoleLabel(Role role) {
