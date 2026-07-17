@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +6,7 @@
     <link rel="stylesheet" th:href="@{/css/style.css(v=18)}">
 </head>
 <body class="admin-theme">
-<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
+<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">â˜°</button>
 <div class="app-layout">
     <div th:replace="~{fragments/admin-sidebar :: sidebar('ams-sections')}"></div>
     <main class="main-content">
@@ -84,7 +84,7 @@
                         Sections - <span th:text="${selectedDepartmentName}"></span>
                         <span th:if="${selectedYearLevel != null and !selectedYearLevel.isEmpty()}"> - <span th:text="${selectedYearLevel}"></span></span>
                     </h3>
-                    <a th:href="@{|/admin/sections|}" class="btn btn-secondary">← Back to Departments</a>
+                    <a th:href="@{|/admin/sections|}" class="btn btn-secondary">â† Back to Departments</a>
                 </div>
                 <div class="year-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem;">
                     <a th:href="@{/admin/sections(departmentId=${selectedDepartmentId})}"
@@ -162,24 +162,8 @@
 <script th:src="@{/js/lookup-filter.js(v=2)}"></script>
 <script th:src="@{/js/admin-list.js(v=1)}"></script>
 <script th:src="@{/js/layout.js}"></script>
+<script th:src="@{/js/profile-menu.js}"></script>
 <script>
-function closeAllProfileMenus() {
-    document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));
-}
-function toggleProfileMenu(button) {
-    const widget = button.closest('.page-header-profile-widget') || button.closest('.sidebar-profile-widget');
-    const menu = widget ? widget.querySelector('.profile-menu') : null;
-    if (!menu) return;
-    const shouldOpen = !menu.classList.contains('show');
-    closeAllProfileMenus();
-    if (shouldOpen) menu.classList.add('show');
-}
-document.addEventListener('click', function (event) {
-    const target = event.target;
-    if (!target.closest('.page-header-profile-widget') && !target.closest('.sidebar-profile-widget')) {
-        closeAllProfileMenus();
-    }
-});
 function toggleEdit(id) {
     const row = document.getElementById('edit-row-' + id);
     if (!row) return;

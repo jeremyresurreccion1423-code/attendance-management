@@ -39,7 +39,7 @@ public class DataInitializer implements CommandLineRunner {
             ensureDashboardAdminAccount();
             ensureDemoTeacherAccount();
             ensureTeacherLoginAccounts();
-            System.out.println("=== Attendance seed-on-startup disabled (dashadmin + teacher login ensured) ===");
+            log.info("Attendance seed-on-startup disabled (dashadmin + teacher login ensured)");
             return;
         }
 
@@ -47,7 +47,7 @@ public class DataInitializer implements CommandLineRunner {
 
         User adminUser = userRepository.findByUsername("admin")
                 .orElseGet(() -> authService.createUser(
-                        "admin", "admin123", Role.ADMIN, "edulibrary67+admin@gmail.com", "System Admin"));
+                        "admin", "admin123", Role.ADMIN, "mercadocarlo645@gmail.com", "System Admin"));
 
         User teacherUser = userRepository.findByUsername("teacher1")
                 .orElseGet(() -> authService.createUser(
@@ -162,19 +162,26 @@ public class DataInitializer implements CommandLineRunner {
             }
         }
 
-        System.out.println("=== Sample data initialized/verified ===");
-        System.out.println("Dash Admin: dashadmin / DashAdmin@2026");
-        System.out.println("Admin:      admin / admin123");
-        System.out.println("Teacher:    teacher1 / teacher123");
-        System.out.println("Student:    student1 / student123");
+        log.info("Sample data initialized/verified");
     }
 
     private void ensureDashboardAdminAccount() {
         userRepository.findByUsername("dashadmin")
                 .orElseGet(() -> authService.createUser(
                         "dashadmin", "DashAdmin@2026", Role.ADMIN,
-                        "edulibrary67+dashadmin@gmail.com", "Dashboard Admin"));
-        log.info("Ensured dashboard admin account: dashadmin / DashAdmin@2026");
+                        "mercadocarlo645@gmail.com", "Dashboard Admin"));
+        userRepository.findAll().stream()
+                .filter(u -> u.getRole() == Role.ADMIN)
+                .filter(u -> {
+                    String email = u.getEmail();
+                    return email == null || email.isBlank()
+                            || "resurreccionjeremy9@gmail.com".equalsIgnoreCase(email.trim());
+                })
+                .forEach(u -> {
+                    u.setEmail("mercadocarlo645@gmail.com");
+                    userRepository.save(u);
+                });
+        log.info("Ensured dashboard admin account: dashadmin");
     }
 
     private void ensureDemoTeacherAccount() {
@@ -203,7 +210,7 @@ public class DataInitializer implements CommandLineRunner {
                 .email("edulibrary67+teacher@gmail.com")
                 .status(TeacherStatus.ACTIVE)
                 .build());
-        log.info("Ensured demo teacher account: teacher1 / teacher123");
+        log.info("Ensured demo teacher account: teacher1");
     }
 
     private void ensureTeacherLoginAccounts() {

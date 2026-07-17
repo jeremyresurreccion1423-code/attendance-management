@@ -1251,72 +1251,6 @@ body.teacher-theme.qr-session-page .app-layout {
     .qrs-stats-grid { grid-template-columns: 1fr; }
 }
 
-/* Legacy selectors kept for compatibility */
-.qr-session {
-    max-width: 440px;
-    margin: 0 auto;
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-    padding: 1.5rem;
-    text-align: center;
-}
-.qr-session-head h3 { margin: 0 0 0.25rem; font-size: 1.25rem; }
-.qr-session-head p { margin: 0; color: #64748b; font-size: 0.9rem; }
-.qr-code-frame {
-    margin: 1.25rem auto;
-    width: fit-content;
-    padding: 0.75rem;
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 16px;
-}
-.qr-code-frame img { display:block; width: 240px; height: 240px; }
-.qr-meta {
-    margin: 0 0 1.25rem;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    text-align: left;
-}
-.qr-meta-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.6rem 0.85rem;
-    border-bottom: 1px solid var(--border);
-}
-.qr-meta-row:last-child { border-bottom: none; }
-.qr-meta dt { font-size: 0.8rem; color: #64748b; font-weight: 600; }
-.qr-meta dd { margin: 0; font-size: 0.85rem; color: #0f172a; text-align: right; }
-.qr-meta dd code { font-size: 0.78rem; word-break: break-all; }
-.qr-meta-muted { color: #94a3b8 !important; }
-.qr-legend {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: 0.82rem;
-    color: #475569;
-    padding: 0.2rem 0;
-}
-.qr-legend-text { text-align: left; }
-.qr-badge {
-    display: inline-block;
-    min-width: 64px;
-    padding: 0.2rem 0.55rem;
-    border-radius: 999px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-align: center;
-    letter-spacing: .02em;
-}
-.qr-badge-present { background: #dcfce7; color: #166534; }
-.qr-badge-late { background: #fef9c3; color: #854d0e; }
-.qr-badge-absent { background: #fee2e2; color: #991b1b; }
-.qr-back-btn { margin-top: 1.25rem; width: 100%; }
-
 
 .modal-backdrop {
     position: fixed; inset: 0; background: rgba(15, 40, 28, 0.42); display:none; align-items:center; justify-content:center; padding:1rem; z-index:999;
@@ -2179,9 +2113,10 @@ body.teacher-theme .alert-info {
     color: #5C0013;
     border: 1px solid #E8A0AE;
 }
-body.teacher-theme .qr-badge-present {
-    background: #D1FAE5;
-    color: #065F46;
+body.teacher-theme .qr-badge-late {
+    background: #FEF9C3;
+    color: #854D0E;
+    border: 1px solid #E8A0AE;
 }
 
 /* Teacher profile page — maroon match */

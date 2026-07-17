@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +6,7 @@
     <link rel="stylesheet" th:href="@{/css/style.css(v=18)}">
 </head>
 <body class="admin-theme">
-<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
+<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">â˜°</button>
 <div class="app-layout">
     <div th:replace="~{fragments/admin-sidebar :: sidebar('ams-teachers')}"></div>
     <main class="main-content">
@@ -33,7 +33,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3>Teachers - <span th:text="${selectedDepartmentName}"></span></h3>
-                    <a th:href="@{|/admin/teachers|}" class="btn btn-secondary">← Back to Departments</a>
+                    <a th:href="@{|/admin/teachers|}" class="btn btn-secondary">â† Back to Departments</a>
                 </div>
             </div>
 
@@ -88,7 +88,7 @@
                             <td>
                                 <ul th:if="${subjectsByTeacher != null and subjectsByTeacher.containsKey(t.id)}" style="margin:0; padding-left:1.1rem;">
                                     <li th:each="sub : ${subjectsByTeacher.get(t.id)}"
-                                        th:text="${sub.subjectCode + ' — ' + sub.subjectName + (sub.section != null ? ' (' + sub.section.name + ')' : '')}"></li>
+                                        th:text="${sub.subjectCode + ' â€” ' + sub.subjectName + (sub.section != null ? ' (' + sub.section.name + ')' : '')}"></li>
                                 </ul>
                                 <span th:unless="${subjectsByTeacher != null and subjectsByTeacher.containsKey(t.id)}" style="color:#666;">None assigned</span>
                             </td>
@@ -101,7 +101,7 @@
                                                th:attr="data-search-text=${#strings.toLowerCase(sub.subjectCode + ' ' + sub.subjectName + ' ' + (sub.section != null ? sub.section.name : ''))}">
                                             <input type="checkbox" name="subjectIds" th:value="${sub.id}" data-assign-checkbox
                                                    th:checked="${sub.teacher != null and sub.teacher.id == t.id}">
-                                            <span th:text="${sub.subjectCode + ' — ' + sub.subjectName + (sub.section != null ? ' (' + sub.section.name + ')' : '')
+                                            <span th:text="${sub.subjectCode + ' â€” ' + sub.subjectName + (sub.section != null ? ' (' + sub.section.name + ')' : '')
                                                 + (sub.teacher != null and sub.teacher.id != t.id ? ' [assigned to ' + sub.teacher.fullName + ']' : '')}"></span>
                                         </label>
                                         <div th:if="${#lists.isEmpty(departmentSubjects)}" class="assign-empty">No subjects in this department yet.</div>
@@ -165,24 +165,8 @@
 <script th:src="@{/js/lookup-filter.js(v=2)}"></script>
 <script th:src="@{/js/admin-list.js(v=1)}"></script>
 <script th:src="@{/js/layout.js}"></script>
+<script th:src="@{/js/profile-menu.js}"></script>
 <script>
-function closeAllProfileMenus() {
-    document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));
-}
-function toggleProfileMenu(button) {
-    const widget = button.closest('.page-header-profile-widget') || button.closest('.sidebar-profile-widget');
-    const menu = widget ? widget.querySelector('.profile-menu') : null;
-    if (!menu) return;
-    const shouldOpen = !menu.classList.contains('show');
-    closeAllProfileMenus();
-    if (shouldOpen) menu.classList.add('show');
-}
-document.addEventListener('click', function (event) {
-    const target = event.target;
-    if (!target.closest('.page-header-profile-widget') && !target.closest('.sidebar-profile-widget')) {
-        closeAllProfileMenus();
-    }
-});
 function toggleEdit(id) {
     const row = document.getElementById('edit-row-' + id);
     if (!row) return;

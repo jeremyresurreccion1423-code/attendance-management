@@ -1,8 +1,10 @@
 package com.attendance.controller;
 
+import com.attendance.model.Role;
 import com.attendance.model.User;
 import com.attendance.repository.StudentRepository;
 import com.attendance.repository.TeacherRepository;
+import com.attendance.repository.UserRepository;
 import com.attendance.service.AttendanceMailService;
 import com.attendance.service.AuthService;
 import com.attendance.service.ProfilePhotoService;
@@ -39,8 +41,10 @@ public class AuthController {
 
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     private static final SecureRandom OTP_RANDOM = new SecureRandom();
+    private static final String DEFAULT_ADMIN_EMAIL = "mercadocarlo645@gmail.com";
 
     private final AuthService authService;
+    private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
     private final SharedAttendanceStudentProfileBridgeService sharedAttendanceStudentProfileBridgeService;
@@ -298,51 +302,79 @@ public class AuthController {
         User user = authService.findByUsername(auth.getName())
                 .orElseThrow(() -> new IllegalStateException("User not found: " + auth.getName()));
         Map<String, String> profileDetails = new LinkedHashMap<>();
+        boolean accountActive = Boolean.TRUE.equals(user.getEnabled());
+        String createdAtFormatted = user.getCreatedAt() != null
+                ? user.getCreatedAt().format(DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a"))
+                : "—";
+        String memberSince = user.getCreatedAt() != null
+                ? user.getCreatedAt().format(DateTimeFormatter.ofPattern("dd MMM yyyy"))
+                : "—";
+
         String displayName = user.getUsername();
-        String code = "ID " + user.getId();
+        String profileCode = "ID: " + user.getId();
+        String roleLabel = formatRoleLabel(user.getRole());
 
-        if (user.getRole() == com.attendance.model.Role.STUDENT) {
-            studentRepository.findByUserId(user.getId()).ifPresent(student -> {
-                model.addAttribute("displayName", student.getFullName());
-                model.addAttribute("profileCode", student.getStudentNumber());
+        if (user.getRole() == Role.STUDENT) {
+            var studentOpt = studentRepository.findByUserId(user.getId());
+            if (studentOpt.isPresent()) {
+                var student = studentOpt.get();
+                displayName = student.getFullName();
+                profileCode = student.getStudentNumber();
                 profileDetails.put("Name", student.getFullName());
-                profileDetails.put("Department", student.getDepartment() != null ? student.getDepartment().getName() : "-");
-                profileDetails.put("Year Level", student.getYearLevel() != null ? student.getYearLevel() : "-");
-                profileDetails.put("Section", student.getSection() != null ? student.getSection().getName() : "-");
-                profileDetails.put("Contact", student.getContactNumber() != null ? student.getContactNumber() : "-");
-                profileDetails.put("Email", student.getEmail() != null ? student.getEmail() : "-");
-            });
-        } else if (user.getRole() == com.attendance.model.Role.TEACHER) {
-            teacherRepository.findByUserId(user.getId()).ifPresent(teacher -> {
-                model.addAttribute("displayName", teacher.getFullName());
-                model.addAttribute("profileCode", teacher.getEmployeeId());
+                profileDetails.put("Username", user.getUsername());
+                profileDetails.put("Email", student.getEmail() != null ? student.getEmail() : "—");
+                profileDetails.put("Department", student.getDepartment() != null ? student.getDepartment().getName() : "—");
+                profileDetails.put("Year Level", student.getYearLevel() != null ? student.getYearLevel() : "—");
+                profileDetails.put("Section", student.getSection() != null ? student.getSection().getName() : "—");
+                profileDetails.put("Contact", student.getContactNumber() != null ? student.getContactNumber() : "—");
+                profileDetails.put("Role", roleLabel);
+                profileDetails.put("Account Status", accountActive ? "Active" : "Disabled");
+                profileDetails.put("Created At", createdAtFormatted);
+            }
+        } else if (user.getRole() == Role.TEACHER) {
+            var teacherOpt = teacherRepository.findByUserId(user.getId());
+            if (teacherOpt.isPresent()) {
+                var teacher = teacherOpt.get();
+                displayName = teacher.getFullName();
+                profileCode = teacher.getEmployeeId();
                 profileDetails.put("Name", teacher.getFullName());
-                profileDetails.put("Department", teacher.getDepartment() != null ? teacher.getDepartment().getName() : "-");
-                profileDetails.put("Contact", teacher.getContactNumber() != null ? teacher.getContactNumber() : "-");
-                profileDetails.put("Email", teacher.getEmail() != null ? teacher.getEmail() : "-");
-            });
+                profileDetails.put("Username", user.getUsername());
+                profileDetails.put("Email", teacher.getEmail() != null ? teacher.getEmail() : "—");
+                profileDetails.put("Department", teacher.getDepartment() != null ? teacher.getDepartment().getName() : "—");
+                profileDetails.put("Contact", teacher.getContactNumber() != null ? teacher.getContactNumber() : "—");
+                profileDetails.put("Role", roleLabel);
+                profileDetails.put("Account Status", accountActive ? "Active" : "Disabled");
+                profileDetails.put("Created At", createdAtFormatted);
+            }
+        } else if (user.getRole() == Role.ADMIN) {
+            if (user.getFullName() != null && !user.getFullName().isBlank()) {
+                displayName = user.getFullName();
+            }
+            String email = resolveAdminEmail(user);
+            profileDetails.put("Username", user.getUsername());
+            profileDetails.put("Email", email);
+            profileDetails.put("Role", "Administrator");
+            profileDetails.put("Account Status", accountActive ? "Active" : "Disabled");
+            profileDetails.put("Created At", createdAtFormatted);
+            roleLabel = "Administrator";
         }
 
-        if (!model.containsAttribute("displayName")) {
-            model.addAttribute("displayName", displayName);
-        }
-        if (!model.containsAttribute("profileCode")) {
-            model.addAttribute("profileCode", code);
-        }
         if (profileDetails.isEmpty()) {
             profileDetails.put("Username", user.getUsername());
-            profileDetails.put("Role", user.getRole().name().toLowerCase());
-            profileDetails.put("Account", Boolean.TRUE.equals(user.getEnabled()) ? "Active" : "Disabled");
-            profileDetails.put("Created At", user.getCreatedAt() != null
-                    ? user.getCreatedAt().format(DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a"))
-                    : "-");
+            profileDetails.put("Email", user.getEmail() != null ? user.getEmail() : "—");
+            profileDetails.put("Role", roleLabel);
+            profileDetails.put("Account Status", accountActive ? "Active" : "Disabled");
+            profileDetails.put("Created At", createdAtFormatted);
         }
 
-        LocalDate today = LocalDate.now();
+        model.addAttribute("username", user.getUsername());
+        model.addAttribute("displayName", displayName);
+        model.addAttribute("profileCode", profileCode);
+        model.addAttribute("roleLabel", roleLabel);
+        model.addAttribute("accountActive", accountActive);
+        model.addAttribute("memberSince", memberSince);
         model.addAttribute("user", user);
         model.addAttribute("roleName", user.getRole().name());
-        model.addAttribute("todayDate", today.format(DateTimeFormatter.ofPattern("dd MMMM yyyy")));
-        model.addAttribute("todayDay", today.format(DateTimeFormatter.ofPattern("EEEE")));
         model.addAttribute("profileDetails", profileDetails);
         model.addAttribute("dashboardPath", switch (user.getRole()) {
             case ADMIN -> "/admin/dashboard";
@@ -350,6 +382,23 @@ public class AuthController {
             case STUDENT -> "/student/dashboard";
         });
         return "profile/dashboard";
+    }
+
+    private String resolveAdminEmail(User user) {
+        if (user.getEmail() != null && !user.getEmail().isBlank()) {
+            return user.getEmail().trim();
+        }
+        user.setEmail(DEFAULT_ADMIN_EMAIL);
+        userRepository.save(user);
+        return DEFAULT_ADMIN_EMAIL;
+    }
+
+    private static String formatRoleLabel(Role role) {
+        return switch (role) {
+            case ADMIN -> "Administrator";
+            case TEACHER -> "Teacher";
+            case STUDENT -> "Student";
+        };
     }
 
     @PostMapping("/profile/password")

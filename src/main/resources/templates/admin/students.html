@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +6,7 @@
     <link rel="stylesheet" th:href="@{/css/style.css(v=18)}">
 </head>
 <body class="admin-theme">
-<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
+<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">â˜°</button>
 <div class="app-layout">
     <div th:replace="~{fragments/admin-sidebar :: sidebar('ams-students')}"></div>
     <main class="main-content">
@@ -37,7 +37,7 @@
         <div th:if="${selectedDepartmentId != null and (selectedYearLevel == null or selectedYearLevel.isEmpty())}">
             <div class="card">
                 <h3>Select Year Level - <span th:text="${selectedDepartmentName}"></span></h3>
-                <a th:href="@{/admin/students}" class="btn btn-secondary" style="margin-bottom: 1rem; display: inline-block;">← Back to Departments</a>
+                <a th:href="@{/admin/students}" class="btn btn-secondary" style="margin-bottom: 1rem; display: inline-block;">â† Back to Departments</a>
                 <div class="year-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
                     <a th:each="yl : ${yearLevels}"
                        th:href="@{/admin/students(departmentId=${selectedDepartmentId}, yearLevel=${yl})}"
@@ -55,7 +55,7 @@
                        class="btn btn-primary">View All Students in Year</a>
                 </div>
                 <a th:href="@{/admin/students(departmentId=${selectedDepartmentId})}"
-                   class="btn btn-secondary" style="margin-bottom: 1rem; display: inline-block;">← Back to Year Levels</a>
+                   class="btn btn-secondary" style="margin-bottom: 1rem; display: inline-block;">â† Back to Year Levels</a>
                 <div class="section-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
                     <a th:each="s : ${filteredSections}"
                        th:href="@{/admin/students(departmentId=${selectedDepartmentId}, yearLevel=${selectedYearLevel}, sectionId=${s.id})}"
@@ -95,7 +95,7 @@
                         <div class="form-group">
                             <label>Full Name</label>
                             <input type="text" th:field="*{fullName}" class="form-control" required minlength="2" maxlength="150"
-                                   pattern="[A-Za-zÀ-ÖØ-öø-ÿÑñ .'\-]{2,150}"
+                                   pattern="[A-Za-zÃ€-Ã–Ã˜-Ã¶Ã¸-Ã¿Ã‘Ã± .'\-]{2,150}"
                                    title="Letters, spaces, and . ' - only">
                         </div>
                         <div class="form-group">
@@ -170,13 +170,13 @@
                     </h3>
                     <a th:if="${selectedDepartmentId != null and selectedYearLevel != null and !selectedYearLevel.isEmpty()}"
                        th:href="@{/admin/students(departmentId=${selectedDepartmentId}, yearLevel=${selectedYearLevel})}"
-                       class="btn btn-secondary">← Back to Sections</a>
+                       class="btn btn-secondary">â† Back to Sections</a>
                     <a th:if="${viewAll and selectedDepartmentId != null and (selectedYearLevel == null or selectedYearLevel.isEmpty())}"
                        th:href="@{/admin/students}"
-                       class="btn btn-secondary">← Back to Departments</a>
+                       class="btn btn-secondary">â† Back to Departments</a>
                     <a th:if="${viewAll and selectedDepartmentId == null}"
                        th:href="@{/admin/students}"
-                       class="btn btn-secondary">← Back to Departments</a>
+                       class="btn btn-secondary">â† Back to Departments</a>
                 </div>
 
                 <form method="get" th:action="@{/admin/students}" class="student-search-bar">
@@ -319,24 +319,8 @@
 <script th:src="@{/js/lookup-filter.js(v=3)}"></script>
 <script th:src="@{/js/admin-list.js(v=1)}"></script>
 <script th:src="@{/js/layout.js}"></script>
+<script th:src="@{/js/profile-menu.js}"></script>
 <script>
-function closeAllProfileMenus() {
-    document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));
-}
-function toggleProfileMenu(button) {
-    const widget = button.closest('.page-header-profile-widget') || button.closest('.sidebar-profile-widget');
-    const menu = widget ? widget.querySelector('.profile-menu') : null;
-    if (!menu) return;
-    const shouldOpen = !menu.classList.contains('show');
-    closeAllProfileMenus();
-    if (shouldOpen) menu.classList.add('show');
-}
-document.addEventListener('click', function (event) {
-    const target = event.target;
-    if (!target.closest('.page-header-profile-widget') && !target.closest('.sidebar-profile-widget')) {
-        closeAllProfileMenus();
-    }
-});
 function toggleEdit(id) {
     const row = document.getElementById('edit-row-' + id);
     if (!row) return;

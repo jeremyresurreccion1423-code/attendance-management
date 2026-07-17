@@ -342,6 +342,7 @@
 <script th:src="@{/js/forms.js}"></script>
 <script th:src="@{/js/lookup-filter.js(v=3)}"></script>
 <script th:src="@{/js/layout.js}"></script>
+<script th:src="@{/js/profile-menu.js}"></script>
 <script>
 async function refreshDepartmentTags() {
     const container = document.getElementById('departmentTags');
@@ -357,23 +358,6 @@ async function refreshDepartmentTags() {
     }
 }
 document.addEventListener('DOMContentLoaded', refreshDepartmentTags);
-function closeAllProfileMenus() {
-    document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));
-}
-function toggleProfileMenu(button) {
-    const widget = button.closest('.page-header-profile-widget') || button.closest('.sidebar-profile-widget');
-    const menu = widget ? widget.querySelector('.profile-menu') : null;
-    if (!menu) return;
-    const shouldOpen = !menu.classList.contains('show');
-    closeAllProfileMenus();
-    if (shouldOpen) menu.classList.add('show');
-}
-document.addEventListener('click', function (event) {
-    const target = event.target;
-    if (!target.closest('.page-header-profile-widget') && !target.closest('.sidebar-profile-widget')) {
-        closeAllProfileMenus();
-    }
-});
 
 function switchCreateTab(tabId) {
     if (!tabId) return;

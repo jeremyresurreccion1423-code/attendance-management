@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +6,7 @@
     <link rel="stylesheet" th:href="@{/css/style.css(v=19)}">
 </head>
 <body class="admin-theme">
-<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">☰</button>
+<button type="button" class="sidebar-toggle-btn" data-sidebar-toggle aria-label="Toggle sidebar" aria-expanded="true">â˜°</button>
 <div class="app-layout">
     <div th:replace="~{fragments/admin-sidebar :: sidebar('ams-subjects')}"></div>
     <main class="main-content">
@@ -33,7 +33,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3>Subjects - <span th:text="${selectedDepartmentName}"></span></h3>
-                    <a th:href="@{|/admin/subjects|}" class="btn btn-secondary">← Back to Departments</a>
+                    <a th:href="@{|/admin/subjects|}" class="btn btn-secondary">â† Back to Departments</a>
                 </div>
             </div>
 
@@ -183,24 +183,9 @@ document.addEventListener('DOMContentLoaded', () => {
         defaultPageSize: 9999,
     });
 });
-function closeAllProfileMenus() {
-    document.querySelectorAll('.profile-menu').forEach(menu => menu.classList.remove('show'));
-}
-function toggleProfileMenu(button) {
-    const widget = button.closest('.page-header-profile-widget') || button.closest('.sidebar-profile-widget');
-    const menu = widget ? widget.querySelector('.profile-menu') : null;
-    if (!menu) return;
-    const shouldOpen = !menu.classList.contains('show');
-    closeAllProfileMenus();
-    if (shouldOpen) menu.classList.add('show');
-}
-document.addEventListener('click', function (event) {
-    const target = event.target;
-    if (!target.closest('.page-header-profile-widget') && !target.closest('.sidebar-profile-widget')) {
-        closeAllProfileMenus();
-    }
-});
-
+</script>
+<script th:src="@{/js/profile-menu.js}"></script>
+<script>
 function bindAssignWidget(widget) {
     const searchInput = widget.querySelector('[data-assign-search]');
     const items = Array.from(widget.querySelectorAll('.assign-student-item'));
